@@ -37,11 +37,15 @@ export default async function WorkspaceOverviewPage({ params }: WorkspacePagePro
   const totalProjects = workspace.projects.length;
   const projectIds = workspace.projects.map((p) => p.id);
 
-  const [totalIssues, inProgressIssues, doneIssues] = await Promise.all([
-    prisma.issue.count({ where: { projectId: { in: projectIds } } }),
-    prisma.issue.count({ where: { projectId: { in: projectIds }, status: "IN_PROGRESS" } }),
-    prisma.issue.count({ where: { projectId: { in: projectIds }, status: "DONE" } }),
-  ]);
+  const groupedIssues = await prisma.issue.groupBy({
+    by: ['status'],
+    where: { projectId: { in: projectIds } },
+    _count: true
+  });
+
+  const totalIssues = groupedIssues.reduce((acc, curr) => acc + curr._count, 0);
+  const inProgressIssues = groupedIssues.find(g => g.status === "IN_PROGRESS")?._count || 0;
+  const doneIssues = groupedIssues.find(g => g.status === "DONE")?._count || 0;
 
   const recentAssignedIssues = await prisma.issue.findMany({
     where: {

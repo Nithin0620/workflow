@@ -27,12 +27,16 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
 
   const projectIds = workspace.projects.map((p) => p.id);
 
-  const [totalIssues, doneIssues, inProgressIssues, urgentIssues] = await Promise.all([
-    prisma.issue.count({ where: { projectId: { in: projectIds } } }),
-    prisma.issue.count({ where: { projectId: { in: projectIds }, status: "DONE" } }),
-    prisma.issue.count({ where: { projectId: { in: projectIds }, status: "IN_PROGRESS" } }),
-    prisma.issue.count({ where: { projectId: { in: projectIds }, priority: "URGENT" } }),
-  ]);
+  const groupedIssues = await prisma.issue.groupBy({
+    by: ['status', 'priority'],
+    where: { projectId: { in: projectIds } },
+    _count: true
+  });
+
+  const totalIssues = groupedIssues.reduce((acc, curr) => acc + curr._count, 0);
+  const doneIssues = groupedIssues.filter(g => g.status === "DONE").reduce((acc, curr) => acc + curr._count, 0);
+  const inProgressIssues = groupedIssues.filter(g => g.status === "IN_PROGRESS").reduce((acc, curr) => acc + curr._count, 0);
+  const urgentIssues = groupedIssues.filter(g => g.priority === "URGENT").reduce((acc, curr) => acc + curr._count, 0);
 
   const completionRate = totalIssues > 0 ? Math.round((doneIssues / totalIssues) * 100) : 0;
 
