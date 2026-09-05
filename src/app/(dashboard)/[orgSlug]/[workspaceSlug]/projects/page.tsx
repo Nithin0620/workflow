@@ -33,13 +33,13 @@ export default async function ProjectsPage({ params }: ProjectsPageProps) {
   if (!workspace) return null;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex items-center justify-between border-b border-neutral-200 pb-4 dark:border-neutral-800">
+    <div className="max-w-6xl mx-auto space-y-6 text-white">
+      <div className="flex items-center justify-between border-b border-neutral-900 pb-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
+          <h1 className="text-xl font-bold tracking-tight text-white">
             Projects
           </h1>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+          <p className="text-xs text-neutral-400 mt-0.5">
             Manage codebases, roadmaps, and teams in {workspace.name}
           </p>
         </div>
@@ -50,35 +50,34 @@ export default async function ProjectsPage({ params }: ProjectsPageProps) {
           <Link
             key={p.id}
             href={`/${orgSlug}/${workspaceSlug}/projects/${p.key}/board`}
-            className="group flex flex-col justify-between rounded-xl border border-neutral-200 bg-white p-5 shadow-sm transition hover:border-blue-500 hover:shadow-md dark:border-neutral-800 dark:bg-neutral-900"
+            className="group flex flex-col justify-between rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-lg transition hover:border-neutral-600 hover:bg-neutral-900"
           >
             <div>
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <div
-                    className="flex h-9 w-9 items-center justify-center rounded-lg font-bold text-white text-xs shadow"
-                    style={{ backgroundColor: p.color || "#3b82f6" }}
+                    className="flex h-9 w-9 items-center justify-center rounded-xl font-black text-black bg-white text-xs shadow"
                   >
                     {p.key.slice(0, 2)}
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    <h3 className="text-sm font-bold text-white group-hover:text-neutral-200 transition-colors">
                       {p.name}
                     </h3>
-                    <span className="font-mono text-xs text-neutral-400">{p.key}</span>
+                    <span className="font-mono text-xs text-neutral-500">{p.key}</span>
                   </div>
                 </div>
-                <ArrowUpRight className="h-4 w-4 text-neutral-400 group-hover:text-blue-600 transition" />
+                <ArrowUpRight className="h-4 w-4 text-neutral-500 group-hover:text-white transition" />
               </div>
 
-              <p className="mt-3 text-xs text-neutral-600 dark:text-neutral-400 line-clamp-2">
+              <p className="mt-4 text-xs text-neutral-400 line-clamp-2 leading-relaxed">
                 {p.description || "No description provided."}
               </p>
             </div>
 
-            <div className="mt-6 flex items-center justify-between border-t border-neutral-100 pt-3 dark:border-neutral-800 text-xs text-neutral-500">
+            <div className="mt-6 flex items-center justify-between border-t border-neutral-900 pt-3 text-xs text-neutral-400">
               <span>{p._count.issues} active issues</span>
-              <span className="text-blue-600 dark:text-blue-400 font-medium">Kanban Board →</span>
+              <span className="text-white font-semibold group-hover:underline">Kanban Board →</span>
             </div>
           </Link>
         ))}

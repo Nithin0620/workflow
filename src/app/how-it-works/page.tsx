@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getCurrentUser } from "@/lib/auth/session";
 import { PublicNavbar } from "@/components/common/public-navbar";
 import {
   ArrowRight,
@@ -16,7 +17,13 @@ import {
   GitBranch,
 } from "lucide-react";
 
-export default function HowItWorksPage() {
+export default async function HowItWorksPage() {
+  const user = await getCurrentUser();
+
+  const userWorkspaceUrl =
+    user?.workspaceMembers[0]?.workspace?.organization
+      ? `/${user.workspaceMembers[0].workspace.organization.slug}/${user.workspaceMembers[0].workspace.slug}`
+      : null;
   const steps = [
     {
       number: "01",
@@ -96,7 +103,7 @@ export default function HowItWorksPage() {
   return (
     <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
       {/* 1. TOP NAVIGATION - PURE BLACK */}
-      <PublicNavbar theme="dark" />
+      <PublicNavbar theme="dark" workspaceUrl={userWorkspaceUrl} />
 
       {/* 2. HERO HEADER - PURE BLACK */}
       <section className="border-b border-neutral-900 bg-black px-6 pt-20 pb-16 text-center space-y-6">
@@ -256,13 +263,23 @@ export default function HowItWorksPage() {
             Create your account in seconds with Google, GitHub, or Email. Or get in touch for custom enterprise onboarding.
           </p>
           <div className="flex items-center justify-center gap-4">
-            <Link
-              href="/register"
-              className="flex items-center gap-2 rounded-xl bg-black px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-xl hover:bg-neutral-800 transition"
-            >
-              <span>Create Free Account</span>
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+            {userWorkspaceUrl ? (
+              <Link
+                href={userWorkspaceUrl}
+                className="flex items-center gap-2 rounded-xl bg-black px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-xl hover:bg-neutral-800 transition"
+              >
+                <span>Go to Workspace</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            ) : (
+              <Link
+                href="/register"
+                className="flex items-center gap-2 rounded-xl bg-black px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-xl hover:bg-neutral-800 transition"
+              >
+                <span>Create Free Account</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            )}
             <Link
               href="/contact"
               className="rounded-xl border border-neutral-300 bg-white px-6 py-3.5 text-xs sm:text-sm font-semibold text-black hover:border-black transition"

@@ -1,7 +1,8 @@
-import { getCurrentUser } from "@/lib/auth/session";
+import { getCurrentUser, requireProjectAccess } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import { notFound, redirect } from "next/navigation";
 import { KanbanBoard } from "@/components/issues/kanban-board";
+import { getProjectColumns } from "@/actions/columns";
 
 interface BoardPageProps {
   params: Promise<{
@@ -40,12 +41,29 @@ export default async function ProjectBoardPage({ params }: BoardPageProps) {
     notFound();
   }
 
+  // Determine user's role on this project (OWNER, EDITOR, VIEWER)
+  let userRole = "EDITOR";
+  try {
+    const access = await requireProjectAccess(project.id);
+    userRole = access.projectRole;
+  } catch {
+    userRole = "VIEWER";
+  }
+
+  // Fetch or initialize project columns
+  const columns = await getProjectColumns(project.id);
+
   return (
     <div className="h-full">
       <KanbanBoard
         projectId={project.id}
         projectKey={project.key}
         projectName={project.name}
+        orgSlug={orgSlug}
+        workspaceSlug={workspaceSlug}
+        userRole={userRole}
+        currentUserId={user.id}
+        initialColumns={columns}
         initialIssues={project.issues}
       />
     </div>

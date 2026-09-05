@@ -1,7 +1,8 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./options";
 import { prisma } from "@/lib/db/prisma";
-import { UserRole } from "@prisma/client";
+import { UserRole, ProjectRole } from "@prisma/client";
+import { provisionDefaultUserWorkspace } from "./provisioning";
 
 /**
  * Retrieves the current session from the server context
@@ -19,7 +20,7 @@ export async function getCurrentUser() {
     return null;
   }
 
-  const user = await prisma.user.findUnique({
+  let user = await prisma.user.findUnique({
     where: { email: session.user.email },
     include: {
       workspaceMembers: {
@@ -33,6 +34,28 @@ export async function getCurrentUser() {
       },
     },
   });
+
+  // If user signed up via OAuth (Google/GitHub) and doesn't have a workspace yet, auto-provision
+  if (user && user.workspaceMembers.length === 0) {
+    await prisma.$transaction(async (tx) => {
+      await provisionDefaultUserWorkspace(tx, user!);
+    });
+
+    user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      include: {
+        workspaceMembers: {
+          include: {
+            workspace: {
+              include: {
+                organization: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
 
   return user;
 }
@@ -76,3 +99,53 @@ export async function requireWorkspaceMember(workspaceId: string, allowedRoles?:
 
   return { user, membership, workspace: membership.workspace };
 }
+
+/**
+ * Verifies and returns project-level access and role for current user
+ */
+export async function requireProjectAccess(
+  projectId: string,
+  minRole?: "OWNER" | "EDITOR" | "VIEWER"
+) {
+  const user = await requireAuth();
+
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    include: {
+      workspace: true,
+      members: {
+        where: { userId: user.id },
+      },
+    },
+  });
+
+  if (!project) {
+    throw new Error("Project not found.");
+  }
+
+  const { membership } = await requireWorkspaceMember(project.workspaceId);
+
+  let projectRole: ProjectRole;
+
+  if (membership.role === "OWNER" || membership.role === "ADMIN") {
+    projectRole = "OWNER";
+  } else if (project.members.length > 0) {
+    projectRole = project.members[0].role;
+  } else if (project.isPrivate) {
+    throw new Error("Forbidden: This project is restricted to assigned members.");
+  } else {
+    // Workspace fallback
+    projectRole = membership.role === "VIEWER" ? "VIEWER" : "EDITOR";
+  }
+
+  if (minRole === "OWNER" && projectRole !== "OWNER") {
+    throw new Error("Forbidden: Project Owner access is required for this action.");
+  }
+
+  if (minRole === "EDITOR" && projectRole === "VIEWER") {
+    throw new Error("Forbidden: You have read-only access to this project.");
+  }
+
+  return { user, project, projectRole, workspaceMembership: membership };
+}
+

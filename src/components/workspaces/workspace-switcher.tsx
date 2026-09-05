@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { CreateWorkspaceDialog } from "./create-workspace-dialog";
 import { Building2, ChevronDown, Plus, Check } from "lucide-react";
 
 interface WorkspaceItem {
@@ -28,6 +29,7 @@ export function WorkspaceSwitcher({
 }: WorkspaceSwitcherProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   const currentWorkspace = workspaces.find(
     (w) => w.organization.slug === currentOrgSlug && w.slug === currentWorkspaceSlug
@@ -61,12 +63,12 @@ export function WorkspaceSwitcher({
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute left-0 top-full z-50 mt-1.5 w-64 rounded-xl border border-neutral-800 bg-neutral-950 p-1.5 shadow-2xl text-white">
-            <div className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider text-neutral-500 font-mono">
-              WORKSPACES
+          <div className="absolute left-0 right-0 top-full z-50 mt-1.5 min-w-[240px] rounded-2xl border border-neutral-800 bg-neutral-950 p-1.5 shadow-2xl text-white animate-in fade-in zoom-in-95 duration-100">
+            <div className="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-neutral-500 font-mono">
+              WORKSPACES ({workspaces.length})
             </div>
 
-            <div className="space-y-0.5">
+            <div className="space-y-0.5 max-h-56 overflow-y-auto">
               {workspaces.map((w) => {
                 const isActive =
                   w.organization.slug === currentOrgSlug && w.slug === currentWorkspaceSlug;
@@ -77,7 +79,7 @@ export function WorkspaceSwitcher({
                       setOpen(false);
                       router.push(`/${w.organization.slug}/${w.slug}`);
                     }}
-                    className={`flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-xs font-medium transition ${
+                    className={`flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-xs font-medium transition ${
                       isActive
                         ? "bg-white text-black font-bold"
                         : "text-neutral-300 hover:bg-neutral-900 hover:text-white"
@@ -92,9 +94,30 @@ export function WorkspaceSwitcher({
                 );
               })}
             </div>
+
+            {/* Create Workspace Action */}
+            <div className="mt-1.5 pt-1.5 border-t border-neutral-900">
+              <button
+                onClick={() => {
+                  setOpen(false);
+                  setCreateDialogOpen(true);
+                }}
+                className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold text-neutral-300 hover:bg-neutral-900 hover:text-white transition"
+              >
+                <Plus className="h-4 w-4 text-white" />
+                <span>Create New Workspace</span>
+              </button>
+            </div>
           </div>
         </>
       )}
+
+      {/* Create Workspace Modal */}
+      <CreateWorkspaceDialog
+        orgSlug={currentOrgSlug}
+        isOpen={createDialogOpen}
+        onClose={() => setCreateDialogOpen(false)}
+      />
     </div>
   );
 }

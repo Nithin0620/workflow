@@ -38,3 +38,15 @@ export const inviteMemberSchema = z.object({
   email: z.string().email("Invalid email address"),
   role: z.enum(["ADMIN", "MEMBER", "VIEWER"]).default("MEMBER"),
 });
+
+export const createBoardColumnSchema = z.object({
+  name: z.string().min(1, "Column name is required").max(30, "Column name cannot exceed 30 characters"),
+  color: z.string().regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/, "Invalid color hex").optional().default("#737373"),
+});
+
+export const updateBoardColumnSchema = z.object({
+  name: z.string().min(1, "Column name is required").max(30, "Column name cannot exceed 30 characters").optional(),
+  color: z.string().regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/, "Invalid color hex").optional(),
+  order: z.number().int().min(0).optional(),
+});
+

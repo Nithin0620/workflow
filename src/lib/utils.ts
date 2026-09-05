@@ -11,13 +11,19 @@ export function cn(...inputs: ClassValue[]) {
 /**
  * Formats a date string or timestamp into a human-friendly format
  */
-export function formatDate(date: Date | string | number): string {
-  const d = new Date(date);
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(d);
+export function formatDate(date?: Date | string | number | null): string {
+  if (!date) return "";
+  try {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return "";
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }).format(d);
+  } catch {
+    return "";
+  }
 }
 
 /**

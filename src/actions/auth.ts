@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/db/prisma";
 import { hashPassword } from "@/lib/auth/password";
+import { provisionDefaultUserWorkspace } from "@/lib/auth/provisioning";
 import { slugify } from "@/lib/utils";
 import { z } from "zod";
 
@@ -36,7 +37,7 @@ export async function registerUser(input: RegisterInput) {
   // Hash password
   const passwordHash = await hashPassword(password);
 
-  // Create user + default Organization + default Workspace in a transaction
+  // Create user + default Organization + Workspace + Starter Demo Project in a single ACID transaction
   const result = await prisma.$transaction(async (tx) => {
     const user = await tx.user.create({
       data: {
@@ -46,33 +47,15 @@ export async function registerUser(input: RegisterInput) {
       },
     });
 
-    const orgSlug = `${slugify(name)}-org-${Math.random().toString(36).substring(2, 6)}`;
-    const org = await tx.organization.create({
-      data: {
-        name: `${name}'s Organization`,
-        slug: orgSlug,
-        ownerId: user.id,
-      },
-    });
+    const { org, workspace, project } = await provisionDefaultUserWorkspace(tx, user);
 
-    const workspace = await tx.workspace.create({
-      data: {
-        name: "General Workspace",
-        slug: "general",
-        organizationId: org.id,
-      },
-    });
-
-    await tx.workspaceMember.create({
-      data: {
-        workspaceId: workspace.id,
-        userId: user.id,
-        role: "OWNER",
-      },
-    });
-
-    return { user, org, workspace };
+    return { user, org, workspace, project };
   });
 
-  return { success: true, userId: result.user.id, defaultOrgSlug: result.org.slug, defaultWorkspaceSlug: result.workspace.slug };
+  return {
+    success: true,
+    userId: result.user.id,
+    defaultOrgSlug: result.org.slug,
+    defaultWorkspaceSlug: result.workspace.slug,
+  };
 }

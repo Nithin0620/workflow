@@ -3,18 +3,44 @@
 import { useState } from "react";
 import { IssueStatus, IssuePriority } from "@prisma/client";
 import { KanbanColumn } from "./kanban-column";
+import { IssueListView } from "./issue-list-view";
 import { CreateIssueDialog } from "./create-issue-dialog";
+import { CreateColumnDialog } from "./create-column-dialog";
+import { EditColumnDialog } from "./edit-column-dialog";
 import { IssueDetailModal } from "./issue-detail-modal";
+import { ProjectPermissionsDialog } from "@/components/projects/project-permissions-dialog";
 import { ISSUE_STATUSES } from "@/lib/constants";
 import { moveIssue } from "@/actions/issues";
-import { Plus, Search } from "lucide-react";
+import { reorderBoardColumns } from "@/actions/columns";
+import { exportProjectIssues } from "@/actions/export";
+import { useProjectRealtime } from "@/hooks/use-project-realtime";
+import {
+  Plus,
+  Search,
+  Kanban,
+  List,
+  Shield,
+  LayoutGrid,
+  Download,
+  UserCheck,
+  AlertCircle,
+  X,
+} from "lucide-react";
+
+export interface BoardColumnItem {
+  id: string;
+  name: string;
+  key: string;
+  color: string;
+  order: number;
+}
 
 export interface IssueItem {
   id: string;
   projectKey: string;
   issueNumber: number;
   title: string;
-  status: IssueStatus;
+  status: string; // supports default or custom list keys
   priority: IssuePriority;
   estimate?: number | null;
   assignee?: { id: string; name?: string | null; image?: string | null } | null;
@@ -25,6 +51,11 @@ interface KanbanBoardProps {
   projectId: string;
   projectKey: string;
   projectName: string;
+  orgSlug?: string;
+  workspaceSlug?: string;
+  userRole?: string; // "OWNER", "EDITOR", "VIEWER"
+  currentUserId?: string;
+  initialColumns?: BoardColumnItem[];
   initialIssues: IssueItem[];
 }
 
@@ -32,32 +63,151 @@ export function KanbanBoard({
   projectId,
   projectKey,
   projectName,
+  orgSlug = "",
+  workspaceSlug = "",
+  userRole = "EDITOR",
+  currentUserId = "",
+  initialColumns = [],
   initialIssues,
 }: KanbanBoardProps) {
-  const [issues, setIssues] = useState<IssueItem[]>(initialIssues);
-  const [search, setSearch] = useState("");
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState<IssueStatus>("TODO");
-  const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
+  // Ensure default 6 columns fallback if initialColumns is empty
+  const defaultCols: BoardColumnItem[] = ISSUE_STATUSES.map((s, idx) => ({
+    id: `default_${s.id}`,
+    name: s.label,
+    key: s.id,
+    color: "#737373",
+    order: idx * 1000,
+  }));
 
-  const filteredIssues = issues.filter(
-    (i) =>
-      i.title.toLowerCase().includes(search.toLowerCase()) ||
-      `${i.projectKey}-${i.issueNumber}`.toLowerCase().includes(search.toLowerCase())
+  const [columns, setColumns] = useState<BoardColumnItem[]>(
+    initialColumns.length > 0 ? initialColumns : defaultCols
   );
+  const [draggedOverColumnId, setDraggedOverColumnId] = useState<string | null>(null);
+  const [issues, setIssues] = useState<IssueItem[]>(initialIssues);
+  const [viewMode, setViewMode] = useState<"board" | "list">("board");
+  const [search, setSearch] = useState("");
+  const [selectedPriority, setSelectedPriority] = useState<string>("ALL");
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("ALL");
+  const [onlyMyIssues, setOnlyMyIssues] = useState(false);
+  const [onlyUrgent, setOnlyUrgent] = useState(false);
 
-  const handleDropIssue = async (issueId: string, targetStatus: IssueStatus) => {
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [createColumnDialogOpen, setCreateColumnDialogOpen] = useState(false);
+  const [editingColumn, setEditingColumn] = useState<BoardColumnItem | null>(null);
+  const [permissionsDialogOpen, setPermissionsDialogOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<string>("TODO");
+  const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
+  const [exporting, setExporting] = useState<"csv" | "json" | null>(null);
+
+  const canManageBoard = userRole === "OWNER";
+
+  // Connect to real-time live synchronization (SSE)
+  const { isConnected } = useProjectRealtime({
+    projectId,
+    onEvent: (event) => {
+      if (event.type === "ISSUE_CREATED" && event.data.issue) {
+        const newIssue = event.data.issue as IssueItem;
+        setIssues((prev) => {
+          if (prev.some((i) => i.id === newIssue.id)) return prev;
+          return [...prev, newIssue];
+        });
+      } else if (event.type === "ISSUE_MOVED" && event.data.issueId && event.data.targetStatus) {
+        setIssues((prev) =>
+          prev.map((i) =>
+            i.id === event.data.issueId
+              ? { ...i, status: event.data.targetStatus as string }
+              : i
+          )
+        );
+      } else if (event.type === "ISSUE_UPDATED" && event.data.issue) {
+        const updated = event.data.issue;
+        setIssues((prev) =>
+          prev.map((i) =>
+            i.id === updated.id
+              ? {
+                  ...i,
+                  title: updated.title,
+                  status: updated.status,
+                  priority: updated.priority,
+                  estimate: updated.estimate,
+                  assignee: updated.assignee,
+                }
+              : i
+          )
+        );
+      } else if (event.type === "ISSUE_DELETED" && event.data.issueId) {
+        setIssues((prev) => prev.filter((i) => i.id !== event.data.issueId));
+      } else if (event.type === "COMMENT_ADDED" && event.data.issueId) {
+        setIssues((prev) =>
+          prev.map((i) =>
+            i.id === event.data.issueId
+              ? {
+                  ...i,
+                  _count: {
+                    comments: (i._count?.comments || 0) + 1,
+                    attachments: i._count?.attachments || 0,
+                  },
+                }
+              : i
+          )
+        );
+      } else if (event.type === "COLUMN_CREATED" && event.data.column) {
+        const newCol = event.data.column as BoardColumnItem;
+        setColumns((prev) => {
+          if (prev.some((c) => c.id === newCol.id || c.key === newCol.key)) return prev;
+          return [...prev, newCol].sort((a, b) => a.order - b.order);
+        });
+      } else if (event.type === "COLUMN_UPDATED") {
+        if (event.data.column) {
+          const updatedCol = event.data.column as BoardColumnItem;
+          setColumns((prev) =>
+            prev
+              .map((c) => (c.id === updatedCol.id ? { ...c, ...updatedCol } : c))
+              .sort((a, b) => a.order - b.order)
+          );
+        } else if (event.data.reorderedIds) {
+          const idOrder = event.data.reorderedIds as string[];
+          setColumns((prev) => {
+            const map = new Map(prev.map((c) => [c.id, c]));
+            return idOrder.map((id) => map.get(id)!).filter(Boolean);
+          });
+        }
+      } else if (event.type === "COLUMN_DELETED" && event.data.columnId) {
+        setColumns((prev) => prev.filter((c) => c.id !== event.data.columnId));
+      }
+    },
+  });
+
+  const filteredIssues = issues.filter((i) => {
+    const matchesSearch =
+      i.title.toLowerCase().includes(search.toLowerCase()) ||
+      `${i.projectKey}-${i.issueNumber}`.toLowerCase().includes(search.toLowerCase());
+
+    const matchesPriority =
+      selectedPriority === "ALL" || i.priority === selectedPriority;
+
+    const matchesStatus =
+      selectedStatusFilter === "ALL" || i.status === selectedStatusFilter;
+
+    const matchesAssignee = !onlyMyIssues || (currentUserId && i.assignee?.id === currentUserId);
+
+    const matchesUrgent = !onlyUrgent || (i.priority === "URGENT" || i.priority === "HIGH");
+
+    return matchesSearch && matchesPriority && matchesStatus && matchesAssignee && matchesUrgent;
+  });
+
+  const handleDropIssue = async (issueId: string, targetStatusKey: string) => {
     // Optimistic UI update
     setIssues((prev) =>
-      prev.map((item) => (item.id === issueId ? { ...item, status: targetStatus } : item))
+      prev.map((item) => (item.id === issueId ? { ...item, status: targetStatusKey } : item))
     );
 
     // Call server action
-    await moveIssue(issueId, targetStatus, 1000);
+    await moveIssue(issueId, targetStatusKey as any, 1000);
   };
 
-  const handleAddIssue = (status: IssueStatus) => {
-    setSelectedStatus(status);
+  const handleAddIssue = (statusKey: string) => {
+    setSelectedStatus(statusKey);
     setCreateDialogOpen(true);
   };
 
@@ -74,35 +224,212 @@ export function KanbanBoard({
     );
   };
 
+  // Drag-and-drop column reordering (Owner & Co-owner only)
+  const handleColumnDrop = async (e: React.DragEvent, targetColumnId: string) => {
+    setDraggedOverColumnId(null);
+    if (!canManageBoard) return;
+    const sourceColumnId = e.dataTransfer.getData("columnId");
+    if (!sourceColumnId || sourceColumnId === targetColumnId) return;
+
+    const sourceIdx = columns.findIndex((c) => c.id === sourceColumnId);
+    const targetIdx = columns.findIndex((c) => c.id === targetColumnId);
+
+    if (sourceIdx === -1 || targetIdx === -1) return;
+
+    const newCols = [...columns];
+    const [moved] = newCols.splice(sourceIdx, 1);
+    newCols.splice(targetIdx, 0, moved);
+
+    // Optimistic update
+    setColumns(newCols);
+
+    // Persist to database
+    await reorderBoardColumns(
+      projectId,
+      newCols.map((c) => c.id)
+    );
+  };
+
+  // Handle Export (CSV / JSON)
+  const handleExport = async (format: "csv" | "json") => {
+    setExporting(format);
+    try {
+      const res = await exportProjectIssues(projectId, format);
+      if (res.success && res.data) {
+        const blob = new Blob([res.data], { type: res.mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = res.filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    } catch {
+      alert("Failed to export issues.");
+    } finally {
+      setExporting(null);
+    }
+  };
+
   return (
     <div className="flex h-full flex-col space-y-4">
       {/* Board Top Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200 pb-4 dark:border-neutral-800">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-900 pb-4">
+        {/* Title, Key & Realtime Status */}
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
+          <h1 className="text-xl font-extrabold tracking-tight text-white">
             {projectName}
           </h1>
-          <span className="font-mono text-xs rounded-md bg-neutral-100 px-2 py-0.5 font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
+          <span className="font-mono text-xs rounded-md bg-neutral-900 border border-neutral-800 px-2 py-0.5 font-bold text-neutral-300">
             {projectKey}
           </span>
+          <div
+            title={isConnected ? "Live real-time sync active" : "Attempting real-time connection..."}
+            className="flex items-center gap-1.5 rounded-full border border-neutral-800 bg-neutral-950 px-2.5 py-0.5 text-[11px] font-medium text-neutral-400 select-none"
+          >
+            <span
+              className={`h-2 w-2 rounded-full ${
+                isConnected
+                  ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse"
+                  : "bg-neutral-600"
+              }`}
+            />
+            <span className="text-[10px] tracking-wide uppercase font-semibold text-neutral-300">
+              {isConnected ? "Live" : "Connecting"}
+            </span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        {/* View Switcher, Filters & Actions */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* View Mode Toggle */}
+          <div className="flex items-center rounded-xl border border-neutral-800 bg-neutral-950 p-1">
+            <button
+              onClick={() => setViewMode("board")}
+              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
+                viewMode === "board"
+                  ? "bg-white text-black shadow-sm"
+                  : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              <Kanban className="h-3.5 w-3.5" />
+              <span>Board</span>
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
+                viewMode === "list"
+                  ? "bg-white text-black shadow-sm"
+                  : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              <List className="h-3.5 w-3.5" />
+              <span>List</span>
+            </button>
+          </div>
+
+          {/* Quick Filter Pills */}
+          <button
+            onClick={() => setOnlyMyIssues((prev) => !prev)}
+            className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-bold transition ${
+              onlyMyIssues
+                ? "border-white bg-white text-black shadow-md"
+                : "border-neutral-800 bg-neutral-950 text-neutral-400 hover:border-neutral-700 hover:text-white"
+            }`}
+          >
+            <UserCheck className="h-3.5 w-3.5" />
+            <span>Assigned to Me</span>
+          </button>
+
+          <button
+            onClick={() => setOnlyUrgent((prev) => !prev)}
+            className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-bold transition ${
+              onlyUrgent
+                ? "border-rose-500 bg-rose-500 text-white shadow-md shadow-rose-950"
+                : "border-neutral-800 bg-neutral-950 text-neutral-400 hover:border-neutral-700 hover:text-white"
+            }`}
+          >
+            <AlertCircle className="h-3.5 w-3.5" />
+            <span>Urgent / High</span>
+          </button>
+
+          {(onlyMyIssues || onlyUrgent || search || selectedPriority !== "ALL" || selectedStatusFilter !== "ALL") && (
+            <button
+              onClick={() => {
+                setOnlyMyIssues(false);
+                setOnlyUrgent(false);
+                setSearch("");
+                setSelectedPriority("ALL");
+                setSelectedStatusFilter("ALL");
+              }}
+              title="Reset all filters"
+              className="flex items-center gap-1 rounded-xl border border-neutral-800 bg-neutral-900 px-2 py-1.5 text-xs text-neutral-400 hover:text-white transition"
+            >
+              <X className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Reset</span>
+            </button>
+          )}
+
           {/* Search Bar */}
           <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-neutral-400" />
+            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-neutral-500" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Filter issues..."
-              className="w-48 sm:w-64 rounded-lg border border-neutral-200 bg-white py-1.5 pl-8 pr-3 text-xs text-neutral-900 placeholder:text-neutral-400 focus:border-blue-500 focus:outline-none dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100"
+              placeholder="Search issues..."
+              className="w-32 sm:w-44 rounded-xl border border-neutral-800 bg-neutral-950 py-1.5 pl-8 pr-3 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
             />
           </div>
 
+          {/* Export Menu */}
+          <div className="flex items-center rounded-xl border border-neutral-800 bg-neutral-950 p-0.5">
+            <button
+              onClick={() => handleExport("csv")}
+              disabled={exporting !== null}
+              title="Export issues to CSV"
+              className="px-2 py-1 text-[11px] font-bold text-neutral-400 hover:text-white transition"
+            >
+              {exporting === "csv" ? "..." : "CSV"}
+            </button>
+            <span className="text-neutral-800">|</span>
+            <button
+              onClick={() => handleExport("json")}
+              disabled={exporting !== null}
+              title="Export issues to JSON"
+              className="px-2 py-1 text-[11px] font-bold text-neutral-400 hover:text-white transition"
+            >
+              {exporting === "json" ? "..." : "JSON"}
+            </button>
+          </div>
+
+          {/* Add List / Column Button for Owner/Co-owner */}
+          {canManageBoard && (
+            <button
+              onClick={() => setCreateColumnDialogOpen(true)}
+              title="Add a new custom list/column"
+              className="flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
+            >
+              <LayoutGrid className="h-3.5 w-3.5 text-neutral-400" />
+              <span className="hidden sm:inline">Add List</span>
+            </button>
+          )}
+
+          {/* Project Access & Permissions */}
           <button
-            onClick={() => handleAddIssue("TODO")}
-            className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow transition hover:bg-blue-700"
+            onClick={() => setPermissionsDialogOpen(true)}
+            title="Manage Project Access & Granular Permissions"
+            className="flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
+          >
+            <Shield className="h-3.5 w-3.5 text-neutral-400" />
+            <span className="hidden sm:inline">Access</span>
+          </button>
+
+          <button
+            onClick={() => handleAddIssue(columns[0]?.key || "TODO")}
+            className="flex items-center gap-1.5 rounded-xl bg-white px-3.5 py-1.5 text-xs font-bold text-black shadow-lg transition hover:bg-neutral-200"
           >
             <Plus className="h-4 w-4" />
             <span>New Issue</span>
@@ -110,21 +437,56 @@ export function KanbanBoard({
         </div>
       </div>
 
-      {/* Columns Container */}
-      <div className="flex flex-1 gap-4 overflow-x-auto pb-4">
-        {ISSUE_STATUSES.map((col) => (
-          <KanbanColumn
-            key={col.id}
-            id={col.id as IssueStatus}
-            label={col.label}
-            color={col.color}
-            issues={filteredIssues.filter((i) => i.status === col.id)}
-            onAddIssue={handleAddIssue}
+      {/* Main Content Area: Board or List */}
+      {viewMode === "board" ? (
+        <div className="flex flex-1 gap-4 overflow-x-auto pb-4 items-start">
+          {columns.map((col) => (
+            <KanbanColumn
+              key={col.id}
+              columnId={col.id}
+              id={col.key}
+              label={col.name}
+              color={col.color}
+              canManage={canManageBoard}
+              isColumnDragOver={draggedOverColumnId === col.id}
+              issues={filteredIssues.filter((i) => i.status === col.key)}
+              onAddIssue={handleAddIssue}
+              onSelectIssue={(issue) => setSelectedIssueId(issue.id)}
+              onDropIssue={handleDropIssue}
+              onEditColumn={() => setEditingColumn(col)}
+              onColumnDragStart={(_, colId) => {
+                // drag start
+              }}
+              onColumnDragOver={(_, targetColId) => {
+                setDraggedOverColumnId(targetColId);
+              }}
+              onColumnDragLeave={() => {
+                setDraggedOverColumnId(null);
+              }}
+              onColumnDrop={handleColumnDrop}
+            />
+          ))}
+
+          {/* Add Column Tile for Owners/Co-owners at the end of the board */}
+          {canManageBoard && (
+            <button
+              onClick={() => setCreateColumnDialogOpen(true)}
+              className="flex h-36 min-w-[200px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-neutral-800 bg-neutral-950/40 text-neutral-400 transition hover:border-neutral-600 hover:bg-neutral-900/60 hover:text-white"
+            >
+              <Plus className="h-5 w-5" />
+              <span className="text-xs font-bold uppercase tracking-wider">New List</span>
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="flex-1 pb-4">
+          <IssueListView
+            issues={filteredIssues}
             onSelectIssue={(issue) => setSelectedIssueId(issue.id)}
-            onDropIssue={handleDropIssue}
+            onStatusChange={(id, status) => handleDropIssue(id, status)}
           />
-        ))}
-      </div>
+        </div>
+      )}
 
       {/* Create Issue Dialog */}
       <CreateIssueDialog
@@ -133,6 +495,45 @@ export function KanbanBoard({
         isOpen={createDialogOpen}
         onClose={() => setCreateDialogOpen(false)}
         defaultStatus={selectedStatus}
+        columns={columns}
+      />
+
+      {/* Create Column Dialog */}
+      <CreateColumnDialog
+        projectId={projectId}
+        isOpen={createColumnDialogOpen}
+        onClose={() => setCreateColumnDialogOpen(false)}
+        onColumnCreated={(newCol) => {
+          setColumns((prev) => [...prev, newCol].sort((a, b) => a.order - b.order));
+        }}
+      />
+
+      {/* Edit Column Dialog */}
+      {editingColumn && (
+        <EditColumnDialog
+          column={editingColumn}
+          isOpen={!!editingColumn}
+          onClose={() => setEditingColumn(null)}
+          onColumnUpdated={(updated) => {
+            setColumns((prev) =>
+              prev.map((c) => (c.id === updated.id ? { ...c, ...updated } : c))
+            );
+          }}
+          onColumnDeleted={(deletedId) => {
+            setColumns((prev) => prev.filter((c) => c.id !== deletedId));
+          }}
+        />
+      )}
+
+      {/* Project Permissions & RBAC Dialog */}
+      <ProjectPermissionsDialog
+        projectId={projectId}
+        projectKey={projectKey}
+        projectName={projectName}
+        orgSlug={orgSlug}
+        workspaceSlug={workspaceSlug}
+        isOpen={permissionsDialogOpen}
+        onClose={() => setPermissionsDialogOpen(false)}
       />
 
       {/* Issue Detail & Discussion Modal */}
@@ -140,6 +541,9 @@ export function KanbanBoard({
         issueId={selectedIssueId}
         isOpen={!!selectedIssueId}
         onClose={() => setSelectedIssueId(null)}
+        onIssueDeleted={(deletedId) => {
+          setIssues((prev) => prev.filter((i) => i.id !== deletedId));
+        }}
         onIssueUpdated={handleIssueUpdated}
       />
     </div>

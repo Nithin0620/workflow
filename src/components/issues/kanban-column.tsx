@@ -1,48 +1,79 @@
 "use client";
 
-import { IssueStatus, IssuePriority } from "@prisma/client";
+import { useState } from "react";
+import { IssueItem } from "./kanban-board";
 import { IssueCard } from "./issue-card";
-import { Plus } from "lucide-react";
-
-interface IssueItem {
-  id: string;
-  projectKey: string;
-  issueNumber: number;
-  title: string;
-  status: IssueStatus;
-  priority: IssuePriority;
-  estimate?: number | null;
-  assignee?: { id: string; name?: string | null; image?: string | null } | null;
-  _count?: { comments: number; attachments: number };
-}
+import { Plus, MoreHorizontal, GripVertical } from "lucide-react";
 
 interface KanbanColumnProps {
-  id: IssueStatus;
+  id: string; // Column key (e.g. "TODO", "QA_TESTING")
+  columnId: string; // Database ID
   label: string;
-  color: string;
+  color?: string;
+  canManage?: boolean; // Project OWNER / Co-Owner
+  isColumnDragOver?: boolean;
   issues: IssueItem[];
-  onAddIssue: (status: IssueStatus) => void;
+  onAddIssue: (statusKey: string) => void;
   onSelectIssue: (issue: IssueItem) => void;
-  onDropIssue: (issueId: string, targetStatus: IssueStatus) => void;
+  onDropIssue: (issueId: string, targetStatusKey: string) => void;
+  onEditColumn?: () => void;
+  onColumnDragStart?: (e: React.DragEvent, columnId: string) => void;
+  onColumnDragOver?: (e: React.DragEvent, targetColumnId: string) => void;
+  onColumnDragLeave?: () => void;
+  onColumnDrop?: (e: React.DragEvent, targetColumnId: string) => void;
 }
 
 export function KanbanColumn({
   id,
+  columnId,
   label,
-  color,
+  color = "#737373",
+  canManage = false,
+  isColumnDragOver = false,
   issues,
   onAddIssue,
   onSelectIssue,
   onDropIssue,
+  onEditColumn,
+  onColumnDragStart,
+  onColumnDragOver,
+  onColumnDragLeave,
+  onColumnDrop,
 }: KanbanColumnProps) {
+  const [isCardOver, setIsCardOver] = useState(false);
+
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
+    const type = e.dataTransfer.types.includes("type") ? "column" : "issue";
+
+    if (type === "column" && onColumnDragOver) {
+      onColumnDragOver(e, columnId);
+    } else {
+      setIsCardOver(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    // Only unset if we're actually leaving this column container
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setIsCardOver(false);
+      if (onColumnDragLeave) onColumnDragLeave();
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    setIsCardOver(false);
+    if (onColumnDragLeave) onColumnDragLeave();
+
+    const type = e.dataTransfer.getData("type");
+    if (type === "column" && onColumnDrop) {
+      onColumnDrop(e, columnId);
+      return;
+    }
+
     const issueId = e.dataTransfer.getData("text/plain");
-    if (issueId) {
+    if (issueId && type !== "column") {
       onDropIssue(issueId, id);
     }
   };
@@ -50,36 +81,76 @@ export function KanbanColumn({
   return (
     <div
       onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className="flex h-full min-w-[280px] max-w-[320px] flex-1 flex-col rounded-2xl bg-neutral-100/70 p-3 border border-neutral-200"
+      className={`flex h-full min-w-[280px] max-w-[320px] flex-1 flex-col rounded-2xl bg-neutral-950 p-3.5 border transition-all duration-200 select-none ${
+        isColumnDragOver
+          ? "border-blue-500 bg-neutral-900/90 shadow-[0_0_20px_rgba(59,130,246,0.3)] ring-2 ring-blue-500/50"
+          : isCardOver
+          ? "border-neutral-500 bg-neutral-900/50"
+          : "border-neutral-800 shadow-xl"
+      }`}
     >
       {/* Column Header */}
-      <div className="flex items-center justify-between px-1.5 py-1">
-        <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-black" />
-          <h3 className="text-xs font-bold uppercase tracking-wider text-black">
+      <div className="flex items-center justify-between px-1 py-1">
+        <div className="flex items-center gap-2 truncate">
+          {/* Drag handle for reordering column (Owners and Co-owners only) */}
+          {canManage && onColumnDragStart && (
+            <div
+              draggable
+              onDragStart={(e) => {
+                e.dataTransfer.setData("type", "column");
+                e.dataTransfer.setData("columnId", columnId);
+                onColumnDragStart(e, columnId);
+              }}
+              title="Drag to reorder column"
+              className="cursor-grab active:cursor-grabbing text-neutral-600 hover:text-neutral-300 p-0.5 rounded transition hover:bg-neutral-900"
+            >
+              <GripVertical className="h-3.5 w-3.5" />
+            </div>
+          )}
+
+          <span
+            className="h-2.5 w-2.5 rounded-full shrink-0"
+            style={{ backgroundColor: color }}
+          />
+          <h3 className="text-xs font-bold uppercase tracking-wider text-white truncate max-w-[130px]">
             {label}
           </h3>
-          <span className="rounded-full bg-white border border-neutral-200 px-2 py-0.5 text-[10px] font-bold text-neutral-700 font-mono">
+          <span className="rounded-full bg-neutral-900 border border-neutral-800 px-2 py-0.5 text-[10px] font-bold text-neutral-300 font-mono">
             {issues.length}
           </span>
         </div>
 
-        <button
-          onClick={() => onAddIssue(id)}
-          className="rounded-lg p-1 text-neutral-500 hover:bg-white hover:text-black hover:shadow-sm transition"
-        >
-          <Plus className="h-4 w-4" />
-        </button>
+        <div className="flex items-center gap-1">
+          {canManage && onEditColumn && (
+            <button
+              onClick={onEditColumn}
+              title="Edit column"
+              className="rounded-lg p-1 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+            >
+              <MoreHorizontal className="h-3.5 w-3.5" />
+            </button>
+          )}
+
+          <button
+            onClick={() => onAddIssue(id)}
+            title={`Add issue to ${label}`}
+            className="rounded-lg p-1 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       {/* Cards container */}
-      <div className="mt-2.5 flex-1 space-y-2.5 overflow-y-auto pr-0.5">
+      <div className="mt-3 flex-1 space-y-2.5 overflow-y-auto pr-0.5">
         {issues.map((issue) => (
           <div
             key={issue.id}
             draggable
             onDragStart={(e) => {
+              e.dataTransfer.setData("type", "issue");
               e.dataTransfer.setData("text/plain", issue.id);
             }}
           >
@@ -87,8 +158,15 @@ export function KanbanColumn({
           </div>
         ))}
 
-        {issues.length === 0 && (
-          <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-neutral-300 p-4 text-center text-xs text-neutral-400">
+        {/* Drop target placeholder preview for card drop */}
+        {isCardOver && (
+          <div className="flex h-20 items-center justify-center rounded-xl border-2 border-dashed border-blue-500/80 bg-blue-500/10 text-xs font-semibold text-blue-400 animate-pulse transition">
+            Drop issue here
+          </div>
+        )}
+
+        {issues.length === 0 && !isCardOver && (
+          <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-neutral-800 p-4 text-center text-xs text-neutral-500">
             No issues in {label}
           </div>
         )}

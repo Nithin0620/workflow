@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -8,14 +8,37 @@ import { ArrowRight, Menu, X } from "lucide-react";
 
 interface PublicNavbarProps {
   theme?: "dark" | "light";
+  workspaceUrl?: string | null;
 }
 
-export function PublicNavbar({ theme = "dark" }: PublicNavbarProps) {
+export function PublicNavbar({ theme = "dark", workspaceUrl }: PublicNavbarProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [resolvedWsUrl, setResolvedWsUrl] = useState<string | null>(workspaceUrl || null);
 
   const isDark = theme === "dark";
+
+  useEffect(() => {
+    if (workspaceUrl) {
+      setResolvedWsUrl(workspaceUrl);
+      return;
+    }
+
+    if (session?.user) {
+      import("@/actions/workspaces").then(({ getUserWorkspaces }) => {
+        getUserWorkspaces()
+          .then((workspaces) => {
+            if (workspaces && workspaces.length > 0 && workspaces[0].organization) {
+              setResolvedWsUrl(`/${workspaces[0].organization.slug}/${workspaces[0].slug}`);
+            }
+          })
+          .catch(() => {});
+      });
+    }
+  }, [session, workspaceUrl]);
+
+  const targetWorkspaceUrl = resolvedWsUrl || "/login";
 
   const navLinks = [
     { label: "Features", href: "/#features" },
@@ -84,14 +107,14 @@ export function PublicNavbar({ theme = "dark" }: PublicNavbarProps) {
         <div className="hidden sm:flex items-center gap-3">
           {session?.user ? (
             <Link
-              href="/"
-              className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition ${
+              href="/dashboard"
+              className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition shadow-sm ${
                 isDark
                   ? "bg-white text-black hover:bg-neutral-200"
                   : "bg-black text-white hover:bg-neutral-800"
               }`}
             >
-              <span>Workspace</span>
+              <span>Workspaces</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           ) : (
@@ -158,24 +181,38 @@ export function PublicNavbar({ theme = "dark" }: PublicNavbarProps) {
           </div>
 
           <div className="pt-3 border-t border-neutral-800 flex flex-col gap-2">
-            <Link
-              href="/login"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`w-full text-center py-2 text-xs font-semibold rounded-lg ${
-                isDark ? "bg-neutral-900 text-white" : "bg-neutral-100 text-black"
-              }`}
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/register"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`w-full text-center py-2 text-xs font-bold rounded-lg ${
-                isDark ? "bg-white text-black" : "bg-black text-white"
-              }`}
-            >
-              Create Account
-            </Link>
+            {session?.user ? (
+              <Link
+                href="/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`w-full text-center py-2 text-xs font-bold rounded-lg ${
+                  isDark ? "bg-white text-black" : "bg-black text-white"
+                }`}
+              >
+                Go to Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`w-full text-center py-2 text-xs font-semibold rounded-lg ${
+                    isDark ? "bg-neutral-900 text-white" : "bg-neutral-100 text-black"
+                  }`}
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`w-full text-center py-2 text-xs font-bold rounded-lg ${
+                    isDark ? "bg-white text-black" : "bg-black text-white"
+                  }`}
+                >
+                  Create Account
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

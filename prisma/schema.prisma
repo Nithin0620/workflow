@@ -62,6 +62,7 @@ model User {
   activityLogs     ActivityLog[]
   notifications    Notification[]
   leadProjects     Project[]         @relation("ProjectLead")
+  projectMembers   ProjectMember[]
 }
 
 model VerificationToken {
@@ -135,6 +136,12 @@ model WorkspaceMember {
 // Projects, Sprints, Issues & Collaborations
 // -------------------------------------------------------------
 
+enum ProjectRole {
+  OWNER      // Project Co-Owner / Lead: Full project control & settings
+  EDITOR     // Write Access: Create, update, move issues
+  VIEWER     // Read-Only Access: View-only
+}
+
 model Project {
   id            String    @id @default(cuid())
   workspaceId   String
@@ -147,14 +154,46 @@ model Project {
   issueSequence Int       @default(0) // incremented atomically on issue creation
   color         String?   @default("#3b82f6")
   icon          String?   @default("FolderKanban")
+  isPrivate     Boolean   @default(false) // Restricted to explicitly assigned project members
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   issues  Issue[]
   sprints Sprint[]
+  members ProjectMember[]
+  columns BoardColumn[]
 
   @@unique([workspaceId, key])
   @@index([workspaceId])
+}
+
+model BoardColumn {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name      String   // e.g. "QA Testing", "Design", "In Review"
+  key       String   // unique identifier per project e.g. "QA_TESTING", "TODO"
+  color     String   @default("#737373")
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([projectId, key])
+  @@index([projectId])
+}
+
+model ProjectMember {
+  id        String      @id @default(cuid())
+  projectId String
+  project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      ProjectRole @default(EDITOR)
+  createdAt DateTime    @default(now())
+
+  @@unique([projectId, userId])
+  @@index([projectId])
+  @@index([userId])
 }
 
 model Sprint {

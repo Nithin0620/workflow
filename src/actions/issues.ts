@@ -1,8 +1,10 @@
 "use server";
 
 import { prisma } from "@/lib/db/prisma";
-import { requireAuth, requireWorkspaceMember } from "@/lib/auth/session";
+import { requireAuth, requireWorkspaceMember, requireProjectAccess } from "@/lib/auth/session";
 import { createIssueSchema, updateIssueSchema, createCommentSchema } from "@/lib/validators";
+import { broadcastProjectEvent } from "@/lib/realtime/events";
+import { createUserNotification } from "@/actions/notifications";
 import { IssueStatus, IssuePriority, Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -15,18 +17,7 @@ export type CreateCommentInput = z.infer<typeof createCommentSchema>;
  * Creates a new issue with atomic auto-incremented issue number
  */
 export async function createIssue(projectId: string, input: CreateIssueInput) {
-  const user = await requireAuth();
-
-  const project = await prisma.project.findUnique({
-    where: { id: projectId },
-    include: { workspace: true },
-  });
-
-  if (!project) {
-    return { error: "Project not found" };
-  }
-
-  await requireWorkspaceMember(project.workspaceId, ["OWNER", "ADMIN", "MEMBER"]);
+  const { user, project } = await requireProjectAccess(projectId, "EDITOR");
 
   const parsed = createIssueSchema.safeParse(input);
   if (!parsed.success) {
@@ -92,6 +83,34 @@ export async function createIssue(projectId: string, input: CreateIssueInput) {
     return newIssue;
   });
 
+  // Send notification if assigned to any user (including self)
+  if (assigneeId) {
+    const isSelf = assigneeId === user.id;
+    await createUserNotification({
+      userId: assigneeId,
+      title: isSelf ? "Issue Assigned to You" : "New Issue Assigned",
+      message: isSelf
+        ? `You assigned yourself to ${project.key}-${issue.issueNumber}: ${issue.title}`
+        : `${user.name || "A teammate"} assigned you to ${project.key}-${issue.issueNumber}: ${issue.title}`,
+    });
+  }
+
+  // Broadcast real-time event to all teammates on this board
+  broadcastProjectEvent({
+    type: "ISSUE_CREATED",
+    projectId,
+    timestamp: Date.now(),
+    actor: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      image: user.image,
+    },
+    data: {
+      issue,
+    },
+  });
+
   return { success: true, issue };
 }
 
@@ -103,18 +122,15 @@ export async function moveIssue(
   newStatus: IssueStatus,
   newOrder: number
 ) {
-  const user = await requireAuth();
-
   const issue = await prisma.issue.findUnique({
     where: { id: issueId },
-    include: { project: true },
   });
 
   if (!issue) {
     return { error: "Issue not found" };
   }
 
-  await requireWorkspaceMember(issue.project.workspaceId, ["OWNER", "ADMIN", "MEMBER"]);
+  const { user, project } = await requireProjectAccess(issue.projectId, "EDITOR");
 
   const oldStatus = issue.status;
 
@@ -133,7 +149,7 @@ export async function moveIssue(
     if (oldStatus !== newStatus) {
       await tx.activityLog.create({
         data: {
-          workspaceId: issue.project.workspaceId,
+          workspaceId: project.workspaceId,
           issueId: issue.id,
           actorId: user.id,
           action: "STATUS_CHANGED",
@@ -143,6 +159,24 @@ export async function moveIssue(
     }
 
     return updatedIssue;
+  });
+
+  // Broadcast real-time card move
+  broadcastProjectEvent({
+    type: "ISSUE_MOVED",
+    projectId: issue.projectId,
+    timestamp: Date.now(),
+    actor: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      image: user.image,
+    },
+    data: {
+      issueId,
+      targetStatus: newStatus,
+      newOrder,
+    },
   });
 
   return { success: true, issue: updated };
@@ -208,8 +242,6 @@ export async function getIssueDetails(issueId: string) {
  * Updates issue details (title, description, status, priority, assignee, estimate, due date)
  */
 export async function updateIssueDetails(issueId: string, input: UpdateIssueInput) {
-  const user = await requireAuth();
-
   const issue = await prisma.issue.findUnique({
     where: { id: issueId },
     include: { project: true },
@@ -219,7 +251,7 @@ export async function updateIssueDetails(issueId: string, input: UpdateIssueInpu
     return { error: "Issue not found" };
   }
 
-  await requireWorkspaceMember(issue.project.workspaceId, ["OWNER", "ADMIN", "MEMBER"]);
+  const { user } = await requireProjectAccess(issue.projectId, "EDITOR");
 
   const parsed = updateIssueSchema.safeParse(input);
   if (!parsed.success) {
@@ -270,6 +302,44 @@ export async function updateIssueDetails(issueId: string, input: UpdateIssueInpu
     return updatedIssue;
   });
 
+  // Send notification if newly assigned or reassigned (including self)
+  if (assigneeId && assigneeId !== issue.assigneeId) {
+    const isSelf = assigneeId === user.id;
+    await createUserNotification({
+      userId: assigneeId,
+      title: "Issue Assigned to You",
+      message: isSelf
+        ? `You assigned yourself to ${issue.projectKey}-${issue.issueNumber}: ${updated.title}`
+        : `${user.name || "A teammate"} assigned you to ${issue.projectKey}-${issue.issueNumber}: ${updated.title}`,
+    });
+  }
+
+  // Broadcast real-time issue update
+  broadcastProjectEvent({
+    type: "ISSUE_UPDATED",
+    projectId: issue.projectId,
+    timestamp: Date.now(),
+    actor: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      image: user.image,
+    },
+    data: {
+      issueId,
+      issue: {
+        id: updated.id,
+        projectKey: issue.projectKey,
+        issueNumber: issue.issueNumber,
+        title: updated.title,
+        status: updated.status,
+        priority: updated.priority,
+        estimate: updated.estimate,
+        assignee: updated.assignee,
+      },
+    },
+  });
+
   return { success: true, issue: updated };
 }
 
@@ -277,8 +347,6 @@ export async function updateIssueDetails(issueId: string, input: UpdateIssueInpu
  * Adds a new comment to an issue
  */
 export async function addIssueComment(issueId: string, content: string) {
-  const user = await requireAuth();
-
   const issue = await prisma.issue.findUnique({
     where: { id: issueId },
     include: { project: true },
@@ -288,7 +356,7 @@ export async function addIssueComment(issueId: string, content: string) {
     return { error: "Issue not found" };
   }
 
-  await requireWorkspaceMember(issue.project.workspaceId, ["OWNER", "ADMIN", "MEMBER"]);
+  const { user } = await requireProjectAccess(issue.projectId, "VIEWER");
 
   const parsed = createCommentSchema.safeParse({ issueId, content });
   if (!parsed.success) {
@@ -320,24 +388,104 @@ export async function addIssueComment(issueId: string, content: string) {
     return newComment;
   });
 
+  // 1. Notify assignee on comment
+  if (issue.assigneeId) {
+    const isSelfAssignee = issue.assigneeId === user.id;
+    await createUserNotification({
+      userId: issue.assigneeId,
+      title: "New Comment on Assigned Issue",
+      message: isSelfAssignee
+        ? `You commented on your assigned issue ${issue.projectKey}-${issue.issueNumber}: "${content.slice(0, 60)}"`
+        : `${user.name || "A teammate"} commented on your assigned issue ${issue.projectKey}-${issue.issueNumber}: "${content.slice(0, 60)}"`,
+    });
+  }
+
+  // 2. Notify creator if creator is different from assignee
+  if (issue.creatorId && issue.creatorId !== issue.assigneeId) {
+    const isSelfCreator = issue.creatorId === user.id;
+    await createUserNotification({
+      userId: issue.creatorId,
+      title: "New Comment on Your Issue",
+      message: isSelfCreator
+        ? `You commented on your issue ${issue.projectKey}-${issue.issueNumber}: "${content.slice(0, 60)}"`
+        : `${user.name || "A teammate"} commented on your issue ${issue.projectKey}-${issue.issueNumber}: "${content.slice(0, 60)}"`,
+    });
+  }
+
+  // Broadcast real-time comment
+  broadcastProjectEvent({
+    type: "COMMENT_ADDED",
+    projectId: issue.projectId,
+    timestamp: Date.now(),
+    actor: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      image: user.image,
+    },
+    data: {
+      issueId,
+      comment: {
+        id: comment.id,
+        issueId: comment.issueId,
+        content: comment.content,
+        createdAt: comment.createdAt.toISOString(),
+        author: comment.author,
+      },
+    },
+  });
+
   return { success: true, comment };
+}
+
+/**
+ * Deletes an issue by ID (Allowed for Project OWNER or issue creator)
+ */
+export async function deleteIssue(issueId: string) {
+  const issue = await prisma.issue.findUnique({
+    where: { id: issueId },
+    include: { project: { include: { workspace: true } } },
+  });
+
+  if (!issue) {
+    return { error: "Issue not found" };
+  }
+
+  const { user, projectRole } = await requireProjectAccess(issue.projectId);
+
+  // Only Project Owner or Creator can delete
+  if (projectRole !== "OWNER" && issue.creatorId !== user.id) {
+    return { error: "Forbidden: You do not have permission to delete this issue." };
+  }
+
+  await prisma.issue.delete({
+    where: { id: issueId },
+  });
+
+  // Broadcast real-time deletion
+  broadcastProjectEvent({
+    type: "ISSUE_DELETED",
+    projectId: issue.projectId,
+    timestamp: Date.now(),
+    actor: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      image: user.image,
+    },
+    data: {
+      issueId,
+    },
+  });
+
+  return { success: true };
 }
 
 /**
  * Retrieves all issues for a given project grouped for Kanban board
  */
 export async function getProjectIssues(projectId: string) {
-  const user = await requireAuth();
-
-  const project = await prisma.project.findUnique({
-    where: { id: projectId },
-  });
-
-  if (!project) {
-    return [];
-  }
-
-  await requireWorkspaceMember(project.workspaceId);
+  await requireProjectAccess(projectId, "VIEWER");
 
   const issues = await prisma.issue.findMany({
     where: { projectId },

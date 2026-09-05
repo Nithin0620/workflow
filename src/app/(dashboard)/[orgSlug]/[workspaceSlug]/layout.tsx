@@ -1,8 +1,7 @@
 import { getCurrentUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import { redirect, notFound } from "next/navigation";
-import { Sidebar } from "@/components/common/sidebar";
-import { Header } from "@/components/common/header";
+import { WorkspaceLayoutShell } from "@/components/common/workspace-layout-shell";
 
 interface WorkspaceLayoutProps {
   children: React.ReactNode;
@@ -61,20 +60,14 @@ export default async function WorkspaceLayout({
   }));
 
   return (
-    <div className="flex h-full w-full bg-white text-black">
-      <Sidebar
-        orgSlug={orgSlug}
-        workspaceSlug={workspaceSlug}
-        workspaceId={workspace.id}
-        projects={workspace.projects}
-        workspaces={formattedWorkspaces}
-      />
-      <div className="flex flex-1 flex-col overflow-hidden bg-white">
-        <Header orgSlug={orgSlug} workspaceSlug={workspaceSlug} />
-        <main className="flex-1 overflow-y-auto p-6 bg-[#fcfcfc] text-black">
-          {children}
-        </main>
-      </div>
-    </div>
+    <WorkspaceLayoutShell
+      orgSlug={orgSlug}
+      workspaceSlug={workspaceSlug}
+      workspaceId={workspace.id}
+      projects={workspace.projects}
+      workspaces={formattedWorkspaces}
+    >
+      {children}
+    </WorkspaceLayoutShell>
   );
 }

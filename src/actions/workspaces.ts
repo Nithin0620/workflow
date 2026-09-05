@@ -12,7 +12,7 @@ export type CreateWorkspaceInput = z.infer<typeof createWorkspaceSchema>;
 /**
  * Creates a new workspace under an organization
  */
-export async function createWorkspace(orgId: string, input: CreateWorkspaceInput) {
+export async function createWorkspace(orgIdOrSlug: string, input: CreateWorkspaceInput) {
   const user = await requireAuth();
 
   const parsed = createWorkspaceSchema.safeParse(input);
@@ -22,20 +22,23 @@ export async function createWorkspace(orgId: string, input: CreateWorkspaceInput
 
   const { name, slug, description } = parsed.data;
 
-  // Check if organization exists and user is owner/member
-  const org = await prisma.organization.findUnique({
-    where: { id: orgId },
+  // Check if organization exists by ID or slug and verify user ownership/membership
+  const org = await prisma.organization.findFirst({
+    where: {
+      OR: [{ id: orgIdOrSlug }, { slug: orgIdOrSlug }],
+      ownerId: user.id,
+    },
   });
 
   if (!org) {
-    return { error: "Organization not found" };
+    return { error: "Organization not found or you do not have permission to create workspaces under it." };
   }
 
   // Check if slug is unique within org
   const existing = await prisma.workspace.findUnique({
     where: {
       organizationId_slug: {
-        organizationId: orgId,
+        organizationId: org.id,
         slug,
       },
     },
@@ -51,7 +54,7 @@ export async function createWorkspace(orgId: string, input: CreateWorkspaceInput
         name,
         slug,
         description,
-        organizationId: orgId,
+        organizationId: org.id,
       },
     });
 
