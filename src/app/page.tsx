@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth/session";
 import { PublicNavbar } from "@/components/common/public-navbar";
+import { AnimatedSaasObjects } from "@/components/home/animated-saas-objects";
+import { MacKanbanMockup } from "@/components/home/mac-kanban-mockup";
+
+
 import {
   Kanban,
   Zap,
@@ -32,6 +36,7 @@ export default async function LandingPage() {
 
       {/* 2. HERO SECTION - PURE BLACK */}
       <section className="relative overflow-hidden bg-black px-6 pt-20 pb-16 md:pt-28 md:pb-24">
+        <AnimatedSaasObjects />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[350px] w-[600px] rounded-full bg-white/5 blur-[120px] pointer-events-none" />
 
         <div className="mx-auto max-w-4xl text-center relative z-10 space-y-6">
@@ -116,93 +121,7 @@ export default async function LandingPage() {
       </section>
 
       {/* 3. INTERACTIVE MOCKUP - PURE BLACK */}
-      <section className="bg-black px-6 pb-24">
-        <div className="mx-auto max-w-6xl rounded-2xl border border-neutral-800 bg-neutral-950/80 p-4 sm:p-6 shadow-2xl backdrop-blur-sm">
-          <div className="flex items-center justify-between border-b border-neutral-900 pb-4 mb-6">
-            <div className="flex items-center gap-3">
-              <div className="h-3 w-3 rounded-full bg-neutral-800" />
-              <div className="h-3 w-3 rounded-full bg-neutral-800" />
-              <div className="h-3 w-3 rounded-full bg-neutral-800" />
-              <span className="font-mono text-xs font-semibold text-neutral-400 ml-2">
-                TripTally [TRIP] — Sprint 12 Kanban
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-neutral-500 font-mono">
-              <span className="h-2 w-2 rounded-full bg-white" />
-              <span>Realtime Live</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Column 1: Backlog */}
-            <div className="rounded-xl border border-neutral-900 bg-neutral-900/40 p-3 space-y-3">
-              <div className="flex items-center justify-between px-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">Backlog</span>
-                <span className="rounded-full bg-neutral-800 px-2 py-0.5 text-[10px] font-mono">1</span>
-              </div>
-              <div className="rounded-lg border border-neutral-800 bg-black p-3 space-y-2">
-                <span className="font-mono text-[10px] text-neutral-500">TRIP-103</span>
-                <p className="text-xs font-medium text-neutral-200">Improve dashboard performance & analytics</p>
-                <div className="flex items-center justify-between pt-2 border-t border-neutral-900 text-[10px] text-neutral-500">
-                  <span>5 pts</span>
-                  <div className="h-4 w-4 rounded-full bg-neutral-700" />
-                </div>
-              </div>
-            </div>
-
-            {/* Column 2: To Do */}
-            <div className="rounded-xl border border-neutral-900 bg-neutral-900/40 p-3 space-y-3">
-              <div className="flex items-center justify-between px-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">To Do</span>
-                <span className="rounded-full bg-neutral-800 px-2 py-0.5 text-[10px] font-mono">1</span>
-              </div>
-              <div className="rounded-lg border border-neutral-800 bg-black p-3 space-y-2">
-                <span className="font-mono text-[10px] text-neutral-500">TRIP-101</span>
-                <p className="text-xs font-medium text-neutral-200">Fix OAuth session refresh on mobile browser</p>
-                <div className="flex items-center justify-between pt-2 border-t border-neutral-900 text-[10px] text-neutral-500">
-                  <span>3 pts</span>
-                  <div className="h-4 w-4 rounded-full bg-white text-black font-bold flex items-center justify-center text-[8px]">N</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Column 3: In Progress */}
-            <div className="rounded-xl border border-white/20 bg-neutral-900/60 p-3 space-y-3 ring-1 ring-white/10">
-              <div className="flex items-center justify-between px-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-                  In Progress
-                </span>
-                <span className="rounded-full bg-white text-black font-bold px-2 py-0.5 text-[10px] font-mono">1</span>
-              </div>
-              <div className="rounded-lg border border-neutral-700 bg-black p-3 space-y-2 shadow-lg">
-                <span className="font-mono text-[10px] text-neutral-400 font-bold">TRIP-102</span>
-                <p className="text-xs font-semibold text-white">Add Razorpay payment gateway & webhooks</p>
-                <div className="flex items-center justify-between pt-2 border-t border-neutral-800 text-[10px] text-neutral-400">
-                  <span className="rounded bg-neutral-800 px-1.5 py-0.5 font-bold text-white">8 pts</span>
-                  <span className="text-xs">⚡ Live</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Column 4: Done */}
-            <div className="rounded-xl border border-neutral-900 bg-neutral-900/40 p-3 space-y-3">
-              <div className="flex items-center justify-between px-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">Done</span>
-                <span className="rounded-full bg-neutral-800 px-2 py-0.5 text-[10px] font-mono">2</span>
-              </div>
-              <div className="rounded-lg border border-neutral-800 bg-black p-3 space-y-2 opacity-70">
-                <span className="font-mono text-[10px] text-neutral-500">TRIP-99</span>
-                <p className="text-xs font-medium text-neutral-300 line-through">Set up PostgreSQL schema & Prisma ORM</p>
-                <div className="flex items-center justify-between pt-2 border-t border-neutral-900 text-[10px] text-neutral-500">
-                  <span>Resolved</span>
-                  <CheckCircle2 className="h-3.5 w-3.5 text-white" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <MacKanbanMockup />
 
       {/* 4. DOMAIN HIERARCHY - PURE WHITE SECTION */}
       <section id="hierarchy" className="bg-white text-black px-6 py-24 border-t border-neutral-200">
