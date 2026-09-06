@@ -47,13 +47,13 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
-  passwordHash  String?   // For legacy / custom email+password authentication
+  passwordHash  String? // For legacy / custom email+password authentication
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   accounts         Account[]
   sessions         Session[]
-  ownedOrgs        Organization[]     @relation("OrgOwner")
+  ownedOrgs        Organization[]    @relation("OrgOwner")
   workspaceMembers WorkspaceMember[]
   assignedIssues   Issue[]           @relation("IssueAssignee")
   createdIssues    Issue[]           @relation("IssueCreator")
@@ -78,14 +78,14 @@ model VerificationToken {
 // -------------------------------------------------------------
 
 model Organization {
-  id        String      @id @default(cuid())
+  id        String   @id @default(cuid())
   name      String
-  slug      String      @unique
+  slug      String   @unique
   logoUrl   String?
   ownerId   String
-  owner     User        @relation("OrgOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  owner     User     @relation("OrgOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   workspaces Workspace[]
 
@@ -100,14 +100,14 @@ enum UserRole {
 }
 
 model Workspace {
-  id             String            @id @default(cuid())
+  id             String       @id @default(cuid())
   organizationId String
-  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   name           String
   slug           String
   description    String?
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
   members      WorkspaceMember[]
   projects     Project[]
@@ -117,6 +117,7 @@ model Workspace {
 
   @@unique([organizationId, slug])
   @@index([organizationId])
+  @@index([slug])
 }
 
 model WorkspaceMember {
@@ -138,9 +139,9 @@ model WorkspaceMember {
 // -------------------------------------------------------------
 
 enum ProjectRole {
-  OWNER      // Project Co-Owner / Lead: Full project control & settings
-  EDITOR     // Write Access: Create, update, move issues
-  VIEWER     // Read-Only Access: View-only
+  OWNER // Project Co-Owner / Lead: Full project control & settings
+  EDITOR // Write Access: Create, update, move issues
+  VIEWER // Read-Only Access: View-only
 }
 
 model Project {
@@ -148,7 +149,7 @@ model Project {
   workspaceId   String
   workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   name          String
-  key           String    // e.g. "TRIP", "DEV"
+  key           String // e.g. "TRIP", "DEV"
   description   String?   @db.Text
   leadId        String?
   lead          User?     @relation("ProjectLead", fields: [leadId], references: [id], onDelete: SetNull)
@@ -208,8 +209,8 @@ model BoardColumn {
   id        String   @id @default(cuid())
   projectId String
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  name      String   // e.g. "QA Testing", "Design", "In Review"
-  key       String   // unique identifier per project e.g. "QA_TESTING", "TODO"
+  name      String // e.g. "QA Testing", "Design", "In Review"
+  key       String // unique identifier per project e.g. "QA_TESTING", "TODO"
   color     String   @default("#737373")
   order     Int      @default(0)
   createdAt DateTime @default(now())
@@ -269,26 +270,26 @@ enum IssuePriority {
 }
 
 model Issue {
-  id            String        @id @default(cuid())
-  projectId     String
-  project       Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectKey    String
-  issueNumber   Int
-  title         String
-  description   String?       @db.Text
-  status        IssueStatus   @default(TODO)
-  priority      IssuePriority @default(MEDIUM)
-  order         Float         @default(0.0) // Fractional indexing for instant drag & drop
-  assigneeId    String?
-  assignee      User?         @relation("IssueAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
-  creatorId     String
-  creator       User          @relation("IssueCreator", fields: [creatorId], references: [id], onDelete: Cascade)
-  sprintId      String?
-  sprint        Sprint?       @relation(fields: [sprintId], references: [id], onDelete: SetNull)
-  estimate      Int?          // Story points
-  dueDate       DateTime?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id          String        @id @default(cuid())
+  projectId   String
+  project     Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectKey  String
+  issueNumber Int
+  title       String
+  description String?       @db.Text
+  status      IssueStatus   @default(TODO)
+  priority    IssuePriority @default(MEDIUM)
+  order       Float         @default(0.0) // Fractional indexing for instant drag & drop
+  assigneeId  String?
+  assignee    User?         @relation("IssueAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  creatorId   String
+  creator     User          @relation("IssueCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  sprintId    String?
+  sprint      Sprint?       @relation(fields: [sprintId], references: [id], onDelete: SetNull)
+  estimate    Int? // Story points
+  dueDate     DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   comments     Comment[]
   attachments  Attachment[]
@@ -353,16 +354,16 @@ model Attachment {
 }
 
 model ActivityLog {
-  id          String     @id @default(cuid())
+  id          String    @id @default(cuid())
   issueId     String?
-  issue       Issue?     @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  issue       Issue?    @relation(fields: [issueId], references: [id], onDelete: Cascade)
   workspaceId String
-  workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   actorId     String
-  actor       User       @relation(fields: [actorId], references: [id], onDelete: Cascade)
-  action      String     // e.g., "STATUS_CHANGED", "ASSIGNED", "PRIORITY_CHANGED"
-  details     Json       // Stores before/after diffs & metadata
-  createdAt   DateTime   @default(now())
+  actor       User      @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  action      String // e.g., "STATUS_CHANGED", "ASSIGNED", "PRIORITY_CHANGED"
+  details     Json // Stores before/after diffs & metadata
+  createdAt   DateTime  @default(now())
 
   @@index([issueId])
   @@index([workspaceId])
