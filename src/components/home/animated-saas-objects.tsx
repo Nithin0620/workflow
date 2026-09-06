@@ -15,6 +15,7 @@ export function AnimatedSaasObjects() {
           animate={{
             opacity: [0.5, 0.8, 0.5],
             y: [-10, 10, -10],
+            scale: [1, 1.02, 1],
             rotate: [-5, -2, -5],
           }}
           transition={{
@@ -29,7 +30,7 @@ export function AnimatedSaasObjects() {
             <span className="text-[10px] font-mono text-neutral-400 font-semibold">T-101</span>
           </div>
           <div className="h-2 w-full bg-neutral-700 rounded-full mb-1"></div>
-          <div className="h-2 w-2/3 bg-neutral-700 rounded-full mb-2"></div>
+          <motion.div animate={{ width: ["0%", "66%", "66%", "0%"] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="h-2 bg-neutral-700 rounded-full mb-2" />
           <div className="flex justify-between items-center mt-2 border-t border-neutral-800 pt-2">
             <div className="h-4 w-4 rounded-full bg-blue-500/20 flex items-center justify-center">
               <div className="h-2 w-2 rounded-full bg-blue-500"></div>
@@ -59,10 +60,10 @@ export function AnimatedSaasObjects() {
             <BarChart3 className="w-3 h-3 text-purple-400" />
           </div>
           <div className="flex items-end gap-1.5 h-10">
-            <div className="w-full bg-purple-500/30 rounded-t-sm h-[40%]"></div>
-            <div className="w-full bg-purple-500/50 rounded-t-sm h-[70%]"></div>
-            <div className="w-full bg-purple-500/80 rounded-t-sm h-[100%]"></div>
-            <div className="w-full bg-purple-400 rounded-t-sm h-[85%]"></div>
+            <motion.div animate={{ height: ["20%", "40%", "30%", "20%"] }} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }} className="w-full bg-purple-500/30 rounded-t-sm" />
+            <motion.div animate={{ height: ["40%", "70%", "50%", "40%"] }} transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.2 }} className="w-full bg-purple-500/50 rounded-t-sm" />
+            <motion.div animate={{ height: ["60%", "100%", "80%", "60%"] }} transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: 0.4 }} className="w-full bg-purple-500/80 rounded-t-sm" />
+            <motion.div animate={{ height: ["50%", "85%", "70%", "50%"] }} transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut", delay: 0.6 }} className="w-full bg-purple-400 rounded-t-sm" />
           </div>
         </motion.div>
 
@@ -73,6 +74,7 @@ export function AnimatedSaasObjects() {
             opacity: [0.3, 0.6, 0.3],
             x: [0, 15, 0],
             y: [0, -5, 0],
+            scale: [1, 1.01, 1],
           }}
           transition={{
             duration: 7,
@@ -89,9 +91,9 @@ export function AnimatedSaasObjects() {
             <Terminal className="w-3 h-3 text-neutral-500 ml-auto" />
           </div>
           <div className="space-y-1">
-            <div className="text-[10px] font-mono text-pink-400">const<span className="text-neutral-300"> sprint = </span><span className="text-blue-300">useSprint();</span></div>
-            <div className="text-[10px] font-mono text-neutral-300">await sprint.ship();</div>
-            <div className="text-[10px] font-mono text-emerald-400">&gt; Deployed successfully 🚀</div>
+            <motion.div animate={{ opacity: [0, 1, 1, 1], display: ["none", "block", "block", "none"] }} transition={{ duration: 4, repeat: Infinity, times: [0, 0.1, 0.9, 1] }} className="text-[10px] font-mono text-pink-400">const<span className="text-neutral-300"> sprint = </span><span className="text-blue-300">useSprint();</span></motion.div>
+            <motion.div animate={{ opacity: [0, 1, 1, 1], display: ["none", "none", "block", "none"] }} transition={{ duration: 4, repeat: Infinity, times: [0, 0.4, 0.5, 1] }} className="text-[10px] font-mono text-neutral-300">await sprint.ship();</motion.div>
+            <motion.div animate={{ opacity: [0, 1, 1, 1], display: ["none", "none", "block", "none"] }} transition={{ duration: 4, repeat: Infinity, times: [0, 0.7, 0.8, 1] }} className="text-[10px] font-mono text-emerald-400">&gt; Deployed successfully 🚀</motion.div>
           </div>
         </motion.div>
 
