@@ -17,7 +17,7 @@ export interface WorkspaceRepoOverviewItem {
     defaultBranch: string;
     aiScanEnabled: boolean;
     cronSchedule: string | null;
-    lastScannedAt: Date | null;
+    lastScannedAt: string | null;
     status: string;
   } | null;
   aiBugReportCount: number;
@@ -129,7 +129,7 @@ export async function getWorkspaceRepositoriesOverview(
       projectName: p.name,
       projectKey: p.key,
       color: p.color,
-      repository: p.repository
+          repository: p.repository
         ? {
             id: p.repository.id,
             repoOwner: p.repository.repoOwner,
@@ -137,7 +137,7 @@ export async function getWorkspaceRepositoriesOverview(
             defaultBranch: p.repository.defaultBranch,
             aiScanEnabled: p.repository.aiScanEnabled,
             cronSchedule: p.repository.cronSchedule,
-            lastScannedAt: p.repository.lastScannedAt,
+            lastScannedAt: p.repository.lastScannedAt?.toISOString() ?? null,
             status: p.repository.status,
           }
         : null,
@@ -163,7 +163,7 @@ export interface CronLogItem {
   summary: string;
   error?: string | null;
   rawOutput?: string | null;
-  createdAt: Date;
+  createdAt: string;
 }
 
 /**
@@ -211,7 +211,7 @@ export async function getCronExecutionHistory(
       summary: l.summary,
       error: l.error,
       rawOutput: l.rawOutput,
-      createdAt: l.createdAt,
+      createdAt: l.createdAt?.toISOString() ?? new Date(0).toISOString(),
     }));
 
     return { success: true, logs };

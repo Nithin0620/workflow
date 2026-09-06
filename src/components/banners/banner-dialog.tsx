@@ -32,7 +32,7 @@ export function BannerDialog({
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+            className="cursor-pointer rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
           >
             <X className="h-5 w-5" />
           </button>

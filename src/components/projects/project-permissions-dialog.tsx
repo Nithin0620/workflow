@@ -219,7 +219,7 @@ export function ProjectPermissionsDialog({
 
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+            className="cursor-pointer rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
           >
             <X className="h-4 w-4" />
           </button>
@@ -266,7 +266,7 @@ export function ProjectPermissionsDialog({
                 {isOwner && (
                   <button
                     onClick={handleTogglePrivacy}
-                    className="rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-1.5 text-xs font-bold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
+                    className="cursor-pointer rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-1.5 text-xs font-bold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
                   >
                     {isPrivate ? "Make Public" : "Make Private"}
                   </button>
@@ -308,7 +308,7 @@ export function ProjectPermissionsDialog({
                   <button
                     type="submit"
                     disabled={!selectedUserIdToAdd || savingId === "adding"}
-                    className="rounded-xl bg-white px-4 py-2 text-xs font-bold text-black hover:bg-neutral-200 transition disabled:opacity-50"
+                    className="cursor-pointer rounded-xl bg-white px-4 py-2 text-xs font-bold text-black hover:bg-neutral-200 transition disabled:opacity-50"
                   >
                     Add to Project
                   </button>
@@ -380,7 +380,7 @@ export function ProjectPermissionsDialog({
                             onClick={() => handleRemoveMember(pm.id)}
                             disabled={savingId === pm.id}
                             title="Remove from project"
-                            className="rounded-xl border border-neutral-800 bg-neutral-900 p-2 text-neutral-400 hover:border-rose-900 hover:bg-rose-950/30 hover:text-rose-400 transition"
+                            className="cursor-pointer rounded-xl border border-neutral-800 bg-neutral-900 p-2 text-neutral-400 hover:border-rose-900 hover:bg-rose-950/30 hover:text-rose-400 transition"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -404,7 +404,7 @@ export function ProjectPermissionsDialog({
                   </div>
                   <button
                     onClick={handleDeleteProject}
-                    className="rounded-xl border border-rose-900/60 bg-rose-950/60 px-3.5 py-1.5 text-xs font-bold text-rose-300 hover:bg-rose-900 hover:text-white transition"
+                    className="cursor-pointer rounded-xl border border-rose-900/60 bg-rose-950/60 px-3.5 py-1.5 text-xs font-bold text-rose-300 hover:bg-rose-900 hover:text-white transition"
                   >
                     Delete Project
                   </button>

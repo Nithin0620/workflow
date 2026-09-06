@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
-import { runProjectBugHunt, BugHuntResult } from "@/lib/ai/bug-hunter";
+import { runCronJobScan, BugHuntResult } from "@/lib/ai/bug-hunter";
 
 /**
- * Scheduled Daily Cron Job for Autonomous Bug Hunting (Daily 12:00 PM)
+ * Scheduled Cron Endpoint for Autonomous scans.
+ * Runs every ENABLED cron job configured across workspaces.
  * Can be triggered by Vercel Cron, GitHub Actions, or internal curl schedule.
  */
 export async function GET(req: NextRequest) {
@@ -26,24 +27,17 @@ async function handleCronExecution(req: NextRequest) {
   const startTime = Date.now();
 
   try {
-    // Find all active project repositories with AI scanning enabled
-    const repos = await prisma.projectRepository.findMany({
-      where: {
-        aiScanEnabled: true,
-        status: "ACTIVE",
-      },
-      include: {
-        project: {
-          select: { id: true, key: true, name: true },
-        },
-      },
+    const jobs = await prisma.cronJob.findMany({
+      where: { enabled: true },
+      select: { id: true, name: true },
+      orderBy: { createdAt: "asc" },
     });
 
     const results: BugHuntResult[] = [];
     let totalIssuesCreated = 0;
 
-    for (const repo of repos) {
-      const result = await runProjectBugHunt(repo.projectId, "CRON");
+    for (const job of jobs) {
+      const result = await runCronJobScan(job.id, "CRON");
       results.push(result);
       if (result.success) {
         totalIssuesCreated += result.issuesCreated;
@@ -56,7 +50,7 @@ async function handleCronExecution(req: NextRequest) {
       success: true,
       timestamp: new Date().toISOString(),
       durationMs,
-      totalRepositoriesConfigured: repos.length,
+      totalJobsConfigured: jobs.length,
       totalIssuesCreated,
       results: results.map((r) => ({
         projectKey: r.projectKey,
@@ -72,7 +66,7 @@ async function handleCronExecution(req: NextRequest) {
       {
         success: false,
         timestamp: new Date().toISOString(),
-        error: err.message || "Failed to execute scheduled bug hunt.",
+        error: err.message || "Failed to execute scheduled cron jobs.",
       },
       { status: 500 }
     );

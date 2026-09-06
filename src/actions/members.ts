@@ -5,23 +5,34 @@ import { requireAuth, requireWorkspaceMember } from "@/lib/auth/session";
 import { UserRole } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { createInviteToken, INVITE_TTL_DAYS, inviteStatus } from "@/lib/invites";
+import { sendInviteEmail } from "@/lib/email";
 
 const inviteMemberSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   role: z.enum(["ADMIN", "MEMBER", "VIEWER"]),
 });
 
+function findInviteByToken(token: string) {
+  return prisma.workspaceInvite.findUnique({
+    where: { token },
+    include: {
+      workspace: { include: { organization: true } },
+      invitedBy: { select: { name: true, email: true } },
+    },
+  });
+}
+
 /**
- * Invites or directly adds a user to a workspace by email
+ * Invites a user to a workspace by email. Creates a pending WorkspaceInvite
+ * (token + expiry), emails the accept link, and never pre-creates user rows —
+ * the invitee signs in/registers with the invited email and accepts.
  */
 export async function inviteOrAddMember(
   workspaceId: string,
   input: { email: string; role: UserRole }
 ) {
-  const { user, membership, workspace } = await requireWorkspaceMember(workspaceId, [
-    "OWNER",
-    "ADMIN",
-  ]);
+  const { user, workspace } = await requireWorkspaceMember(workspaceId, ["OWNER", "ADMIN"]);
 
   const parsed = inviteMemberSchema.safeParse(input);
   if (!parsed.success) {
@@ -36,66 +47,104 @@ export async function inviteOrAddMember(
     return { error: "You are already a member of this workspace." };
   }
 
-  // Find or create the user record
-  let targetUser = await prisma.user.findUnique({
-    where: { email: targetEmail },
-  });
-
-  if (!targetUser) {
-    // Pre-create placeholder user account so when they sign up, they immediately have access
-    const namePrefix = targetEmail.split("@")[0];
-    const formattedName = namePrefix.charAt(0).toUpperCase() + namePrefix.slice(1);
-    targetUser = await prisma.user.create({
-      data: {
-        email: targetEmail,
-        name: formattedName,
-      },
-    });
-  }
-
   // Check if target user is already a member
-  const existingMembership = await prisma.workspaceMember.findUnique({
-    where: {
-      workspaceId_userId: {
-        workspaceId,
-        userId: targetUser.id,
-      },
-    },
-  });
-
-  if (existingMembership) {
-    return { error: `User (${targetEmail}) is already a member of this workspace.` };
-  }
-
-  const newMember = await prisma.$transaction(async (tx) => {
-    const createdMember = await tx.workspaceMember.create({
-      data: {
-        workspaceId,
-        userId: targetUser!.id,
-        role: targetRole,
-      },
-      include: {
-        user: { select: { id: true, name: true, email: true, image: true } },
+  const existingMember = await prisma.user.findUnique({ where: { email: targetEmail } });
+  if (existingMember) {
+    const membership = await prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: { workspaceId, userId: existingMember.id },
       },
     });
+    if (membership) {
+      return { error: `${targetEmail} is already a member of this workspace.` };
+    }
+  }
 
+  const token = createInviteToken();
+  const expiresAt = new Date(Date.now() + INVITE_TTL_DAYS * 24 * 60 * 60 * 1000);
+
+  // Re-inviting the same email replaces any previous pending invite (resend)
+  const invite = await prisma.$transaction(async (tx) => {
+    await tx.workspaceInvite.deleteMany({ where: { workspaceId, email: targetEmail } });
+    const created = await tx.workspaceInvite.create({
+      data: {
+        workspaceId,
+        email: targetEmail,
+        role: targetRole,
+        token,
+        invitedById: user.id,
+        expiresAt,
+      },
+    });
     await tx.activityLog.create({
       data: {
         workspaceId,
         actorId: user.id,
-        action: "MEMBER_ADDED",
-        details: {
-          invitedEmail: targetEmail,
-          role: targetRole,
-        },
+        action: "INVITE_SENT",
+        details: { invitedEmail: targetEmail, role: targetRole },
       },
     });
-
-    return createdMember;
+    return created;
   });
 
+  let emailDelivered = false;
+  try {
+    emailDelivered = await sendInviteEmail({ workspace, inviter: user, invite });
+  } catch {
+    emailDelivered = false;
+  }
+
   revalidatePath(`/[orgSlug]/[workspaceSlug]/settings`, "page");
-  return { success: true, member: newMember };
+  const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "http://localhost:3000"}/invite?token=${token}`;
+  return { success: true, inviteLink, emailDelivered };
+}
+
+/**
+ * Accepts a pending invite for the authenticated user. Requires the logged-in
+ * account to match the invited email exactly.
+ */
+export async function acceptInvite(token: string) {
+  const user = await requireAuth();
+
+  const invite = await findInviteByToken(token);
+  if (!invite) return { error: "This invitation is invalid or no longer exists." };
+  if (inviteStatus(invite) === "expired") return { error: "This invitation has expired." };
+  if (inviteStatus(invite) === "accepted") {
+    return { error: "This invitation has already been used." };
+  }
+  if (user.email?.toLowerCase() !== invite.email) {
+    return { error: `This invitation was sent to ${invite.email}. Please sign in with that email to accept it.` };
+  }
+
+  const { workspace } = invite;
+  const existing = await prisma.workspaceMember.findUnique({
+    where: { workspaceId_userId: { workspaceId: workspace.id, userId: user.id } },
+  });
+
+  if (!existing) {
+    await prisma.$transaction(async (tx) => {
+      await tx.workspaceMember.create({
+        data: { workspaceId: workspace.id, userId: user.id, role: invite.role },
+      });
+      await tx.activityLog.create({
+        data: {
+          workspaceId: workspace.id,
+          actorId: user.id,
+          action: "MEMBER_ADDED",
+          details: { invitedEmail: invite.email, role: invite.role, viaInvite: true },
+        },
+      });
+    });
+  }
+
+  await prisma.workspaceInvite.update({
+    where: { id: invite.id },
+    data: { acceptedAt: new Date() },
+  });
+
+  const redirectUrl = `/${workspace.organization.slug}/${workspace.slug}`;
+  revalidatePath(redirectUrl, "page");
+  return { success: true, redirectUrl };
 }
 
 /**
@@ -226,7 +275,7 @@ export async function updateWorkspaceDetails(
   workspaceId: string,
   name: string
 ) {
-  const { user } = await requireWorkspaceMember(workspaceId, ["OWNER", "ADMIN"]);
+  await requireWorkspaceMember(workspaceId, ["OWNER", "ADMIN"]);
 
   if (!name || name.trim().length < 2) {
     return { error: "Workspace name must be at least 2 characters." };
@@ -244,7 +293,7 @@ export async function updateWorkspaceDetails(
  * Deletes a workspace and cascades its contents (OWNER only)
  */
 export async function deleteWorkspace(workspaceId: string) {
-  const { user, membership } = await requireWorkspaceMember(workspaceId, ["OWNER"]);
+  const { membership } = await requireWorkspaceMember(workspaceId, ["OWNER"]);
 
   if (membership.role !== "OWNER") {
     return { error: "Only the workspace owner can delete this workspace." };

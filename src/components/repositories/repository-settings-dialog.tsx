@@ -236,7 +236,7 @@ export function RepositorySettingsDialog({
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+            className="cursor-pointer rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
           >
             <X className="h-5 w-5" />
           </button>
@@ -305,7 +305,7 @@ export function RepositorySettingsDialog({
                           onClick={handleRunBugHunt}
                           disabled={hunting || !repo.aiScanEnabled}
                           title="Run autonomous codebase scan now via Groq AI"
-                          className="flex items-center gap-1 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1.5 text-xs text-emerald-300 hover:border-emerald-500/60 hover:bg-emerald-500/20 transition disabled:opacity-50"
+                          className="cursor-pointer flex items-center gap-1 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1.5 text-xs text-emerald-300 hover:border-emerald-500/60 hover:bg-emerald-500/20 transition disabled:opacity-50"
                         >
                           {hunting ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-400" />
@@ -318,7 +318,7 @@ export function RepositorySettingsDialog({
                           onClick={handleTestConnection}
                           disabled={testing}
                           title="Verify live GitHub connection"
-                          className="flex items-center gap-1 rounded-lg border border-neutral-800 bg-neutral-900 px-2.5 py-1.5 text-xs text-neutral-300 hover:bg-neutral-800 hover:text-white transition"
+                          className="cursor-pointer flex items-center gap-1 rounded-lg border border-neutral-800 bg-neutral-900 px-2.5 py-1.5 text-xs text-neutral-300 hover:bg-neutral-800 hover:text-white transition"
                         >
                           <RefreshCw className={`h-3.5 w-3.5 ${testing ? "animate-spin" : ""}`} />
                           <span>Test Sync</span>
@@ -328,7 +328,7 @@ export function RepositorySettingsDialog({
                             onClick={handleDisconnect}
                             disabled={submitting}
                             title="Disconnect repository"
-                            className="flex items-center gap-1 rounded-lg border border-rose-500/30 bg-rose-500/10 px-2.5 py-1.5 text-xs text-rose-400 hover:bg-rose-500 hover:text-white transition"
+                            className="cursor-pointer flex items-center gap-1 rounded-lg border border-rose-500/30 bg-rose-500/10 px-2.5 py-1.5 text-xs text-rose-400 hover:bg-rose-500 hover:text-white transition"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                             <span>Unlink</span>
@@ -493,7 +493,7 @@ export function RepositorySettingsDialog({
                       <button
                         onClick={handleUpdate}
                         disabled={submitting}
-                        className="flex items-center justify-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-black hover:bg-neutral-200 transition disabled:opacity-50 w-full"
+                        className="cursor-pointer flex items-center justify-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-black hover:bg-neutral-200 transition disabled:opacity-50 w-full"
                       >
                         {submitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                         <span>Save Settings & Schedule</span>
@@ -586,14 +586,14 @@ export function RepositorySettingsDialog({
                     <button
                       type="button"
                       onClick={onClose}
-                      className="rounded-xl border border-neutral-800 px-4 py-2 text-xs font-semibold text-neutral-300 hover:bg-neutral-900 hover:text-white transition"
+                      className="cursor-pointer rounded-xl border border-neutral-800 px-4 py-2 text-xs font-semibold text-neutral-300 hover:bg-neutral-900 hover:text-white transition"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={submitting || !repoUrl.trim()}
-                      className="flex items-center gap-1.5 rounded-xl bg-white px-5 py-2 text-xs font-bold text-black hover:bg-neutral-200 transition disabled:opacity-50"
+                      className="cursor-pointer flex items-center gap-1.5 rounded-xl bg-white px-5 py-2 text-xs font-bold text-black hover:bg-neutral-200 transition disabled:opacity-50"
                     >
                       {submitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                       <span>Authorize & Link Repository</span>

@@ -54,6 +54,7 @@ model User {
   accounts         Account[]
   sessions         Session[]
   ownedOrgs        Organization[]    @relation("OrgOwner")
+  invitesSent      WorkspaceInvite[] @relation("InviteSender")
   workspaceMembers WorkspaceMember[]
   assignedIssues   Issue[]           @relation("IssueAssignee")
   createdIssues    Issue[]           @relation("IssueCreator")
@@ -63,6 +64,7 @@ model User {
   notifications    Notification[]
   leadProjects     Project[]         @relation("ProjectLead")
   projectMembers   ProjectMember[]
+  tourProgress     TourProgress[]
 }
 
 model VerificationToken {
@@ -110,10 +112,12 @@ model Workspace {
   updatedAt      DateTime     @updatedAt
 
   members      WorkspaceMember[]
+  invites      WorkspaceInvite[]
   projects     Project[]
   labels       Label[]
   activityLogs ActivityLog[]
   banners      Banner[]
+  cronJobs     CronJob[]
 
   @@unique([organizationId, slug])
   @@index([organizationId])
@@ -132,6 +136,25 @@ model WorkspaceMember {
   @@unique([workspaceId, userId])
   @@index([workspaceId])
   @@index([userId])
+}
+
+// Pending email invitations to join a workspace. Accepted in three steps:
+// 1) email link -> 2) sign in / register with the invited email -> 3) accept.
+model WorkspaceInvite {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  email       String
+  role        UserRole  @default(MEMBER)
+  token       String    @unique // unguessable accept token (32 random bytes hex)
+  invitedById String
+  invitedBy   User      @relation("InviteSender", fields: [invitedById], references: [id], onDelete: Cascade)
+  acceptedAt  DateTime?
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+
+  @@index([workspaceId])
+  @@index([email])
 }
 
 // -------------------------------------------------------------
@@ -167,6 +190,7 @@ model Project {
   banners    Banner[]
   repository ProjectRepository?
   cronLogs   CronExecutionLog[]
+  cronJobs   CronJob[]
 
   @@unique([workspaceId, key])
   @@index([workspaceId])
@@ -383,8 +407,21 @@ model Notification {
   @@index([userId, isRead])
 }
 
+model TourProgress {
+  id      String   @id @default(cuid())
+  userId  String
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tourId  String // e.g. "board", "workspace", "dashboard", "analytics"
+  seenAt  DateTime @default(now())
+
+  @@unique([userId, tourId])
+  @@index([userId])
+}
+
 model CronExecutionLog {
   id              String    @id @default(cuid())
+  cronJobId       String?
+  cronJob         CronJob?  @relation(fields: [cronJobId], references: [id], onDelete: SetNull)
   projectId       String?
   project         Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   workspaceId     String
@@ -398,8 +435,35 @@ model CronExecutionLog {
   rawOutput       String?   @db.Text
   createdAt       DateTime  @default(now())
 
+  @@index([cronJobId])
   @@index([projectId])
   @@index([workspaceId])
   @@index([createdAt])
+}
+
+model CronJob {
+  id            String    @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  projectId     String
+  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name          String
+  description   String?   @db.Text // What the user wants this job to do
+  schedule      String    @default("0 12 * * *")
+  jobType       String    @default("AI_SCAN") // AI_SCAN (reserved for future job types)
+  enabled       Boolean   @default(true)
+  repoOwner     String
+  repoName      String
+  defaultBranch String    @default("main")
+  accessToken   String?
+  lastStatus    String?
+  lastRunAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  runs CronExecutionLog[]
+
+  @@index([workspaceId])
+  @@index([projectId])
 }
 

@@ -131,7 +131,7 @@ export function SprintManagementDialog({
                 {Math.round((doneCount / totalIssueCount) * 100)}% done ({doneCount}/{totalIssueCount})
               </span>
             )}
-            <button onClick={onClose} className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-800 hover:text-white transition">
+            <button onClick={onClose} className="cursor-pointer rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-800 hover:text-white transition">
               <X className="h-5 w-5" />
             </button>
           </div>
@@ -152,7 +152,7 @@ export function SprintManagementDialog({
                   </h4>
                   <button
                     onClick={() => setShowCreate((v) => !v)}
-                    className="flex items-center gap-1 rounded-lg border border-neutral-800 bg-neutral-900 px-2.5 py-1 text-xs font-semibold text-neutral-300 hover:border-neutral-600 hover:text-white transition"
+                    className="cursor-pointer flex items-center gap-1 rounded-lg border border-neutral-800 bg-neutral-900 px-2.5 py-1 text-xs font-semibold text-neutral-300 hover:border-neutral-600 hover:text-white transition"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     New Sprint
@@ -195,13 +195,13 @@ export function SprintManagementDialog({
                       </label>
                     </div>
                     <div className="flex justify-end gap-2">
-                      <button onClick={() => setShowCreate(false)} className="rounded-lg px-3 py-1.5 text-xs text-neutral-400 hover:text-white transition">
+                      <button onClick={() => setShowCreate(false)} className="cursor-pointer rounded-lg px-3 py-1.5 text-xs text-neutral-400 hover:text-white transition">
                         Cancel
                       </button>
                       <button
                         type="submit"
                         disabled={working}
-                        className="flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-1.5 text-xs font-bold text-black hover:bg-neutral-200 transition disabled:opacity-50"
+                        className="cursor-pointer flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-1.5 text-xs font-bold text-black hover:bg-neutral-200 transition disabled:opacity-50"
                       >
                         {working ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
                         Create
@@ -235,7 +235,7 @@ export function SprintManagementDialog({
                                 });
                                 setRenameId(null);
                               }}
-                              className="rounded-lg bg-white px-2.5 py-1 text-xs font-bold text-black"
+                              className="cursor-pointer rounded-lg bg-white px-2.5 py-1 text-xs font-bold text-black"
                             >
                               Save
                             </button>
@@ -266,7 +266,7 @@ export function SprintManagementDialog({
                           <button
                             onClick={() => run(() => setSprintActive(s.id, false))}
                             disabled={working}
-                            className="flex items-center gap-1 rounded-lg border border-neutral-700 bg-neutral-800 px-2.5 py-1.5 text-xs font-bold text-neutral-200 hover:border-neutral-600 transition disabled:opacity-50"
+                            className="cursor-pointer flex items-center gap-1 rounded-lg border border-neutral-700 bg-neutral-800 px-2.5 py-1.5 text-xs font-bold text-neutral-200 hover:border-neutral-600 transition disabled:opacity-50"
                           >
                             <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
                             Complete
@@ -276,7 +276,7 @@ export function SprintManagementDialog({
                             onClick={() => run(() => setSprintActive(s.id, true))}
                             disabled={working || !!activeSprint}
                             title={activeSprint ? `Sprint ${activeSprint.number} is already active` : "Start sprint"}
-                            className="flex items-center gap-1 rounded-lg bg-white px-2.5 py-1.5 text-xs font-bold text-black hover:bg-neutral-200 transition disabled:opacity-50"
+                            className="cursor-pointer flex items-center gap-1 rounded-lg bg-white px-2.5 py-1.5 text-xs font-bold text-black hover:bg-neutral-200 transition disabled:opacity-50"
                           >
                             <Play className="h-3.5 w-3.5" />
                             Start
@@ -288,7 +288,7 @@ export function SprintManagementDialog({
                             run(() => deleteSprint(s.id));
                           }}
                           disabled={working}
-                          className="rounded-lg p-1.5 text-neutral-500 hover:bg-rose-950/50 hover:text-rose-400 transition disabled:opacity-50"
+                          className="cursor-pointer rounded-lg p-1.5 text-neutral-500 hover:bg-rose-950/50 hover:text-rose-400 transition disabled:opacity-50"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>

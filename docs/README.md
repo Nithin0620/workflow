@@ -15,5 +15,5 @@ Welcome to the centralized documentation directory for **Workflow**.
 | **API & Actions** | [Server Actions & Routes](./api-and-actions/server-actions-and-routes.md) | Server Action mutation signatures and NextAuth API route handlers. |
 | **UI Components** | [Component Architecture](./components-and-ui/component-architecture.md) | Atomic UI primitives, application shell, and Kanban board components. |
 | **Real-Time** | [Realtime & Live Sync](./realtime/realtime-architecture.md) | Scoped channels, presence indicators, and optimistic updates. |
-| **AI & Automation** | [AI & GitHub Automation](./ai-and-automation/ai-and-cron-automation.md) | GitHub integration, Groq Llama 3.3 triage, Autonomous Bug Hunter, and Cron management. |
+| **AI & Automation** | [AI & GitHub Automation](./ai-and-automation/ai-and-cron-automation.md) | GitHub integration, Groq `openai/gpt-oss-120b` triage, configurable Cron Jobs, and run history. |
 | **Testing** | [Testing Strategy & Suites](./testing/test-strategy.md) | Unit, Sanity, Smoke, Integration, Regression, and E2E Playwright test guide. |

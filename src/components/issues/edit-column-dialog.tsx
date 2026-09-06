@@ -115,7 +115,7 @@ export function EditColumnDialog({
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+            className="cursor-pointer rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
           >
             <X className="h-4 w-4" />
           </button>
@@ -152,7 +152,7 @@ export function EditColumnDialog({
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  className={`h-7 w-7 rounded-full border-2 transition transform active:scale-95 ${
+                  className={`cursor-pointer h-7 w-7 rounded-full border-2 transition transform active:scale-95 ${
                     color === c ? "border-white scale-110 shadow-md" : "border-transparent opacity-70 hover:opacity-100"
                   }`}
                   style={{ backgroundColor: c }}
@@ -166,7 +166,7 @@ export function EditColumnDialog({
               type="button"
               onClick={handleDelete}
               disabled={deleting || loading}
-              className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 transition disabled:opacity-50"
+              className="cursor-pointer flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 transition disabled:opacity-50"
             >
               <Trash2 className="h-3.5 w-3.5" />
               <span>Delete List</span>
@@ -176,14 +176,14 @@ export function EditColumnDialog({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-xl px-4 py-2 text-xs font-semibold text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+                className="cursor-pointer rounded-xl px-4 py-2 text-xs font-semibold text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading || deleting || !name.trim()}
-                className="flex items-center gap-2 rounded-xl bg-white px-5 py-2 text-xs font-bold text-black shadow-lg hover:bg-neutral-200 transition disabled:opacity-50"
+                className="cursor-pointer flex items-center gap-2 rounded-xl bg-white px-5 py-2 text-xs font-bold text-black shadow-lg hover:bg-neutral-200 transition disabled:opacity-50"
               >
                 {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Save Changes"}
               </button>

@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { getUserWorkspaces } from "@/actions/workspaces";
 import { prisma } from "@/lib/db/prisma";
 import { DashboardView } from "@/components/dashboard/dashboard-view";
+import { OnboardingTour } from "@/components/onboarding/onboarding-tour";
 
 export const metadata = {
   title: "Dashboard & Workspaces — Workflow",
@@ -43,15 +44,18 @@ export default async function DashboardPage() {
   }
 
   return (
-    <DashboardView
-      user={{
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        image: user.image,
-      }}
-      organization={orgData}
-      workspaces={workspaces as any}
-    />
+    <>
+      <DashboardView
+        user={{
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+        }}
+        organization={orgData}
+        workspaces={workspaces as any}
+      />
+      <OnboardingTour tourId="dashboard" />
+    </>
   );
 }

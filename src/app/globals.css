@@ -55,3 +55,59 @@ html.lenis body {
   pointer-events: none;
 }
 
+/* ---------- Onboarding tour (Driver.js) dark theme ---------- */
+.workflow-tour-popover {
+  color: #fafafa;
+  background-color: #0a0a0a;
+  border: 1px solid #262626;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+}
+.workflow-tour-popover .driver-popover-title {
+  font-size: 15px;
+  color: #ffffff;
+}
+.workflow-tour-popover .driver-popover-description {
+  font-size: 13px;
+  color: #a3a3a3;
+}
+.workflow-tour-popover .driver-popover-close-btn,
+.workflow-tour-popover .driver-popover-close-btn:hover {
+  color: #737373;
+}
+.workflow-tour-popover .driver-popover-progress-text {
+  color: #737373;
+}
+.workflow-tour-popover .driver-popover-footer-btn {
+  color: #ffffff;
+  background-color: #171717;
+  border: 1px solid #404040;
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 6px 12px;
+}
+.workflow-tour-popover .driver-popover-footer-btn:hover,
+.workflow-tour-popover .driver-popover-footer-btn:focus {
+  background-color: #262626;
+}
+.workflow-tour-popover .driver-popover-footer-btn.driver-popover-btn-primary {
+  background-color: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+}
+.workflow-tour-popover .driver-popover-arrow {
+  border-color: #0a0a0a;
+}
+.workflow-tour-popover .driver-popover-arrow-side-top {
+  border-bottom-color: #0a0a0a;
+}
+.workflow-tour-popover .driver-popover-arrow-side-bottom {
+  border-top-color: #0a0a0a;
+}
+.workflow-tour-popover .driver-popover-arrow-side-left {
+  border-right-color: #0a0a0a;
+}
+.workflow-tour-popover .driver-popover-arrow-side-right {
+  border-left-color: #0a0a0a;
+}
+

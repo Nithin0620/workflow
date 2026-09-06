@@ -1,14 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { registerUser } from "@/actions/auth";
 import { Mail, Lock, User, AlertCircle, Loader2, ArrowLeft, CheckCircle2 } from "lucide-react";
 
+function safeCallbackUrl(raw: string | null): string {
+  if (!raw) return "/dashboard";
+  // Only internal, same-origin paths (blocks open redirects like "//evil.com")
+  return raw.startsWith("/") && !raw.startsWith("//") ? raw : "/dashboard";
+}
+
 export default function RegisterPage() {
+  return (
+    <Suspense fallback={null}>
+      <RegisterForm />
+    </Suspense>
+  );
+}
+
+function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"));
+  const fromInvite = searchParams.get("callbackUrl") !== null;
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,8 +56,14 @@ export default function RegisterPage() {
       if (signInRes?.error) {
         setError("Account created, but error signing in. Please go to login.");
         setLoading(false);
-      } else {
+      } else if (fromInvite) {
+        router.push(callbackUrl);
+        router.refresh();
+      } else if (res.defaultOrgSlug && res.defaultWorkspaceSlug) {
         router.push(`/${res.defaultOrgSlug}/${res.defaultWorkspaceSlug}`);
+        router.refresh();
+      } else {
+        router.push("/dashboard");
         router.refresh();
       }
     } catch {
@@ -50,7 +73,7 @@ export default function RegisterPage() {
   };
 
   const handleOAuthLogin = (provider: "google" | "github") => {
-    signIn(provider, { callbackUrl: "/" });
+    signIn(provider, { callbackUrl });
   };
 
   return (

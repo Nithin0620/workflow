@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ArrowRight, Menu, X } from "lucide-react";
+import { Logo } from "./logo";
 
 interface PublicNavbarProps {
   theme?: "dark" | "light";
@@ -59,13 +60,7 @@ export function PublicNavbar({ theme = "dark", workspaceUrl }: PublicNavbarProps
         {/* Brand Logo & Left Navigation Links */}
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2.5">
-            <div
-              className={`flex h-7 w-7 items-center justify-center rounded-lg font-black text-xs ${
-                isDark ? "bg-white text-black" : "bg-black text-white"
-              }`}
-            >
-              W
-            </div>
+            <Logo className="h-7 w-7 shrink-0" />
             <span
               className={`text-base font-bold tracking-tight ${
                 isDark ? "text-white" : "text-black"
@@ -114,7 +109,7 @@ export function PublicNavbar({ theme = "dark", workspaceUrl }: PublicNavbarProps
                   : "bg-black text-white hover:bg-neutral-800"
               }`}
             >
-              <span>Workspaces</span>
+              <span>Dashboard</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           ) : (

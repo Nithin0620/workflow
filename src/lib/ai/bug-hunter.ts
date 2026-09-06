@@ -28,97 +28,109 @@ export interface BugHuntResult {
   error?: string;
 }
 
+export interface JobRepo {
+  owner: string;
+  name: string;
+  branch: string;
+  token?: string | null;
+}
+
 const DEFAULT_MODEL = "openai/gpt-oss-120b";
 
-/**
- * Executes an AI Bug Hunt on a project's connected repository.
- */
-export async function runProjectBugHunt(
-  projectId: string,
-  triggerSource: "MANUAL" | "CRON" = "MANUAL",
-  customApiKey?: string
-): Promise<BugHuntResult> {
-  const token = (customApiKey || process.env.GROQ_API_KEY || "").trim();
+type TriggerSource = "MANUAL" | "CRON";
 
+function fail(
+  projectId: string,
+  projectKey: string,
+  projectName: string,
+  summary: string,
+  error: string
+): BugHuntResult {
+  return {
+    success: false,
+    projectId,
+    projectKey,
+    projectName,
+    issuesCreated: 0,
+    findings: [],
+    summary,
+    error,
+  };
+}
+
+interface ProjectContext {
+  id: string;
+  key: string;
+  name: string;
+  leadId: string | null;
+  columns: { key: string }[];
+  workspace: { id: string; organization: { ownerId: string } };
+}
+
+async function loadProjectContext(projectId: string): Promise<ProjectContext | null> {
   const project = await prisma.project.findUnique({
     where: { id: projectId },
     include: {
-      repository: true,
-      columns: { orderBy: { order: "asc" } },
-      workspace: { include: { organization: true } },
-      lead: true,
+      columns: { orderBy: { order: "asc" }, select: { key: true } },
+      workspace: { include: { organization: { select: { ownerId: true } } } },
     },
   });
+  if (!project) return null;
+  return project;
+}
 
-  if (!project) {
-    return {
-      success: false,
-      projectId,
-      projectKey: "UNKNOWN",
-      projectName: "Unknown",
-      issuesCreated: 0,
-      findings: [],
-      summary: "Project not found.",
-      error: "Project not found.",
-    };
-  }
+interface ScanParams {
+  project: ProjectContext;
+  repo: JobRepo;
+  instruction?: string;
+  triggerSource: TriggerSource;
+  customApiKey?: string;
+  cronJobId?: string;
+}
 
-  const repo = project.repository;
-  if (!repo || repo.status !== "ACTIVE" || !repo.aiScanEnabled) {
-    return {
-      success: false,
-      projectId: project.id,
-      projectKey: project.key,
-      projectName: project.name,
-      issuesCreated: 0,
-      findings: [],
-      summary: "No active repository with AI scan enabled.",
-      error: "Repository is not active or AI scanning is disabled.",
-    };
-  }
+async function executeScan({
+  project,
+  repo,
+  instruction,
+  triggerSource = "MANUAL",
+  customApiKey,
+  cronJobId,
+}: ScanParams): Promise<BugHuntResult> {
+  const token = (customApiKey || process.env.GROQ_API_KEY || "").trim();
+  const startTime = Date.now();
 
   if (!token) {
-    return {
-      success: false,
-      projectId: project.id,
-      projectKey: project.key,
-      projectName: project.name,
-      issuesCreated: 0,
-      findings: [],
-      summary: "GROQ_API_KEY is not configured.",
-      error: "GROQ_API_KEY is missing. Configure in .env or pass a custom key.",
-    };
+    return fail(
+      project.id,
+      project.key,
+      project.name,
+      "GROQ_API_KEY is not configured.",
+      "GROQ_API_KEY is missing. Configure in .env or pass a custom key."
+    );
   }
 
   // 1. Fetch Repository Tree
-  const treeRes = await fetchRepositoryTree(
-    repo.repoOwner,
-    repo.repoName,
-    repo.defaultBranch,
-    repo.accessToken
-  );
+  const treeRes = await fetchRepositoryTree(repo.owner, repo.name, repo.branch, repo.token);
 
   if (!treeRes.success || treeRes.tree.length === 0) {
-    return {
-      success: false,
-      projectId: project.id,
-      projectKey: project.key,
-      projectName: project.name,
-      issuesCreated: 0,
-      findings: [],
-      summary: "Failed to fetch repository tree.",
-      error: treeRes.error || "Repository tree empty or inaccessible.",
-    };
+    return fail(
+      project.id,
+      project.key,
+      project.name,
+      "Failed to fetch repository tree.",
+      treeRes.error || "Repository tree empty or inaccessible."
+    );
   }
 
   // Filter core source code files
-  const codeFiles = treeRes.tree.filter((f) =>
-    /\.(ts|tsx|js|jsx|py|go|rs|java|sql|prisma)$/i.test(f.path) &&
-    !f.path.includes("node_modules") &&
-    !f.path.includes(".next") &&
-    !f.path.includes("dist/") &&
-    !f.path.includes("build/") &&
-    !f.path.endsWith(".d.ts")
+  const codeFiles = treeRes.tree.filter(
+    (f) =>
+      /\.(ts|tsx|js|jsx|py|go|rs|java|sql|prisma)$/i.test(f.path) &&
+      !f.path.includes("node_modules") &&
+      !f.path.includes(".next") &&
+      !f.path.includes("dist/") &&
+      !f.path.includes("build/") &&
+      !f.path.endsWith(".d.ts")
   );
 
   // Sample top key application files (up to 8 files)
@@ -126,29 +138,20 @@ export async function runProjectBugHunt(
   const fileContents: Array<{ path: string; content: string }> = [];
 
   for (const path of sampledPaths) {
-    const fileRes = await fetchRepositoryFileContent(
-      repo.repoOwner,
-      repo.repoName,
-      path,
-      repo.defaultBranch,
-      repo.accessToken
-    );
+    const fileRes = await fetchRepositoryFileContent(repo.owner, repo.name, path, repo.branch, repo.token);
     if (fileRes.success && fileRes.content) {
       fileContents.push({ path, content: fileRes.content.slice(0, 2500) });
     }
   }
 
   if (fileContents.length === 0) {
-    return {
-      success: false,
-      projectId: project.id,
-      projectKey: project.key,
-      projectName: project.name,
-      issuesCreated: 0,
-      findings: [],
-      summary: "No readable source files found to scan.",
-      error: "Could not read source files from repository.",
-    };
+    return fail(
+      project.id,
+      project.key,
+      project.name,
+      "No readable source files found to scan.",
+      "Could not read source files from repository."
+    );
   }
 
   // 2. Prompt Groq AI for static bug detection
@@ -169,7 +172,10 @@ Each finding in the array MUST match this exact JSON schema:
 ]
 Limit findings to 1-3 most critical real bugs. Do not output markdown fences or explanatory text outside the JSON array.`;
 
-  let userPrompt = `Repository: ${repo.repoOwner}/${repo.repoName} (Branch: ${repo.defaultBranch})\n\n`;
+  let userPrompt = `Repository: ${repo.owner}/${repo.name} (Branch: ${repo.branch})\n\n`;
+  if (instruction) {
+    userPrompt += `### Job Instruction\n${instruction}\n\nReturn findings aligned with this instruction where relevant.\n\n`;
+  }
   for (const file of fileContents) {
     userPrompt += `--- File: ${file.path} ---\n${file.content}\n\n`;
   }
@@ -196,16 +202,13 @@ Limit findings to 1-3 most critical real bugs. Do not output markdown fences or 
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      return {
-        success: false,
-        projectId: project.id,
-        projectKey: project.key,
-        projectName: project.name,
-        issuesCreated: 0,
-        findings: [],
-        summary: "Groq API error during bug hunt.",
-        error: err.error?.message || `Groq API returned ${res.status}`,
-      };
+      return fail(
+        project.id,
+        project.key,
+        project.name,
+        "Groq API error during bug hunt.",
+        err.error?.message || `Groq API returned ${res.status}`
+      );
     }
 
     const data = await res.json();
@@ -225,10 +228,8 @@ Limit findings to 1-3 most critical real bugs. Do not output markdown fences or 
     let createdCount = 0;
     const defaultStatus = project.columns[0]?.key || "TODO";
 
-    // Find default creator user (project lead or workspace member)
-    const creatorId =
-      project.leadId ||
-      project.workspace.organization.ownerId;
+    // Find default creator user (project lead or workspace owner)
+    const creatorId = project.leadId || project.workspace.organization.ownerId;
 
     for (const finding of findings.slice(0, 3)) {
       const fullTitle = `[AI Bug Report] ${finding.title}`;
@@ -244,8 +245,10 @@ Limit findings to 1-3 most critical real bugs. Do not output markdown fences or 
       if (existing) continue;
 
       const description = `### 🤖 Autonomous AI Bug Hunter Finding
-*Discovered during ${triggerSource === "CRON" ? "Daily 12:00 PM Scheduled Scan" : "Manual Codebase Audit"}*
-*Repository: \`${repo.repoOwner}/${repo.repoName}\` (${repo.defaultBranch})*
+*Discovered during ${
+        triggerSource === "CRON" ? "Scheduled Scan" : "Manual Codebase Audit"
+      }*
+*Repository: \`${repo.owner}/${repo.name}\` (${repo.branch})*
 
 ---
 
@@ -299,7 +302,7 @@ ${finding.reproduction}
         data: {
           issueId: newIssue.id,
           authorId: creatorId,
-          content: `🤖 **AI Autonomous Analysis Summary**\nThis issue was automatically raised by the Daily Bug Hunter after scanning \`${finding.filePath}\`. Proposed fix is ready for review.`,
+          content: `🤖 **AI Autonomous Analysis Summary**\nThis issue was automatically raised by the Cron Agent after scanning \`${finding.filePath}\`. Proposed fix is ready for review.`,
           isAi: true,
         },
       });
@@ -322,17 +325,20 @@ ${finding.reproduction}
       createdCount++;
     }
 
+    const durationMs = Date.now() - startTime;
+
     // Persist CronExecutionLog
     try {
       await (prisma as any).cronExecutionLog.create({
         data: {
+          cronJobId: cronJobId || null,
           projectId: project.id,
           workspaceId: project.workspace.id,
           triggerSource,
           status: "SUCCESS",
           findingsCount: findings.length,
           issuesCreated: createdCount,
-          durationMs: Date.now() - (globalThis as any).__scanStart || 1500,
+          durationMs,
           summary:
             findings.length > 0
               ? `Found ${findings.length} flaw(s), created ${createdCount} issue(s) on board.`
@@ -357,33 +363,109 @@ ${finding.reproduction}
           : "Bug hunt complete: Codebase clean, no critical flaws detected.",
     };
   } catch (err: any) {
+    const durationMs = Date.now() - startTime;
     try {
-      if (project?.id && project?.workspace?.id) {
-        await (prisma as any).cronExecutionLog.create({
-          data: {
-            projectId: project.id,
-            workspaceId: project.workspace.id,
-            triggerSource,
-            status: "FAILED",
-            findingsCount: 0,
-            issuesCreated: 0,
-            durationMs: 500,
-            summary: "Error during bug hunt execution.",
-            error: err.message,
-          },
-        });
-      }
+      await (prisma as any).cronExecutionLog.create({
+        data: {
+          cronJobId: cronJobId || null,
+          projectId: project.id,
+          workspaceId: project.workspace.id,
+          triggerSource,
+          status: "FAILED",
+          findingsCount: 0,
+          issuesCreated: 0,
+          durationMs,
+          summary: "Error during bug hunt execution.",
+          error: err.message,
+        },
+      });
     } catch {}
 
-    return {
-      success: false,
-      projectId: project?.id || projectId,
-      projectKey: project?.key || "UNKNOWN",
-      projectName: project?.name || "Unknown",
-      issuesCreated: 0,
-      findings: [],
-      summary: "Error during bug hunt execution.",
-      error: err.message,
-    };
+    return fail(
+      project.id,
+      project.key,
+      project.name,
+      "Error during bug hunt execution.",
+      err.message
+    );
   }
+}
+
+/**
+ * Runs an AI Bug Hunt on a project's connected repository.
+ */
+export async function runProjectBugHunt(
+  projectId: string,
+  triggerSource: TriggerSource = "MANUAL",
+  customApiKey?: string
+): Promise<BugHuntResult> {
+  const project = await loadProjectContext(projectId);
+  if (!project) {
+    return fail(projectId, "UNKNOWN", "Unknown", "Project not found.", "Project not found.");
+  }
+
+  const currentProject = await prisma.project.findUnique({
+    where: { id: projectId },
+    include: { repository: true },
+  });
+  const repo = currentProject?.repository;
+  if (!repo || repo.status !== "ACTIVE" || !repo.aiScanEnabled) {
+    return fail(
+      project.id,
+      project.key,
+      project.name,
+      "No active repository with AI scan enabled.",
+      "Repository is not active or AI scanning is disabled."
+    );
+  }
+
+  return executeScan({
+    project,
+    repo: { owner: repo.repoOwner, name: repo.repoName, branch: repo.defaultBranch, token: repo.accessToken },
+    triggerSource,
+    customApiKey,
+  });
+}
+
+/**
+ * Runs a configured CronJob: scans the job's linked repo and logs the run
+ * against both the cron job and its project.
+ */
+export async function runCronJobScan(
+  cronJobId: string,
+  triggerSource: TriggerSource = "CRON",
+  customApiKey?: string
+): Promise<BugHuntResult> {
+  const job = await prisma.cronJob.findUnique({ where: { id: cronJobId } });
+  if (!job) {
+    return fail(cronJobId, "UNKNOWN", "Unknown", "Cron job not found.", "Cron job not found.");
+  }
+
+  const project = await loadProjectContext(job.projectId);
+  if (!project) {
+    return fail(job.projectId, "UNKNOWN", "Unknown", "Project not found.", "Project not found.");
+  }
+
+  const result = await executeScan({
+    project,
+    repo: {
+      owner: job.repoOwner,
+      name: job.repoName,
+      branch: job.defaultBranch,
+      token: job.accessToken,
+    },
+    instruction: job.description || undefined,
+    triggerSource,
+    customApiKey,
+    cronJobId,
+  });
+
+  try {
+    await prisma.cronJob.update({
+      where: { id: cronJobId },
+      data: { lastStatus: result.success ? "SUCCESS" : "FAILED", lastRunAt: new Date() },
+    });
+  } catch {}
+
+  return result;
 }

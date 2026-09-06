@@ -10,6 +10,7 @@ import { EditColumnDialog } from "./edit-column-dialog";
 import { IssueDetailModal } from "./issue-detail-modal";
 import { SprintManagementDialog } from "./sprints-dialog";
 import { ProjectPermissionsDialog } from "@/components/projects/project-permissions-dialog";
+import { ProjectCronDialog } from "@/components/cron/project-cron-dialog";
 import { BannerDialog } from "@/components/banners/banner-dialog";
 import { RepositoryBadge } from "@/components/repositories/repository-badge";
 import { ProjectRepoDetails } from "@/actions/repositories";
@@ -18,6 +19,7 @@ import { moveIssue } from "@/actions/issues";
 import { reorderBoardColumns } from "@/actions/columns";
 import { exportProjectIssues } from "@/actions/export";
 import { useProjectRealtime } from "@/hooks/use-project-realtime";
+import { TourReplayButton } from "@/components/onboarding/onboarding-tour";
 import {
   Plus,
   Search,
@@ -30,6 +32,7 @@ import {
   AlertCircle,
   X,
   Flag,
+  Clock,
   ChevronLeft,
   ChevronRight,
   Image as ImageIcon,
@@ -108,6 +111,7 @@ export function KanbanBoard({
   const [editingColumn, setEditingColumn] = useState<BoardColumnItem | null>(null);
   const [permissionsDialogOpen, setPermissionsDialogOpen] = useState(false);
   const [sprintsDialogOpen, setSprintsDialogOpen] = useState(false);
+  const [cronDialogOpen, setCronDialogOpen] = useState(false);
   const [bannerModalOpen, setBannerModalOpen] = useState(false);
   const [activeBannerIndex, setActiveBannerIndex] = useState(0);
   const [selectedStatus, setSelectedStatus] = useState<string>("TODO");
@@ -325,7 +329,10 @@ export function KanbanBoard({
   return (
     <div className="flex h-full flex-col space-y-4">
       {/* Board Top Toolbar with Ambient Pure B&W Backdrop */}
-      <div className="relative overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 p-4 shadow-xl">
+      <div
+        className="relative overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 p-4 shadow-xl"
+        data-tour="board-toolbar"
+      >
         {/* Ambient B&W Backdrop Images with Smooth Cross-fade Transition */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           {displayBanners.map((banner, idx) => (
@@ -380,7 +387,7 @@ export function KanbanBoard({
                       setActiveBannerIndex((prev) => (prev - 1 + displayBanners.length) % displayBanners.length);
                     }}
                     title="Previous banner image"
-                    className="text-neutral-400 hover:text-white transition p-0.5"
+                    className="cursor-pointer text-neutral-400 hover:text-white transition p-0.5"
                   >
                     <ChevronLeft className="h-3.5 w-3.5" />
                   </button>
@@ -393,7 +400,7 @@ export function KanbanBoard({
                       setActiveBannerIndex((prev) => (prev + 1) % displayBanners.length);
                     }}
                     title="Next banner image"
-                    className="text-neutral-400 hover:text-white transition p-0.5"
+                    className="cursor-pointer text-neutral-400 hover:text-white transition p-0.5"
                   >
                     <ChevronRight className="h-3.5 w-3.5" />
                   </button>
@@ -402,18 +409,20 @@ export function KanbanBoard({
               <button
                 onClick={() => setBannerModalOpen(true)}
                 title="View & manage project banner images"
-                className="flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-900/80 px-2.5 py-1 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition backdrop-blur-sm shadow-sm"
+                data-tour="board-banners"
+                className="cursor-pointer flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-900/80 px-2.5 py-1 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition backdrop-blur-sm shadow-sm"
               >
                 <ImageIcon className="h-3.5 w-3.5 text-neutral-400" />
                 <span className="hidden sm:inline">Banners</span>
               </button>
+              <TourReplayButton tourId="board" />
             </div>
           </div>
 
         {/* Filters & Actions */}
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Search Bar */}
-          <div className="relative">
+          <div className="relative" data-tour="board-search">
             <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-neutral-500" />
             <input
               type="text"
@@ -427,7 +436,7 @@ export function KanbanBoard({
           {/* Quick Filter Pills */}
           <button
             onClick={() => setOnlyMyIssues((prev) => !prev)}
-            className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-bold transition ${
+            className={`cursor-pointer flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-bold transition ${
               onlyMyIssues
                 ? "border-white bg-white text-black shadow-md"
                 : "border-neutral-800 bg-neutral-950 text-neutral-400 hover:border-neutral-700 hover:text-white"
@@ -439,7 +448,7 @@ export function KanbanBoard({
 
           <button
             onClick={() => setOnlyUrgent((prev) => !prev)}
-            className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-bold transition ${
+            className={`cursor-pointer flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-bold transition ${
               onlyUrgent
                 ? "border-rose-500 bg-rose-500 text-white shadow-md shadow-rose-950"
                 : "border-neutral-800 bg-neutral-950 text-neutral-400 hover:border-neutral-700 hover:text-white"
@@ -459,7 +468,7 @@ export function KanbanBoard({
                 setSelectedStatusFilter("ALL");
               }}
               title="Reset all filters"
-              className="flex items-center gap-1 rounded-xl border border-neutral-800 bg-neutral-900 px-2 py-1.5 text-xs text-neutral-400 hover:text-white transition"
+              className="cursor-pointer flex items-center gap-1 rounded-xl border border-neutral-800 bg-neutral-900 px-2 py-1.5 text-xs text-neutral-400 hover:text-white transition"
             >
               <X className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Reset</span>
@@ -472,7 +481,7 @@ export function KanbanBoard({
               onClick={() => handleExport("csv")}
               disabled={exporting !== null}
               title="Export issues to CSV"
-              className="px-2 py-1 text-[11px] font-bold text-neutral-400 hover:text-white transition"
+              className="cursor-pointer px-2 py-1 text-[11px] font-bold text-neutral-400 hover:text-white transition"
             >
               {exporting === "csv" ? "..." : "CSV"}
             </button>
@@ -481,7 +490,7 @@ export function KanbanBoard({
               onClick={() => handleExport("json")}
               disabled={exporting !== null}
               title="Export issues to JSON"
-              className="px-2 py-1 text-[11px] font-bold text-neutral-400 hover:text-white transition"
+              className="cursor-pointer px-2 py-1 text-[11px] font-bold text-neutral-400 hover:text-white transition"
             >
               {exporting === "json" ? "..." : "JSON"}
             </button>
@@ -492,37 +501,50 @@ export function KanbanBoard({
             <button
               onClick={() => setCreateColumnDialogOpen(true)}
               title="Add a new custom list/column"
-              className="flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
+              className="cursor-pointer flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
             >
               <LayoutGrid className="h-3.5 w-3.5 text-neutral-400" />
               <span className="hidden sm:inline">Add List</span>
             </button>
           )}
 
-          {/* Sprint Planning */}
+{/* Sprint Planning */}
           <button
             onClick={() => setSprintsDialogOpen(true)}
             title="Plan sprints & manage the backlog"
-            className="flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
+            className="cursor-pointer flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
           >
             <Flag className="h-3.5 w-3.5 text-neutral-400" />
             <span className="hidden sm:inline">Sprints</span>
           </button>
 
+          {/* Cron Jobs / Automation */}
+          <button
+            onClick={() => setCronDialogOpen(true)}
+            title="Scheduled AI cron jobs for this project"
+            className="cursor-pointer flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
+          >
+            <Clock className="h-3.5 w-3.5 text-neutral-400" />
+            <span className="hidden sm:inline">Cron</span>
+          </button>
+
           {/* AI Repository Integration */}
-          <RepositoryBadge
-            projectId={projectId}
-            projectName={projectName}
-            projectKey={projectKey}
-            repository={initialRepository}
-            canManage={userRole !== "VIEWER"}
-          />
+          <div data-tour="board-repo">
+            <RepositoryBadge
+              projectId={projectId}
+              projectName={projectName}
+              projectKey={projectKey}
+              repository={initialRepository}
+              canManage={userRole !== "VIEWER"}
+            />
+          </div>
 
           {/* Project Access & Permissions */}
           <button
             onClick={() => setPermissionsDialogOpen(true)}
             title="Manage Project Access & Granular Permissions"
-            className="flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
+            data-tour="board-access"
+            className="cursor-pointer flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
           >
             <Shield className="h-3.5 w-3.5 text-neutral-400" />
             <span className="hidden sm:inline">Access</span>
@@ -530,17 +552,18 @@ export function KanbanBoard({
 
           <button
             onClick={() => handleAddIssue(columns[0]?.key || "TODO")}
-            className="flex items-center gap-1.5 rounded-xl bg-white px-3.5 py-1.5 text-xs font-bold text-black shadow-lg transition hover:bg-neutral-200"
+            data-tour="new-issue"
+            className="cursor-pointer flex items-center gap-1.5 rounded-xl bg-white px-3.5 py-1.5 text-xs font-bold text-black shadow-lg transition hover:bg-neutral-200"
           >
             <Plus className="h-4 w-4" />
             <span>New Issue</span>
           </button>
 
           {/* View Mode Toggle */}
-          <div className="flex items-center rounded-xl border border-neutral-800 bg-neutral-950 p-1">
+          <div className="flex items-center rounded-xl border border-neutral-800 bg-neutral-950 p-1" data-tour="view-toggle">
             <button
               onClick={() => setViewMode("board")}
-              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
+              className={`cursor-pointer flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
                 viewMode === "board"
                   ? "bg-white text-black shadow-sm"
                   : "text-neutral-400 hover:text-white"
@@ -551,7 +574,7 @@ export function KanbanBoard({
             </button>
             <button
               onClick={() => setViewMode("list")}
-              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
+              className={`cursor-pointer flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
                 viewMode === "list"
                   ? "bg-white text-black shadow-sm"
                   : "text-neutral-400 hover:text-white"
@@ -567,7 +590,7 @@ export function KanbanBoard({
 
       {/* Main Content Area: Board or List */}
       {viewMode === "board" ? (
-        <div className="flex flex-1 gap-4 overflow-x-auto pb-4 items-start">
+        <div className="flex flex-1 gap-4 overflow-x-auto pb-4 items-start" data-tour="board-columns">
           {columns.map((col) => (
             <KanbanColumn
               key={col.id}
@@ -599,7 +622,7 @@ export function KanbanBoard({
           {canManageBoard && (
             <button
               onClick={() => setCreateColumnDialogOpen(true)}
-              className="flex h-36 min-w-[200px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-neutral-800 bg-neutral-950/40 text-neutral-400 transition hover:border-neutral-600 hover:bg-neutral-900/60 hover:text-white"
+              className="cursor-pointer flex h-36 min-w-[200px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-neutral-800 bg-neutral-950/40 text-neutral-400 transition hover:border-neutral-600 hover:bg-neutral-900/60 hover:text-white"
             >
               <Plus className="h-5 w-5" />
               <span className="text-xs font-bold uppercase tracking-wider">New List</span>
@@ -670,6 +693,18 @@ export function KanbanBoard({
         projectKey={projectKey}
         isOpen={sprintsDialogOpen}
         onClose={() => setSprintsDialogOpen(false)}
+      />
+
+      {/* Cron Jobs & Automation Dialog */}
+      <ProjectCronDialog
+        projectId={projectId}
+        projectKey={projectKey}
+        projectName={projectName}
+        orgSlug={orgSlug}
+        workspaceSlug={workspaceSlug}
+        isOpen={cronDialogOpen}
+        onClose={() => setCronDialogOpen(false)}
+        canManage={canManageBoard}
       />
 
       {/* Issue Detail & Discussion Modal */}

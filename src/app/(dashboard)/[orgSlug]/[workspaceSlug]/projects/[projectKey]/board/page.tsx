@@ -2,6 +2,7 @@ import { getCurrentUser, requireProjectAccess } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import { notFound, redirect } from "next/navigation";
 import { KanbanBoard } from "@/components/issues/kanban-board";
+import { OnboardingTour } from "@/components/onboarding/onboarding-tour";
 import { ISSUE_STATUSES } from "@/lib/constants";
 
 interface BoardPageProps {
@@ -63,6 +64,7 @@ export default async function ProjectBoardPage({ params }: BoardPageProps) {
 
   return (
     <div className="flex h-full flex-col">
+      <OnboardingTour tourId="board" />
       <KanbanBoard
         projectId={project.id}
         projectKey={project.key}

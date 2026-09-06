@@ -1,12 +1,12 @@
 # AI & GitHub Automation Architecture 🤖⚡
 
-> **Complete guide to GitHub repository integrations, Groq-powered AI issue triage, autonomous scheduled bug hunting, and cron execution management in Workflow.**
+> **Complete guide to GitHub repository integrations, Groq-powered AI issue triage, configurable autonomous cron jobs, and run history in Workflow.**
 
 ---
 
 ## 📑 Overview
 
-Workflow integrates directly with GitHub repositories and uses **Groq's Llama 3.3 70B** model to deliver deep code intelligence right within your project boards.
+Workflow integrates directly with GitHub repositories and uses **Groq's `openai/gpt-oss-120b`** model to deliver deep code intelligence right within your project boards.
 
 ```
 ┌───────────────────────────┐      ┌───────────────────────────┐
@@ -17,14 +17,14 @@ Workflow integrates directly with GitHub repositories and uses **Groq's Llama 3.
                                                  ▼
                                    ┌───────────────────────────┐
                                    │      Groq AI Engine       │
-                                   │  (openai/gpt-oss-120b)│
+                                   │   (openai/gpt-oss-120b)   │
                                    └─────────────┬─────────────┘
                                                  │
                      ┌───────────────────────────┴───────────────────────────┐
                      ▼                                                       ▼
        ┌───────────────────────────┐                           ┌───────────────────────────┐
-       │   On-Demand Issue Triage  │                           │   Autonomous Bug Hunter   │
-       │   ("Ask AI for Fix")      │                           │   (Scheduled Cron Jobs)   │
+       │   On-Demand Issue Triage  │                           │   Configurable Cron Jobs  │
+       │   ("Ask AI for Fix")      │                           │   (per description, repo) │
        └───────────────────────────┘                           └───────────────────────────┘
 ```
 
@@ -35,8 +35,7 @@ Workflow integrates directly with GitHub repositories and uses **Groq's Llama 3.
 1. **🔗 GitHub Repository Linking**:
    - Link public or private GitHub repositories to any project.
    - Configurable target scanning branch (e.g. `main`, `master`, `develop`).
-   - Secure Optional Personal Access Token (PAT) storage for private repositories.
-   - Real-time connection testing & branch validation.
+   - Secure optional Personal Access Token (PAT) storage for private/Custom repositories.
 
 2. **🧠 On-Demand AI Issue Triage ("Ask AI for Fix")**:
    - Directly analyze issue title, description, and comments.
@@ -47,17 +46,26 @@ Workflow integrates directly with GitHub repositories and uses **Groq's Llama 3.
      - **Unified Diff Code Patch** (formatted for quick review)
      - **Step-by-Step Verification Checklist**
 
-3. **Autonomous Scheduled Bug Hunter**:
-   - Periodically scans repository source files for security vulnerabilities, logic flaws, memory leaks, and unhandled edge cases.
-   - Assigns severity scores (`CRITICAL`, `HIGH`, `MEDIUM`, `LOW`).
-   - Automatically creates structured issues on your Kanban board tagged with `[AI Bug Report]` under the `Backlog` column.
-   - Prevents duplicate bug creation across repeated scan runs.
+3. **⏱️ Configurable Cron Jobs**:
+   - A cron job is **defined by the user**: a **description** of what the job should do, run against a chosen repository, scheduled on a cron expression.
+   - Every job links to **any project in the workspace** and **any repository** (the project's repo, another project's repo, or a custom GitHub URL).
+   - Jobs are first-class entities (`CronJob`), superseding the old 1:1 `ProjectRepository.cronSchedule` model.
+   - Runs automatically via the scheduled endpoint; can also be triggered manually per-job or workspace-wide ("Run All Jobs").
+   - Scans the linked repo, prompts Groq for findings aligned with the job's instruction, and creates `[AI Bug Report]` issues on the project board (deduped across runs).
 
-4. **⏱️ Centralized Cron Jobs & AI Management Dashboard**:
-   - Dedicated route at `/[orgSlug]/[workspaceSlug]/cron`.
-   - **Metrics Overview**: Connected Repos, Total Runs, Bugs Discovered, Issues Auto-Created.
-   - **Project Job Controls**: Per-project triggers (**"Run Hunt"**), schedule config dialogs, and workspace-wide **"Run All Scans"**.
-   - **Audit Trail & Execution Logs**: Full history with status filters (`ALL`, `COMPLETED`, `FAILED`, `IN_PROGRESS`) and slide-over deep inspection drawers showing patch diffs.
+4. **📊 Centralized Cron Dashboard (`/[orgSlug]/[workspaceSlug]/cron`)**:
+   - **Metrics**: Active Jobs, Total Runs, Failed Runs, Findings, Next Run.
+   - **Job cards**: description, linked repo + branch, next schedule, run/failed counts, last status; per-job **Run Now**, pause/resume, delete.
+   - **Combined run history** across every job in the workspace, with per-job history + filters by **cron job, project, status, and date range**.
+   - Clicking any completed/failed run navigates to the run detail page.
+
+5. **🔍 Run Detail Page (`/cron/[id]`)**:
+   - Dedicated page per cron run: status, timing, findings, root cause analysis, proposed patch, and reproduction steps.
+   - Reachable from `/cron` history and the project board's cron modal.
+
+6. **🗂️ Board-Level Cron Modal**:
+   - From any project board, schedule **multiple cron jobs** for that project.
+   - Each job carries the user's description; recent runs are listed and link to `/cron/[id]`.
 
 ---
 
@@ -66,7 +74,7 @@ Workflow integrates directly with GitHub repositories and uses **Groq's Llama 3.
 Add the following environment variables to your [`.env`](file:///.env) or deployment environment:
 
 ```env
-# Groq API Key (Required for AI Triage & Bug Hunter)
+# Groq API Key (Required for AI Triage & Cron Jobs)
 GROQ_API_KEY="gsk_your_groq_api_key_here"
 
 # Cron Secret for securing background HTTP endpoints (Optional but recommended)
@@ -82,55 +90,61 @@ CRON_SECRET="your_secure_cron_secret_token"
 
 ## 🗄️ Database Schema
 
-The automation system utilizes three models in Prisma:
+The cron system relies on two models in Prisma:
 
 ```prisma
-model ProjectRepository {
-  id              String         @id @default(cuid())
-  projectId       String         @unique
-  project         Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  repoOwner       String
-  repoName        String
-  defaultBranch   String         @default("main")
-  accessToken     String?        // Encrypted / secured PAT
-  isPrivate       Boolean        @default(false)
-  aiEnabled       Boolean        @default(true)
-  bugHuntSchedule String         @default("0 12 * * *") // Daily 12:00 PM
-  lastScannedAt   DateTime?
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  cronRuns        CronExecution[]
+model CronJob {
+  id            String    @id @default(cuid())
+  workspaceId   String
+  projectId     String    // Any project in the workspace
+  name          String
+  description   String?   // What the user wants this job to do (drives the scan)
+  schedule      String    @default("0 12 * * *") // Cron expression
+  jobType       String    @default("AI_SCAN")    // Reserved for future job types
+  enabled       Boolean   @default(true)
+  repoOwner     String
+  repoName      String    // Job can target any repo, not just the project's
+  defaultBranch String    @default("main")
+  accessToken   String?   // Encrypted GitHub PAT for private/custom repos
+  lastStatus    String?
+  lastRunAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  @@index([projectId])
+  runs CronExecutionLog[]
 }
 
-model CronExecution {
-  id                  String             @id @default(cuid())
-  projectRepositoryId String
-  projectRepository   ProjectRepository  @relation(fields: [projectRepositoryId], references: [id], onDelete: Cascade)
-  status              CronRunStatus      @default(IN_PROGRESS) // IN_PROGRESS | COMPLETED | FAILED
-  findingsCount       Int                @default(0)
-  issuesCreated       Int                @default(0)
-  findingsPayload     Json?
-  errorMessage        String?
-  startedAt           DateTime           @default(now())
-  completedAt         DateTime?
-
-  @@index([projectRepositoryId])
-  @@index([startedAt])
+model CronExecutionLog {
+  id            String    @id @default(cuid())
+  cronJobId     String?   // Present on scheduled/manual runs of a job
+  projectId     String?
+  workspaceId   String
+  triggerSource String    // "CRON" | "MANUAL"
+  status        String    // "SUCCESS" | "FAILED" | "RUNNING"
+  findingsCount Int       @default(0)
+  issuesCreated Int       @default(0)
+  durationMs    Int       @default(0)
+  summary       String    @db.Text
+  error         String?   @db.Text
+  rawOutput     String?   @db.Text
+  createdAt     DateTime  @default(now())
 }
 ```
+
+> Legacy `ProjectRepository.cronSchedule` / `aiScanEnabled` fields and the old
+> `src/actions/bug-hunt.ts` actions still exist for compatibility, but the
+> active system reads only `CronJob`.
 
 ---
 
 ## 🚀 Setting Up Scheduled Cron Triggers
 
-### 1. Internal Manual Trigger
-- Navigate to **"Cron Jobs & AI"** from the sidebar (`/[orgSlug]/[workspaceSlug]/cron`).
-- Click **"Run Hunt"** on any project card or **"Run All Scans"** at the top.
+### 1. Manual / UI Triggers
+- Open `/[orgSlug]/[workspaceSlug]/cron` → **New Cron Job** (project, description, schedule, repo) or **Run All Jobs**.
+- From any project board, use the **Cron** button in the toolbar to manage that project's jobs.
 
 ### 2. External HTTP Cron Webhook (Vercel Cron, GitHub Actions, AWS EventBridge)
-The endpoint `/api/cron/bug-hunt` supports both `GET` and `POST` requests.
+The endpoint `/api/cron/bug-hunt` supports both `GET` and `POST` requests and runs every **enabled** `CronJob`.
 
 #### Authorization:
 Pass the `CRON_SECRET` in the Authorization header:
@@ -166,10 +180,14 @@ jobs:
 | :--- | :--- |
 | `src/lib/github/client.ts` | GitHub REST client for verifying repos, fetching branch refs, trees, and file contents. |
 | `src/lib/ai/groq.ts` | Groq AI engine implementing `openai/gpt-oss-120b` triage prompts & structured JSON parsing. |
-| `src/lib/ai/bug-hunter.ts` | Autonomous scanning engine: downloads repo sample files, prompts Groq for bugs, and creates board issues. |
-| `src/actions/repository.ts` | Server Actions for linking/unlinking repositories and updating branch & AI configurations. |
+| `src/lib/ai/bug-hunter.ts` | Scanning engine: `executeScan` runs a scan for a target repo + instruction; `runCronJobScan` runs a `CronJob` and logs a `CronExecutionLog`. |
+| `src/lib/cron.ts` | `computeNextRun` — cron-expression to next-run-date helper (covered by unit tests). |
+| `src/actions/cron-jobs.ts` | Server Actions: create/update/delete/toggle/run cron jobs, list jobs, run history, run detail, project/workspace queries, permission-guarded. |
+| `src/actions/bug-hunt.ts` | Legacy actions (repo overview + run history) still used by the workspace AI scanner settings. |
 | `src/actions/ai-triage.ts` | Server Actions for on-demand issue triage (`triageIssueWithAI`). |
-| `src/actions/bug-hunt.ts` | Server Actions for manual run triggers, statistics aggregation, and execution logs query. |
-| `src/app/api/cron/bug-hunt/route.ts` | Next.js Route Handler for external automated cron execution. |
-| `src/components/repositories/repository-settings-dialog.tsx` | Repository connection modal with branch selection & AI toggles. |
-| `src/components/cron/cron-management-client.tsx` | Interactive dashboard for managing cron jobs, inspecting runs, and viewing patches. |
+| `src/app/api/cron/bug-hunt/route.ts` | Route handler for external automated cron execution (runs all enabled `CronJob`s). |
+| `src/components/cron/cron-management-client.tsx` | `/cron` dashboard: metrics, job cards, combined + filtered run history. |
+| `src/components/cron/create-cron-job-dialog.tsx` | Job creation UI: project picker, name, description, schedule, repo mode (project/other/custom), branch & token. |
+| `src/components/cron/project-cron-dialog.tsx` | Board-level cron modal: that project's jobs + recent runs + create. |
+| `src/app/(dashboard)/[orgSlug]/[workspaceSlug]/cron/[id]/page.tsx` | Run detail page: status, duration, findings, root cause, patch, reproduction. |
+| `src/components/repositories/repository-settings-dialog.tsx` | Legacy repository connection modal (branch selection & AI toggles). |

@@ -4,7 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { CreateWorkspaceDialog } from "@/components/workspaces/create-workspace-dialog";
+import { Logo } from "@/components/common/logo";
 import { BannerStrip } from "@/components/banners/banner-strip";
+import { TourReplayButton } from "@/components/onboarding/onboarding-tour";
 import {
   FolderKanban,
   Building2,
@@ -75,9 +77,7 @@ export function DashboardView({
       <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-neutral-900 bg-black/90 px-6 backdrop-blur-md">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white text-xs font-black text-black">
-              W
-            </div>
+            <Logo className="h-7 w-7 shrink-0" />
             <span className="text-base font-bold tracking-tight text-white">
               Workflow
             </span>
@@ -130,17 +130,21 @@ export function DashboardView({
             </p>
           </div>
 
-          <button
-            onClick={() => setCreateDialogOpen(true)}
-            className="flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-black shadow-lg shadow-white/10 hover:bg-neutral-200 transition"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Create Workspace</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCreateDialogOpen(true)}
+              data-tour="create-workspace"
+              className="flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-black shadow-lg shadow-white/10 hover:bg-neutral-200 transition"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Create Workspace</span>
+            </button>
+            <TourReplayButton tourId="dashboard" />
+          </div>
         </div>
 
         {/* Overview Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4" data-tour="dash-stats">
           <div className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-4 space-y-1">
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500">
               Workspaces
@@ -181,7 +185,7 @@ export function DashboardView({
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" data-tour="workspaces-grid">
             {workspaces.map((ws) => {
               const wsUrl = `/${ws.organization.slug}/${ws.slug}`;
               return (
@@ -251,7 +255,7 @@ export function DashboardView({
         </div>
 
         {/* Section 2: Infrastructure & Servers (Hub for upcoming expansion) */}
-        <div className="space-y-4 pt-6 border-t border-neutral-900">
+        <div className="space-y-4 pt-6 border-t border-neutral-900" data-tour="infra">
           <div>
             <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-400 font-mono">
               Infrastructure & Services

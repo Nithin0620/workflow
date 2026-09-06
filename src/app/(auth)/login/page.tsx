@@ -1,13 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, AlertCircle, Loader2, ArrowLeft, CheckCircle2 } from "lucide-react";
 
+function safeCallbackUrl(raw: string | null): string {
+  if (!raw) return "/dashboard";
+  // Only internal, same-origin paths (blocks open redirects like "//evil.com")
+  return raw.startsWith("/") && !raw.startsWith("//") ? raw : "/dashboard";
+}
+
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"));
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +45,7 @@ export default function LoginPage() {
         setError(res.error);
         setLoading(false);
       } else {
-        router.push("/");
+        router.push(callbackUrl);
         router.refresh();
       }
     } catch {
@@ -39,7 +55,7 @@ export default function LoginPage() {
   };
 
   const handleOAuthLogin = (provider: "google" | "github") => {
-    signIn(provider, { callbackUrl: "/" });
+    signIn(provider, { callbackUrl });
   };
 
   return (

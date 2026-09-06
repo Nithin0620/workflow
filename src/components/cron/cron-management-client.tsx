@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Clock,
   Bot,
@@ -10,27 +10,22 @@ import {
   Loader2,
   RefreshCw,
   GitBranch,
-  ExternalLink,
-  ChevronDown,
-  ChevronUp,
-  ShieldAlert,
+  ChevronRight,
   Calendar,
-  Layers,
-  Terminal,
-  FileCode2,
-  Sparkles,
   Plus,
-  Settings,
+  Trash2,
+  Zap,
 } from "lucide-react";
-import { RepositorySettingsDialog } from "@/components/repositories/repository-settings-dialog";
 import {
-  getWorkspaceRepositoriesOverview,
-  getCronExecutionHistory,
-  runManualBugHunt,
-  runWorkspaceBugHunts,
-  WorkspaceRepoOverviewItem,
-  CronLogItem,
-} from "@/actions/bug-hunt";
+  getWorkspaceCronJobs,
+  getCronRunHistory,
+  runCronJobNow,
+  deleteCronJob,
+  toggleCronJob,
+  CronJobItem,
+  CronRunItem,
+} from "@/actions/cron-jobs";
+import { CreateCronJobDialog } from "./create-cron-job-dialog";
 import { useRouter } from "next/navigation";
 
 interface CronManagementClientProps {
@@ -41,6 +36,9 @@ interface CronManagementClientProps {
   canManage: boolean;
 }
 
+const fmtDate = (d: Date | null | undefined) =>
+  d ? new Date(d).toLocaleString([], { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "—";
+
 export function CronManagementClient({
   workspaceId,
   workspaceName,
@@ -50,109 +48,125 @@ export function CronManagementClient({
 }: CronManagementClientProps) {
   const router = useRouter();
 
-  // State
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [runningAll, setRunningAll] = useState(false);
-  const [runningProjectId, setRunningProjectId] = useState<string | null>(null);
-
-  const [projectsOverview, setProjectsOverview] = useState<WorkspaceRepoOverviewItem[]>([]);
-  const [logs, setLogs] = useState<CronLogItem[]>([]);
-  const [selectedProjectId, setSelectedProjectId] = useState<string>("ALL");
-  const [selectedStatusFilter, setSelectedStatusFilter] = useState<"ALL" | "SUCCESS" | "FAILED">("ALL");
-  const [expandedLogId, setExpandedLogId] = useState<string | null>(null);
-  const [activeProjectForDialog, setActiveProjectForDialog] = useState<WorkspaceRepoOverviewItem | null>(null);
-
+  const [runningJobId, setRunningJobId] = useState<string | null>(null);
   const [notification, setNotification] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  const fetchData = async () => {
-    setLoading(true);
-    const [overviewRes, historyRes] = await Promise.all([
-      getWorkspaceRepositoriesOverview(workspaceId),
-      getCronExecutionHistory(workspaceId),
+  const [jobs, setJobs] = useState<CronJobItem[]>([]);
+  const [logs, setLogs] = useState<CronRunItem[]>([]);
+  const [createOpen, setCreateOpen] = useState(false);
+
+  // History filters
+  const [filterJobId, setFilterJobId] = useState("ALL");
+  const [filterProjectId, setFilterProjectId] = useState("ALL");
+  const [filterStatus, setFilterStatus] = useState("ALL");
+  const [filterSince, setFilterSince] = useState("ALL");
+
+  const loadAll = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
+    const [jobsRes, historyRes] = await Promise.all([
+      getWorkspaceCronJobs(workspaceId),
+      getCronRunHistory(workspaceId),
     ]);
-
-    if (overviewRes.success) {
-      setProjectsOverview(overviewRes.overview);
-    }
-    if (historyRes.success) {
-      setLogs(historyRes.logs);
-    }
+    if (jobsRes.success) setJobs(jobsRes.jobs);
+    if (historyRes.success) setLogs(historyRes.logs);
     setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchData();
   }, [workspaceId]);
 
-  const handleRefresh = async () => {
+  useEffect(() => {
+    queueMicrotask(() => {
+      void loadAll();
+    });
+  }, [loadAll]);
+
+  const refresh = async () => {
     setRefreshing(true);
     setNotification(null);
-    await fetchData();
+    await loadAll(true);
     setRefreshing(false);
   };
 
-  const handleRunSingleProject = async (projectId: string) => {
-    setRunningProjectId(projectId);
-    setNotification(null);
-
-    const res = await runManualBugHunt(projectId);
-    setRunningProjectId(null);
-
+  const handleRunJob = async (jobId: string) => {
+    setRunningJobId(jobId);
+    const res = await runCronJobNow(jobId);
+    setRunningJobId(null);
     if (res.success) {
       setNotification({ type: "success", text: res.summary });
-      fetchData();
-      router.refresh();
     } else {
-      if (res.error?.includes("GROQ_API_KEY")) {
-        const key = prompt("Enter your Groq API Key (gsk_...) to run the bug hunter:");
-        if (key && key.trim()) {
-          setRunningProjectId(projectId);
-          const r2 = await runManualBugHunt(projectId, key.trim());
-          setRunningProjectId(null);
-          if (r2.success) {
-            setNotification({ type: "success", text: r2.summary });
-            fetchData();
-            router.refresh();
-            return;
-          }
-        }
-      }
       setNotification({ type: "error", text: res.error || "Execution failed." });
     }
+    loadAll(true);
+    router.refresh();
   };
 
-  const handleRunAllProjects = async () => {
+  const handleRunAll = async () => {
     setRunningAll(true);
     setNotification(null);
-
-    const res = await runWorkspaceBugHunts(workspaceId);
-    setRunningAll(false);
-
-    if (res.success) {
-      setNotification({ type: "success", text: res.summary });
-      fetchData();
-      router.refresh();
-    } else {
-      setNotification({ type: "error", text: "Failed to complete all project scans." });
+    let ok = 0;
+    let fail = 0;
+    for (const j of jobs.filter((j) => j.enabled)) {
+      const res = await runCronJobNow(j.id);
+      if (res.success) ok++;
+      else fail++;
     }
+    setRunningAll(false);
+    setNotification({
+      type: fail > 0 ? "error" : "success",
+      text: `Ran ${ok} job(s). ${fail > 0 ? `${fail} failed.` : "All succeeded."}`,
+    });
+    loadAll(true);
+    router.refresh();
   };
 
-  // Filtered logs
-  const filteredLogs = logs.filter((log) => {
-    const matchesProject =
-      selectedProjectId === "ALL" || log.projectId === selectedProjectId;
-    const matchesStatus =
-      selectedStatusFilter === "ALL" || log.status === selectedStatusFilter;
-    return matchesProject && matchesStatus;
+  const handleDelete = async (job: CronJobItem) => {
+    if (!confirm(`Delete cron job "${job.name}"? Its run history will be kept.`)) return;
+    const res = await deleteCronJob(job.id);
+    setNotification(res.success
+      ? { type: "success", text: "Cron job deleted." }
+      : { type: "error", text: res.error || "Delete failed." });
+    loadAll(true);
+  };
+
+  const handleToggle = async (job: CronJobItem) => {
+    const res = await toggleCronJob(job.id);
+    if (res.success) setNotification({ type: "success", text: res.enabled ? "Job enabled." : "Job paused." });
+    else setNotification({ type: "error", text: res.error || "Failed to update job." });
+    loadAll(true);
+  };
+
+  const latestLogMs = logs.reduce((max, l) => Math.max(max, new Date(l.createdAt).getTime()), 0);
+
+  const filteredLogs = logs.filter((l) => {
+    const mJob = filterJobId === "ALL" || l.cronJobId === filterJobId || (!l.cronJobId && filterJobId === "NONE");
+    const mProj = filterProjectId === "ALL" || l.projectId === filterProjectId;
+    const mStatus = filterStatus === "ALL" || l.status === filterStatus;
+    const mSince =
+      filterSince === "ALL" ||
+      new Date(l.createdAt).getTime() >= latestLogMs - Number(filterSince) * 24 * 60 * 60 * 1000;
+    return mJob && mProj && mStatus && mSince;
   });
 
-  const activeReposCount = projectsOverview.filter(
-    (p) => p.repository && p.repository.status === "ACTIVE"
-  ).length;
+  const totalRuns = logs.length;
+  const totalFailed = logs.filter((l) => l.status === "FAILED").length;
+  const enabledCount = jobs.filter((j) => j.enabled).length;
+  const totalFindings = jobs.reduce((a, j) => a + j.totalFindings, 0);
 
-  const totalFindingsRecorded = logs.reduce((acc, l) => acc + l.findingsCount, 0);
-  const totalIssuesCreatedCount = logs.reduce((acc, l) => acc + l.issuesCreated, 0);
+  const projects = useMemo(() => {
+    const map = new Map<string, { id: string; name: string; key: string }>();
+    jobs.forEach((j) => map.set(j.projectId, { id: j.projectId, name: j.projectName, key: j.projectKey }));
+    logs.forEach((l) => {
+      if (l.projectId && l.projectName && !map.has(l.projectId))
+        map.set(l.projectId, { id: l.projectId, name: l.projectName, key: l.projectKey || "" });
+    });
+    return [...map.values()];
+  }, [jobs, logs]);
+
+  const nextRun = jobs
+    .map((j) => j.nextRunAt)
+    .filter((d): d is Date => !!d)
+    .sort((a, b) => a.getTime() - b.getTime())[0];
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 text-white pb-16">
@@ -164,56 +178,43 @@ export function CronManagementClient({
               <Clock className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-                Cron Jobs & AI Bug Hunter
-                <span className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-bold text-emerald-400">
-                  Daily 12:00 PM
-                </span>
+              <h1 className="text-2xl font-bold tracking-tight text-white">
+                Cron Jobs & Automation
               </h1>
               <p className="text-xs text-neutral-400 mt-0.5">
-                Manage scheduled autonomous code reviews, inspect deep execution logs, and monitor repository health for <strong className="text-neutral-200">{workspaceName}</strong>.
+                Schedule configurable AI jobs, link any repository, and inspect every run for{" "}
+                <strong className="text-neutral-200">{workspaceName}</strong>.
               </p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
-            onClick={handleRefresh}
+            onClick={refresh}
             disabled={refreshing}
-            title="Refresh execution logs"
             className="flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
             <span>Refresh</span>
           </button>
 
-          {canManage && (
-            <button
-              onClick={() => {
-                const unlinked = projectsOverview.find((p) => !p.repository || p.repository.status !== "ACTIVE");
-                setActiveProjectForDialog(unlinked || projectsOverview[0] || null);
-              }}
-              title="Add or link repository cron job"
-              className="flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              <span>Add / Link Cron Job</span>
-            </button>
-          )}
+          <button
+            onClick={() => setCreateOpen(true)}
+            className="flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span>New Cron Job</span>
+          </button>
 
-          {canManage && activeReposCount > 0 && (
+          {enabledCount > 0 && (
             <button
-              onClick={handleRunAllProjects}
+              onClick={handleRunAll}
               disabled={runningAll}
               className="flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-xs font-bold text-black hover:bg-neutral-200 transition disabled:opacity-50"
             >
-              {runningAll ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Play className="h-4 w-4 fill-current" />
-              )}
-              <span>{runningAll ? "Scanning Workspace..." : "Run All Scans"}</span>
+              {runningAll ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4 fill-current" />}
+              <span>{runningAll ? "Running Jobs..." : "Run All Jobs"}</span>
             </button>
           )}
         </div>
@@ -237,140 +238,162 @@ export function CronManagementClient({
         </div>
       )}
 
-      {/* Top Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-5 shadow-lg">
+      {/* Metric Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-4">
           <div className="flex items-center justify-between text-neutral-400">
-            <span className="text-xs font-bold uppercase tracking-wider font-mono">Connected Repos</span>
-            <GitBranch className="h-4 w-4 text-white" />
-          </div>
-          <div className="mt-3 text-3xl font-extrabold text-white">
-            {activeReposCount} <span className="text-sm font-normal text-neutral-500">/ {projectsOverview.length}</span>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-5 shadow-lg">
-          <div className="flex items-center justify-between text-neutral-400">
-            <span className="text-xs font-bold uppercase tracking-wider font-mono">Total Runs</span>
-            <Clock className="h-4 w-4 text-emerald-400" />
-          </div>
-          <div className="mt-3 text-3xl font-extrabold text-white">{logs.length}</div>
-        </div>
-
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-5 shadow-lg">
-          <div className="flex items-center justify-between text-neutral-400">
-            <span className="text-xs font-bold uppercase tracking-wider font-mono">Bugs Discovered</span>
-            <ShieldAlert className="h-4 w-4 text-amber-400" />
-          </div>
-          <div className="mt-3 text-3xl font-extrabold text-amber-400">{totalFindingsRecorded}</div>
-        </div>
-
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-5 shadow-lg">
-          <div className="flex items-center justify-between text-neutral-400">
-            <span className="text-xs font-bold uppercase tracking-wider font-mono">Issues Auto-Created</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider font-mono">Active Jobs</span>
             <Bot className="h-4 w-4 text-emerald-400" />
           </div>
-          <div className="mt-3 text-3xl font-extrabold text-emerald-400">{totalIssuesCreatedCount}</div>
+          <div className="mt-2 text-2xl font-extrabold text-white">
+            {enabledCount}
+            <span className="text-xs font-normal text-neutral-500"> / {jobs.length}</span>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-4">
+          <div className="flex items-center justify-between text-neutral-400">
+            <span className="text-[11px] font-bold uppercase tracking-wider font-mono">Total Runs</span>
+            <Clock className="h-4 w-4 text-neutral-300" />
+          </div>
+          <div className="mt-2 text-2xl font-extrabold text-white">{totalRuns}</div>
+        </div>
+
+        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-4">
+          <div className="flex items-center justify-between text-neutral-400">
+            <span className="text-[11px] font-bold uppercase tracking-wider font-mono">Failed Runs</span>
+            <AlertCircle className="h-4 w-4 text-rose-400" />
+          </div>
+          <div className="mt-2 text-2xl font-extrabold text-rose-400">{totalFailed}</div>
+        </div>
+
+        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-4">
+          <div className="flex items-center justify-between text-neutral-400">
+            <span className="text-[11px] font-bold uppercase tracking-wider font-mono">Findings</span>
+            <Zap className="h-4 w-4 text-amber-400" />
+          </div>
+          <div className="mt-2 text-2xl font-extrabold text-amber-400">{totalFindings}</div>
+        </div>
+
+        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-4 col-span-2 lg:col-span-1">
+          <div className="flex items-center justify-between text-neutral-400">
+            <span className="text-[11px] font-bold uppercase tracking-wider font-mono">Next Run</span>
+            <Calendar className="h-4 w-4 text-emerald-400" />
+          </div>
+          <div className="mt-2 text-sm font-bold text-emerald-300">{fmtDate(nextRun)}</div>
         </div>
       </div>
 
-      {/* Project Repositories Overview & Quick Actions */}
+      {/* Cron Jobs */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-400 font-mono">
-            PROJECT REPOSITORIES & SCHEDULE CONFIG
+            CRON JOBS
           </h2>
-          <span className="text-xs text-neutral-500">{projectsOverview.length} Projects Total</span>
+          <span className="text-xs text-neutral-500">{jobs.length} job(s)</span>
         </div>
 
         {loading ? (
           <div className="flex h-32 items-center justify-center rounded-2xl border border-neutral-800 bg-neutral-950">
             <Loader2 className="h-6 w-6 animate-spin text-neutral-500" />
           </div>
+        ) : jobs.length === 0 ? (
+          <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-12 text-center text-neutral-400">
+            <Clock className="h-8 w-8 mx-auto text-neutral-600" />
+            <p className="text-sm font-semibold text-white mt-2">No cron jobs yet</p>
+            <p className="text-xs text-neutral-500 mt-1">
+              Create a job to schedule an AI scan against any project & repository in this workspace.
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {projectsOverview.map((item) => {
-              const isRunning = runningProjectId === item.projectId;
-              const hasRepo = item.repository && item.repository.status === "ACTIVE";
-
+            {jobs.map((job) => {
+              const isRunning = runningJobId === job.id;
               return (
                 <div
-                  key={item.projectId}
+                  key={job.id}
                   className="flex flex-col justify-between rounded-2xl border border-neutral-800 bg-neutral-950 p-5 shadow-lg space-y-4"
                 >
                   <div className="space-y-3">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2.5">
-                        <span
-                          className="h-3 w-3 rounded-full"
-                          style={{ backgroundColor: item.color || "#3b82f6" }}
-                        />
+                        <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-neutral-800 bg-neutral-900 text-neutral-300">
+                          <Bot className="h-4 w-4" />
+                        </span>
                         <div>
-                          <h3 className="font-bold text-white text-sm">{item.projectName}</h3>
-                          <span className="font-mono text-[11px] text-neutral-400">
-                            {item.projectKey}
-                          </span>
+                          <h3 className="font-bold text-white text-sm">{job.name}</h3>
+                          <span className="font-mono text-[11px] text-neutral-400">{job.projectName} ({job.projectKey})</span>
                         </div>
                       </div>
-
-                      <span
-                        className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                          hasRepo
+                      <button
+                        onClick={() => handleToggle(job)}
+                        title={job.enabled ? "Pause job" : "Resume job"}
+                        className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider transition ${
+                          job.enabled
                             ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                            : "bg-neutral-900 border border-neutral-800 text-neutral-400"
+                            : "bg-neutral-900 border border-neutral-800 text-neutral-500"
                         }`}
                       >
-                        <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                        {hasRepo ? "Active" : "Not Linked"}
-                      </span>
+                        {job.enabled ? "Active" : "Paused"}
+                      </button>
                     </div>
 
-                    {hasRepo ? (
-                      <div className="space-y-1.5 rounded-xl border border-neutral-800 bg-neutral-900/50 p-3 text-xs">
-                        <div className="flex items-center justify-between text-neutral-300">
-                          <span className="font-medium truncate">
-                            {item.repository?.repoOwner}/{item.repository?.repoName}
-                          </span>
-                          <span className="font-mono text-[11px] text-emerald-400 font-bold shrink-0">
-                            {item.repository?.defaultBranch}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between text-[11px] text-neutral-400 pt-1 border-t border-neutral-800">
-                          <span>Schedule:</span>
-                          <span className="font-semibold text-neutral-200">
-                            {item.repository?.cronSchedule === "0 12 * * *" ? "Daily 12:00 PM" : item.repository?.cronSchedule || "Daily 12:00 PM"}
-                          </span>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="rounded-xl border border-neutral-800/80 bg-neutral-900/30 p-3 text-xs text-neutral-500 italic">
-                        No repository connected. Open project board to link GitHub.
-                      </div>
+                    {job.description && (
+                      <p className="text-xs text-neutral-400 leading-relaxed line-clamp-3">{job.description}</p>
                     )}
+
+                    <div className="space-y-1.5 rounded-xl border border-neutral-800 bg-neutral-900/50 p-3 text-xs">
+                      <div className="flex items-center justify-between text-neutral-300">
+                        <span className="flex items-center gap-1.5 truncate">
+                          <GitBranch className="h-3.5 w-3.5 text-neutral-500 shrink-0" />
+                          <span className="font-medium truncate">{job.repoOwner}/{job.repoName}</span>
+                        </span>
+                        <span className="font-mono text-[11px] text-emerald-400 font-bold shrink-0">{job.defaultBranch}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-[11px] text-neutral-400 pt-1 border-t border-neutral-800">
+                        <span>Next run:</span>
+                        <span className="font-semibold text-neutral-200">{fmtDate(job.nextRunAt)}</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-[11px] pt-1 border-t border-neutral-800 text-neutral-400">
+                        <span>Ran: <strong className={job.failedCount > 0 ? "text-rose-400" : "text-neutral-200"}>{job.runCount}</strong></span>
+                        <span>Failed: <strong className={job.failedCount > 0 ? "text-rose-400" : "text-neutral-200"}>{job.failedCount}</strong></span>
+                        <span>Last: <strong className={job.lastStatus === "FAILED" ? "text-rose-400" : "text-neutral-200"}>{job.lastStatus || "—"}</strong></span>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="flex items-center justify-between border-t border-neutral-900 pt-3 text-xs">
+                  <div className="flex items-center gap-2 border-t border-neutral-900 pt-3 text-xs">
                     <button
-                      onClick={() => setActiveProjectForDialog(item)}
-                      title="Configure repository connection & schedule settings"
+                      onClick={() => {
+                        setFilterJobId(job.id);
+                        setFilterProjectId("ALL");
+                        setFilterStatus("ALL");
+                      }}
                       className="flex items-center gap-1 text-[11px] font-semibold text-neutral-400 hover:text-white transition"
                     >
-                      <Settings className="h-3.5 w-3.5" />
-                      <span>{hasRepo ? "Configure Schedule" : "Connect & Add Job"}</span>
+                      <ChevronRight className="h-3.5 w-3.5" />
+                      <span>History</span>
                     </button>
 
-                    {hasRepo && canManage && (
+                    {canManage && (
                       <button
-                        onClick={() => handleRunSingleProject(item.projectId)}
-                        disabled={isRunning}
-                        className="flex items-center gap-1 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1 text-xs font-bold text-emerald-300 hover:border-emerald-500/70 hover:bg-emerald-500/20 transition disabled:opacity-50"
+                        onClick={() => handleDelete(job)}
+                        title="Delete this cron job"
+                        className="flex items-center gap-1 text-[11px] font-semibold text-neutral-500 hover:text-rose-400 transition"
                       >
-                        {isRunning ? (
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                        ) : (
-                          <Sparkles className="h-3 w-3 text-emerald-400" />
-                        )}
-                        <span>{isRunning ? "Scanning..." : "Run Hunt"}</span>
+                        <Trash2 className="h-3.5 w-3.5" />
+                        <span>Delete</span>
+                      </button>
+                    )}
+
+                    {canManage && (
+                      <button
+                        onClick={() => handleRunJob(job.id)}
+                        disabled={isRunning}
+                        className="ml-auto flex items-center gap-1 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1 text-xs font-bold text-emerald-300 hover:border-emerald-500/70 hover:bg-emerald-500/20 transition disabled:opacity-50"
+                      >
+                        {isRunning ? <Loader2 className="h-3 w-3 animate-spin" /> : <Play className="h-3 w-3 fill-current" />}
+                        <span>{isRunning ? "Running..." : "Run Now"}</span>
                       </button>
                     )}
                   </div>
@@ -381,210 +404,124 @@ export function CronManagementClient({
         )}
       </div>
 
-      {/* Dialog for Adding / Configuring Cron Job on Project */}
-      {activeProjectForDialog && (
-        <RepositorySettingsDialog
-          projectId={activeProjectForDialog.projectId}
-          projectName={activeProjectForDialog.projectName}
-          projectKey={activeProjectForDialog.projectKey}
-          isOpen={true}
-          onClose={() => {
-            setActiveProjectForDialog(null);
-            fetchData();
-          }}
-          canManage={canManage}
-        />
-      )}
-
-      {/* Execution Logs & Deep Inspection */}
+      {/* Combined Run History */}
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-400 font-mono">
-              EXECUTION LOGS & AUDIT TRAIL
+              RUN HISTORY
             </h2>
             <p className="text-xs text-neutral-400">
-              Complete history of automated cron scans and manual Groq AI bug findings.
+              Combined history across every cron job. Click any run for full details.
             </p>
           </div>
 
-          {/* Filters */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <select
-              value={selectedProjectId}
-              onChange={(e) => setSelectedProjectId(e.target.value)}
+              value={filterJobId}
+              onChange={(e) => setFilterJobId(e.target.value)}
+              className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-xs text-white focus:border-neutral-700 focus:outline-none"
+            >
+              <option value="ALL">All Jobs</option>
+              {jobs.map((j) => (
+                <option key={j.id} value={j.id}>{j.name}</option>
+              ))}
+              <option value="NONE">Manual / Unlinked</option>
+            </select>
+
+            <select
+              value={filterProjectId}
+              onChange={(e) => setFilterProjectId(e.target.value)}
               className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-xs text-white focus:border-neutral-700 focus:outline-none"
             >
               <option value="ALL">All Projects</option>
-              {projectsOverview.map((p) => (
-                <option key={p.projectId} value={p.projectId}>
-                  {p.projectName} ({p.projectKey})
-                </option>
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>{p.name} ({p.key})</option>
               ))}
             </select>
 
             <select
-              value={selectedStatusFilter}
-              onChange={(e) => setSelectedStatusFilter(e.target.value as any)}
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
               className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-xs text-white focus:border-neutral-700 focus:outline-none"
             >
               <option value="ALL">All Statuses</option>
-              <option value="SUCCESS">Success Only</option>
-              <option value="FAILED">Failed Only</option>
+              <option value="SUCCESS">Success</option>
+              <option value="FAILED">Failed</option>
+            </select>
+
+            <select
+              value={filterSince}
+              onChange={(e) => setFilterSince(e.target.value)}
+              className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-xs text-white focus:border-neutral-700 focus:outline-none"
+            >
+              <option value="ALL">Any Time</option>
+              <option value="7">Last 7 days</option>
+              <option value="30">Last 30 days</option>
             </select>
           </div>
         </div>
 
-        {/* Logs Table / Cards */}
         {loading ? (
           <div className="flex h-40 items-center justify-center rounded-2xl border border-neutral-800 bg-neutral-950">
             <Loader2 className="h-6 w-6 animate-spin text-neutral-500" />
           </div>
         ) : filteredLogs.length === 0 ? (
-          <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-12 text-center text-neutral-400 space-y-2">
+          <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-12 text-center text-neutral-400">
             <Clock className="h-8 w-8 mx-auto text-neutral-600" />
-            <p className="text-sm font-semibold text-white">No execution logs found</p>
-            <p className="text-xs text-neutral-500">
-              Run a scan or wait for the daily 12:00 PM automated cron job to generate logs.
-            </p>
+            <p className="text-sm font-semibold text-white mt-2">No runs match these filters</p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {filteredLogs.map((log) => {
-              const isExpanded = expandedLogId === log.id;
-              let parsedFindings: any[] = [];
-              if (log.rawOutput) {
-                try {
-                  parsedFindings = JSON.parse(log.rawOutput);
-                } catch {}
-              }
-
-              return (
-                <div
-                  key={log.id}
-                  className="overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 shadow-md transition"
-                >
-                  <div
-                    onClick={() => setExpandedLogId(isExpanded ? null : log.id)}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 cursor-pointer hover:bg-neutral-900/60 transition"
+          <div className="space-y-2">
+            {filteredLogs.map((log) => (
+              <button
+                key={log.id}
+                onClick={() => router.push(`/${orgSlug}/${workspaceSlug}/cron/${log.id}`)}
+                className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-2xl border border-neutral-800 bg-neutral-950 p-4 text-left hover:bg-neutral-900/60 transition"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <span
+                    className={`flex h-8 w-8 items-center justify-center rounded-xl border shrink-0 ${
+                      log.status === "SUCCESS"
+                        ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                        : "border-rose-500/30 bg-rose-500/10 text-rose-400"
+                    }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <span
-                        className={`flex h-8 w-8 items-center justify-center rounded-xl border ${
-                          log.status === "SUCCESS"
-                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                            : "border-rose-500/30 bg-rose-500/10 text-rose-400"
-                        }`}
-                      >
-                        {log.status === "SUCCESS" ? (
-                          <CheckCircle2 className="h-4 w-4" />
-                        ) : (
-                          <AlertCircle className="h-4 w-4" />
-                        )}
-                      </span>
-
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-white text-sm">
-                            {log.projectName || "Workspace Scan"}
-                          </span>
-                          {log.projectKey && (
-                            <span className="rounded bg-neutral-900 border border-neutral-800 px-1.5 py-0.2 font-mono text-[10px] text-neutral-400">
-                              {log.projectKey}
-                            </span>
-                          )}
-                          <span className="rounded-full bg-neutral-800 px-2 py-0.5 text-[10px] font-bold text-neutral-300">
-                            {log.triggerSource}
-                          </span>
-                        </div>
-                        <p className="text-xs text-neutral-400 mt-0.5">{log.summary}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-4 text-xs text-neutral-400">
-                      <div className="text-right">
-                        <div className="text-neutral-200 font-medium">
-                          {new Date(log.createdAt).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}{" "}
-                          • {new Date(log.createdAt).toLocaleDateString()}
-                        </div>
-                        <span className="text-[11px] text-neutral-500">{log.durationMs}ms</span>
-                      </div>
-
-                      {isExpanded ? (
-                        <ChevronUp className="h-4 w-4 text-neutral-400" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4 text-neutral-400" />
+                    {log.status === "SUCCESS" ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
+                  </span>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-white text-sm truncate">{log.cronJobName || log.projectName || "Manual Run"}</span>
+                      {log.projectKey && (
+                        <span className="rounded bg-neutral-900 border border-neutral-800 px-1.5 py-0.2 font-mono text-[10px] text-neutral-400 shrink-0">{log.projectKey}</span>
                       )}
                     </div>
+                    <p className="text-xs text-neutral-400 truncate">{log.summary}</p>
                   </div>
-
-                  {/* Deep Details Drawer */}
-                  {isExpanded && (
-                    <div className="border-t border-neutral-800 bg-neutral-900/40 p-5 space-y-4">
-                      {log.error && (
-                        <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-400 font-mono">
-                          <strong>Error Details:</strong> {log.error}
-                        </div>
-                      )}
-
-                      {parsedFindings.length > 0 ? (
-                        <div className="space-y-3">
-                          <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400 font-mono">
-                            DETECTED BUGS & RECOMMENDED PATCHES ({parsedFindings.length})
-                          </h4>
-                          {parsedFindings.map((finding, idx) => (
-                            <div
-                              key={idx}
-                              className="rounded-xl border border-neutral-800 bg-neutral-950 p-4 space-y-2.5"
-                            >
-                              <div className="flex items-center justify-between">
-                                <span className="font-bold text-white text-xs">
-                                  {finding.title}
-                                </span>
-                                <span
-                                  className={`rounded px-2 py-0.5 font-mono text-[10px] font-bold ${
-                                    finding.severity === "HIGH" || finding.severity === "URGENT"
-                                      ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
-                                      : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                                  }`}
-                                >
-                                  {finding.severity}
-                                </span>
-                              </div>
-
-                              <div className="flex items-center gap-1.5 text-xs text-neutral-400">
-                                <FileCode2 className="h-3.5 w-3.5 text-emerald-400" />
-                                <span className="font-mono text-neutral-300">{finding.filePath}</span>
-                              </div>
-
-                              <p className="text-xs text-neutral-300 leading-relaxed">
-                                {finding.rootCause}
-                              </p>
-
-                              {finding.proposedPatch && (
-                                <pre className="rounded-lg border border-neutral-800 bg-neutral-900/90 p-3 text-[11px] font-mono text-emerald-300 overflow-x-auto">
-                                  <code>{finding.proposedPatch}</code>
-                                </pre>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-xs text-neutral-400 font-mono">
-                          No active flaws or warnings detected during this run.
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
-              );
-            })}
+
+                <div className="flex items-center gap-4 text-xs text-neutral-400 shrink-0">
+                  <div className="text-right">
+                    <div className="text-neutral-200 font-medium">{fmtDate(log.createdAt)}</div>
+                    <span className="text-[11px] text-neutral-500">{log.durationMs}ms · {log.findingsCount} finding(s)</span>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-neutral-500" />
+                </div>
+              </button>
+            ))}
           </div>
         )}
       </div>
+
+      <CreateCronJobDialog
+        workspaceId={workspaceId}
+        isOpen={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onCreated={() => {
+          setNotification({ type: "success", text: "Cron job created." });
+          loadAll(true);
+        }}
+      />
     </div>
   );
 }

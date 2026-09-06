@@ -13,6 +13,7 @@ import { uploadFileToCloudinary, type CloudinaryUploadResult } from "@/lib/cloud
 import { ATTACHMENT_MAX_BYTES } from "@/lib/validators";
 import { ISSUE_STATUSES, ISSUE_PRIORITIES } from "@/lib/constants";
 import { formatIssueKey, formatDate } from "@/lib/utils";
+import { Markdown } from "@/components/markdown";
 import { AttachmentSection, AttachmentGrid, type AttachmentItem } from "./attachment-section";
 import {
   X,
@@ -134,6 +135,7 @@ export function IssueDetailModal({
   const [issue, setIssue] = useState<IssueDetailData | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [descriptionMode, setDescriptionMode] = useState<"edit" | "preview">("edit");
   const [status, setStatus] = useState<IssueStatus>("TODO");
   const [priority, setPriority] = useState<IssuePriority>("MEDIUM");
   const [estimate, setEstimate] = useState<number | "">("");
@@ -441,7 +443,7 @@ export function IssueDetailModal({
             )}
             <button
               onClick={copyLink}
-              className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-neutral-400 hover:bg-neutral-800 hover:text-white transition"
+              className="cursor-pointer flex items-center gap-1 rounded-md px-2 py-1 text-xs text-neutral-400 hover:bg-neutral-800 hover:text-white transition"
             >
               {copied ? (
                 <>
@@ -461,7 +463,7 @@ export function IssueDetailModal({
               onClick={() => handleTriggerAiFix()}
               disabled={aiScanning}
               title="Autonomous Codebase Scan & Recommended Patch via Groq AI"
-              className="flex items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-300 hover:border-emerald-500/70 hover:bg-emerald-500/20 transition shadow-sm disabled:opacity-50"
+              className="cursor-pointer flex items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-300 hover:border-emerald-500/70 hover:bg-emerald-500/20 transition shadow-sm disabled:opacity-50"
             >
               {aiScanning ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-400" />
@@ -477,13 +479,13 @@ export function IssueDetailModal({
               onClick={handleDeleteIssue}
               disabled={deleting}
               title="Delete issue"
-              className="rounded-lg p-1.5 text-neutral-400 hover:bg-rose-950/50 hover:text-rose-400 transition disabled:opacity-50"
+              className="cursor-pointer rounded-lg p-1.5 text-neutral-400 hover:bg-rose-950/50 hover:text-rose-400 transition disabled:opacity-50"
             >
               <Trash2 className="h-4 w-4" />
             </button>
             <button
               onClick={onClose}
-              className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-800 hover:text-white transition"
+              className="cursor-pointer rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-800 hover:text-white transition"
             >
               <X className="h-5 w-5" />
             </button>
@@ -516,17 +518,45 @@ export function IssueDetailModal({
 
               {/* Editable Markdown Description */}
               <div className="space-y-2">
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono">
-                  DESCRIPTION
-                </label>
-                <textarea
-                  rows={6}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  onBlur={() => handleUpdate({ description })}
-                  placeholder="Add a detailed description or acceptance criteria (Markdown supported)..."
-                  className="w-full rounded-xl border border-neutral-800 bg-neutral-900/60 p-3.5 text-xs text-neutral-200 placeholder:text-neutral-500 focus:border-neutral-600 focus:bg-neutral-900 focus:outline-none transition resize-y"
-                />
+                <div className="flex items-center justify-between">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono">
+                    DESCRIPTION
+                  </label>
+                  <div className="flex items-center rounded-lg border border-neutral-800 bg-neutral-900 p-0.5 text-[11px] font-semibold">
+                    <button
+                      type="button"
+                      onClick={() => setDescriptionMode("edit")}
+                      className={`cursor-pointer rounded-md px-2.5 py-1 transition ${
+                        descriptionMode === "edit" ? "bg-neutral-700 text-white" : "text-neutral-400 hover:text-white"
+                      }`}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDescriptionMode("preview")}
+                      className={`cursor-pointer rounded-md px-2.5 py-1 transition ${
+                        descriptionMode === "preview" ? "bg-neutral-700 text-white" : "text-neutral-400 hover:text-white"
+                      }`}
+                    >
+                      Preview
+                    </button>
+                  </div>
+                </div>
+                {descriptionMode === "edit" ? (
+                  <textarea
+                    rows={6}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    onBlur={() => handleUpdate({ description })}
+                    placeholder="Add a detailed description or acceptance criteria (Markdown supported)..."
+                    className="w-full rounded-xl border border-neutral-800 bg-neutral-900/60 p-3.5 text-xs text-neutral-200 placeholder:text-neutral-500 focus:border-neutral-600 focus:bg-neutral-900 focus:outline-none transition resize-y"
+                  />
+                ) : (
+                  <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-3.5">
+                    <Markdown content={description || "_No description yet._"} />
+                  </div>
+                )}
               </div>
 
               {/* Attachments */}
@@ -559,7 +589,7 @@ export function IssueDetailModal({
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => setActiveTab("comments")}
-                    className={`flex items-center gap-1.5 pb-2 text-xs font-bold uppercase tracking-wider transition border-b-2 ${
+                    className={`cursor-pointer flex items-center gap-1.5 pb-2 text-xs font-bold uppercase tracking-wider transition border-b-2 ${
                       activeTab === "comments"
                         ? "border-white text-white"
                         : "border-transparent text-neutral-400 hover:text-neutral-200"
@@ -571,7 +601,7 @@ export function IssueDetailModal({
 
                   <button
                     onClick={() => setActiveTab("activity")}
-                    className={`flex items-center gap-1.5 pb-2 text-xs font-bold uppercase tracking-wider transition border-b-2 ${
+                    className={`cursor-pointer flex items-center gap-1.5 pb-2 text-xs font-bold uppercase tracking-wider transition border-b-2 ${
                       activeTab === "activity"
                         ? "border-white text-white"
                         : "border-transparent text-neutral-400 hover:text-neutral-200"
@@ -629,7 +659,7 @@ export function IssueDetailModal({
                                   </span>
                                 </div>
                                 <div className="text-xs text-neutral-300 whitespace-pre-wrap leading-relaxed font-sans">
-                                  {c.content || ""}
+                                  <Markdown content={c.content || ""} />
                                 </div>
                                 {c.attachments?.length > 0 && (
                                   <div className="pt-2">
@@ -678,7 +708,7 @@ export function IssueDetailModal({
                                   onClick={() =>
                                     setPendingAttachments((prev) => prev.filter((_, i) => i !== idx))
                                   }
-                                  className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-700 text-white hover:bg-rose-600"
+                                  className="cursor-pointer absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-700 text-white hover:bg-rose-600"
                                 >
                                   <X className="h-3 w-3" />
                                 </button>
@@ -695,7 +725,7 @@ export function IssueDetailModal({
                                   onClick={() =>
                                     setPendingAttachments((prev) => prev.filter((_, i) => i !== idx))
                                   }
-                                  className="text-neutral-500 hover:text-rose-400"
+                                  className="cursor-pointer text-neutral-500 hover:text-rose-400"
                                 >
                                   <X className="h-3 w-3" />
                                 </button>
@@ -723,7 +753,7 @@ export function IssueDetailModal({
                           disabled={
                             submittingComment || (!commentContent.trim() && pendingAttachments.length === 0)
                           }
-                          className="flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-1.5 text-xs font-bold text-black shadow transition hover:bg-neutral-200 disabled:opacity-50"
+                          className="cursor-pointer flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-1.5 text-xs font-bold text-black shadow transition hover:bg-neutral-200 disabled:opacity-50"
                         >
                           {submittingComment ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />

@@ -31,7 +31,7 @@ export function RepositoryBadge({
             ? `Linked to ${repository.repoOwner}/${repository.repoName} (${repository.defaultBranch}) • Click to configure`
             : "Connect GitHub repository for AI codebase fixes"
         }
-        className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1 text-xs font-semibold transition backdrop-blur-sm shadow-sm ${
+        className={`cursor-pointer flex items-center gap-1.5 rounded-xl border px-2.5 py-1 text-xs font-semibold transition backdrop-blur-sm shadow-sm ${
           repository
             ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:border-emerald-500/60 hover:bg-emerald-500/20"
             : "border-neutral-800 bg-neutral-900/80 text-neutral-300 hover:border-neutral-700 hover:text-white"

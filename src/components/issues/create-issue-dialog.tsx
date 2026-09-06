@@ -132,7 +132,7 @@ export function CreateIssueDialog({
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+            className="cursor-pointer rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
           >
             <X className="h-4 w-4" />
           </button>
@@ -237,7 +237,7 @@ export function CreateIssueDialog({
                       <button
                         type="button"
                         onClick={() => setPendingUploads((prev) => prev.filter((_, i) => i !== idx))}
-                        className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-700 text-white hover:bg-rose-600"
+                        className="cursor-pointer absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-700 text-white hover:bg-rose-600"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -252,7 +252,7 @@ export function CreateIssueDialog({
                       <button
                         type="button"
                         onClick={() => setPendingUploads((prev) => prev.filter((_, i) => i !== idx))}
-                        className="text-neutral-500 hover:text-rose-400"
+                        className="cursor-pointer text-neutral-500 hover:text-rose-400"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -305,14 +305,14 @@ export function CreateIssueDialog({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl px-4 py-2 text-xs font-semibold text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+              className="cursor-pointer rounded-xl px-4 py-2 text-xs font-semibold text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-xs font-bold text-black shadow-lg hover:bg-neutral-200 transition disabled:opacity-50"
+              className="cursor-pointer flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-xs font-bold text-black shadow-lg hover:bg-neutral-200 transition disabled:opacity-50"
             >
               {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Create Issue"}
             </button>

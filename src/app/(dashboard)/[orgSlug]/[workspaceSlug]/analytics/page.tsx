@@ -2,6 +2,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import { redirect } from "next/navigation";
 import { BarChart3, TrendingUp, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
+import { OnboardingTour, TourReplayButton } from "@/components/onboarding/onboarding-tour";
 
 interface AnalyticsPageProps {
   params: Promise<{ orgSlug: string; workspaceSlug: string }>;
@@ -42,16 +43,19 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 text-white">
-      <div>
-        <h1 className="text-xl font-bold tracking-tight text-white">
-          Analytics & Velocity
-        </h1>
-        <p className="text-xs text-neutral-400 mt-0.5">
-          Engineering throughput and delivery metrics across {workspace.name}
-        </p>
+      <div className="flex items-start justify-between gap-4" data-tour="analytics-header">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-white">
+            Analytics & Velocity
+          </h1>
+          <p className="text-xs text-neutral-400 mt-0.5">
+            Engineering throughput and delivery metrics across {workspace.name}
+          </p>
+        </div>
+        <TourReplayButton tourId="analytics" />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" data-tour="analytics-cards">
         <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-lg">
           <div className="flex items-center justify-between text-neutral-400 text-xs font-bold uppercase font-mono">
             <span>Completion Rate</span>
@@ -84,6 +88,8 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
           <div className="mt-3 text-3xl font-extrabold text-white">{urgentIssues}</div>
         </div>
       </div>
+
+      <OnboardingTour tourId="analytics" />
     </div>
   );
 }

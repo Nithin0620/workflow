@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FolderKanban, CheckCircle2, Clock, Users, ArrowUpRight } from "lucide-react";
 import { BannerCarousel } from "@/components/banners/banner-carousel";
 import { BannerStrip } from "@/components/banners/banner-strip";
+import { OnboardingTour, TourReplayButton } from "@/components/onboarding/onboarding-tour";
 
 interface WorkspacePageProps {
   params: Promise<{ orgSlug: string; workspaceSlug: string }>;
@@ -72,24 +73,29 @@ export default async function WorkspaceOverviewPage({ params }: WorkspacePagePro
   return (
     <div className="space-y-8 max-w-6xl mx-auto text-white">
       {/* Header banner */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-white">
-          Welcome back, {user.name?.split(" ")[0] || "there"} 👋
-        </h1>
-        <p className="text-xs text-neutral-400 mt-1">
-          Here is an overview of what is happening across <span className="font-semibold text-white">{workspace.name}</span>.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-white">
+            Welcome back, {user.name?.split(" ")[0] || "there"} 👋
+          </h1>
+          <p className="text-xs text-neutral-400 mt-1">
+            Here is an overview of what is happening across <span className="font-semibold text-white">{workspace.name}</span>.
+          </p>
+        </div>
+        <TourReplayButton tourId="workspace" />
       </div>
 
       {/* Workspace banner carousel */}
-      <BannerCarousel
-        banners={workspace.banners}
-        canEdit={userRole === "OWNER" || userRole === "ADMIN"}
-        workspaceId={workspace.id}
-      />
+      <div data-tour="ws-banner">
+        <BannerCarousel
+          banners={workspace.banners}
+          canEdit={userRole === "OWNER" || userRole === "ADMIN"}
+          workspaceId={workspace.id}
+        />
+      </div>
 
       {/* Metrics Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" data-tour="ws-metrics">
         <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-5 shadow-lg">
           <div className="flex items-center justify-between text-neutral-400">
             <span className="text-xs font-bold uppercase tracking-wider font-mono">Active Projects</span>
@@ -131,13 +137,14 @@ export default async function WorkspaceOverviewPage({ params }: WorkspacePagePro
           </h3>
           <Link
             href={`/${orgSlug}/${workspaceSlug}/projects`}
+            data-tour="ws-view-all"
             className="text-xs font-semibold text-neutral-300 hover:text-white transition"
           >
             View all projects →
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" data-tour="ws-projects">
           {workspace.projects.map((p) => (
             <Link
               key={p.id}
@@ -175,6 +182,8 @@ export default async function WorkspaceOverviewPage({ params }: WorkspacePagePro
           ))}
         </div>
       </div>
+
+      <OnboardingTour tourId="workspace" />
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { PublicNavbar } from "@/components/common/public-navbar";
 import { AnimatedSaasObjects } from "@/components/home/animated-saas-objects";
 import { MacKanbanMockup } from "@/components/home/mac-kanban-mockup";
+import { LiveKanbanDemo } from "@/components/home/live-kanban-demo";
 
 
 import {
@@ -181,6 +182,9 @@ export default async function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* 4b. LIVE INTERACTIVE DEMO - DRAG & DROP */}
+      <LiveKanbanDemo />
 
       {/* 5. FEATURES GRID - PURE WHITE SECTION */}
       <section id="features" className="bg-[#f7f7f7] text-black px-6 py-24 border-t border-neutral-200">

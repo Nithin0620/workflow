@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { UserRole } from "@prisma/client";
 import { inviteOrAddMember } from "@/actions/members";
 import { X, Mail, Shield, UserCheck, Eye, Loader2, UserPlus } from "lucide-react";
 
@@ -44,6 +43,7 @@ export function InviteMemberDialog({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [inviteLink, setInviteLink] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -68,13 +68,23 @@ export function InviteMemberDialog({
       if (res.error) {
         setError(res.error);
       } else {
-        setSuccess(`Successfully added ${email.trim()} as a ${role}.`);
+        setSuccess(
+          res.emailDelivered
+            ? `Invite sent to ${email.trim()} as a ${role}.`
+            : `Invite created for ${email.trim()}. Email isn't configured — share the link below.`
+        );
+        if (!res.emailDelivered && res.inviteLink) {
+          setInviteLink(res.inviteLink);
+        }
         setEmail("");
+        setError(null);
         onMemberInvited?.();
-        setTimeout(() => {
-          setSuccess(null);
-          onClose();
-        }, 1200);
+        if (res.emailDelivered) {
+          setTimeout(() => {
+            setSuccess(null);
+            onClose();
+          }, 1200);
+        }
       }
     } catch {
       setError("An unexpected error occurred while adding the member.");
@@ -114,6 +124,23 @@ export function InviteMemberDialog({
         {success && (
           <div className="mt-4 rounded-xl border border-emerald-900/50 bg-emerald-950/30 p-3 text-xs text-emerald-300">
             {success}
+          </div>
+        )}
+        {inviteLink && (
+          <div className="mt-3 rounded-xl border border-neutral-800 bg-black p-3">
+            <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500">
+              Invite link (copy & share)
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                navigator.clipboard.writeText(inviteLink);
+              }}
+              className="mt-1.5 w-full break-all rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2 text-left text-[11px] text-neutral-300 hover:border-neutral-700"
+              title="Copy to clipboard"
+            >
+              {inviteLink}
+            </button>
           </div>
         )}
 

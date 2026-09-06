@@ -12,12 +12,20 @@ const registerSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
+export type RegisterResult = {
+  error?: string;
+  success?: boolean;
+  userId?: string;
+  defaultOrgSlug?: string;
+  defaultWorkspaceSlug?: string;
+};
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 
 /**
  * Registers a new user with legacy/custom credentials and creates their default organization and workspace
  */
-export async function registerUser(input: RegisterInput) {
+export async function registerUser(input: RegisterInput): Promise<RegisterResult> {
   const parsed = registerSchema.safeParse(input);
   if (!parsed.success) {
     return { error: parsed.error.issues[0].message };
@@ -31,7 +39,18 @@ export async function registerUser(input: RegisterInput) {
   });
 
   if (existingUser) {
-    return { error: "An account with this email already exists." };
+    // Account exists with a password already — they should sign in instead
+    if (existingUser.passwordHash) {
+      return { error: "An account with this email already exists." };
+    }
+    // Placeholder / OAuth-only account (e.g. from a prior invite): complete
+    // registration by attaching a password so they can sign in and accept.
+    const passwordHash = await hashPassword(password);
+    const completed = await prisma.user.update({
+      where: { id: existingUser.id },
+      data: { passwordHash, name: name.trim() },
+    });
+    return { success: true, userId: completed.id };
   }
 
   // Hash password
