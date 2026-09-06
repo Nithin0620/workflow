@@ -244,6 +244,31 @@ export async function getIssueDetails(issueId: string) {
         },
         orderBy: { createdAt: "desc" },
       },
+      discussionLinks: {
+        include: {
+          message: {
+            include: {
+              author: { select: { id: true, name: true, image: true, email: true } },
+              channel: {
+                select: {
+                  id: true,
+                  name: true,
+                  workspace: {
+                    select: {
+                      slug: true,
+                      organization: { select: { slug: true } },
+                    },
+                  },
+                },
+              },
+              attachments: true,
+              reactions: true,
+            },
+          },
+          creator: { select: { id: true, name: true, image: true } },
+        },
+        orderBy: { createdAt: "asc" },
+      },
     },
   });
 

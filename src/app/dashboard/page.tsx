@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getUserWorkspaces } from "@/actions/workspaces";
+import { getActiveDiscussionsOverview } from "@/actions/discussions";
 import { prisma } from "@/lib/db/prisma";
 import { DashboardView } from "@/components/dashboard/dashboard-view";
 import { OnboardingTour } from "@/components/onboarding/onboarding-tour";
@@ -17,7 +18,10 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const workspaces = await getUserWorkspaces();
+  const [workspaces, discussionsData] = await Promise.all([
+    getUserWorkspaces(),
+    getActiveDiscussionsOverview(),
+  ]);
 
   // Retrieve user's primary organization
   let orgData = user.workspaceMembers[0]?.workspace?.organization
@@ -54,6 +58,7 @@ export default async function DashboardPage() {
         }}
         organization={orgData}
         workspaces={workspaces as any}
+        activeDiscussions={discussionsData.channels}
       />
       <OnboardingTour tourId="dashboard" />
     </>

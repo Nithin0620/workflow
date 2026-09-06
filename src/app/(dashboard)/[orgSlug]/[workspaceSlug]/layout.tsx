@@ -19,34 +19,34 @@ export default async function WorkspaceLayout({
     redirect("/login");
   }
 
-  // Find workspace
-  const workspace = await prisma.workspace.findFirst({
-    where: {
-      slug: workspaceSlug,
-      organization: { slug: orgSlug },
-      members: { some: { userId: user.id } },
-    },
-    include: {
-      organization: true,
-      projects: {
-        select: { id: true, name: true, key: true, color: true },
+  // Run workspace lookup and membership list in parallel — both are independent
+  const [workspace, userMemberships] = await Promise.all([
+    prisma.workspace.findFirst({
+      where: {
+        slug: workspaceSlug,
+        organization: { slug: orgSlug },
+        members: { some: { userId: user.id } },
       },
-    },
-  });
+      include: {
+        organization: true,
+        projects: {
+          select: { id: true, name: true, key: true, color: true },
+        },
+      },
+    }),
+    prisma.workspaceMember.findMany({
+      where: { userId: user.id },
+      include: {
+        workspace: {
+          include: { organization: true },
+        },
+      },
+    }),
+  ]);
 
   if (!workspace) {
     notFound();
   }
-
-  // Find all accessible workspaces for switcher
-  const userMemberships = await prisma.workspaceMember.findMany({
-    where: { userId: user.id },
-    include: {
-      workspace: {
-        include: { organization: true },
-      },
-    },
-  });
 
   const formattedWorkspaces = userMemberships.map((m) => ({
     id: m.workspace.id,
@@ -59,6 +59,12 @@ export default async function WorkspaceLayout({
     },
   }));
 
+  // Fetch discussion channels for the sidebar
+  const { getWorkspaceChannels } = await import("@/actions/discussions");
+  const { workspaceChannels, projectGroups } = await getWorkspaceChannels(
+    workspace.id
+  );
+
   return (
     <WorkspaceLayoutShell
       orgSlug={orgSlug}
@@ -66,6 +72,8 @@ export default async function WorkspaceLayout({
       workspaceId={workspace.id}
       projects={workspace.projects}
       workspaces={formattedWorkspaces}
+      workspaceChannels={workspaceChannels as any}
+      projectChannelGroups={projectGroups as any}
     >
       {children}
     </WorkspaceLayoutShell>

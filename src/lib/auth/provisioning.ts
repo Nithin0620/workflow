@@ -143,5 +143,74 @@ export async function provisionDefaultUserWorkspace(
     }
   }
 
+  // 6. Create Starter Discussion Channels (Workspace-wide & Project-scoped)
+  const generalChannel = await tx.discussionChannel.create({
+    data: {
+      workspaceId: workspace.id,
+      name: "general",
+      topic: "Workspace-wide general discussion & quick chats",
+      type: "TEXT",
+      position: 1,
+    },
+  });
+
+  await tx.discussionChannel.create({
+    data: {
+      workspaceId: workspace.id,
+      name: "announcements",
+      topic: "Company and workspace-wide announcements",
+      type: "ANNOUNCEMENT",
+      position: 0,
+    },
+  });
+
+  const frontendChannel = await tx.discussionChannel.create({
+    data: {
+      workspaceId: workspace.id,
+      projectId: project.id,
+      name: "frontend",
+      topic: "Discussions & UI sync for Starter Project",
+      type: "TEXT",
+      position: 0,
+    },
+  });
+
+  await tx.discussionChannel.create({
+    data: {
+      workspaceId: workspace.id,
+      projectId: project.id,
+      name: "backend",
+      topic: "API, database, and backend systems discussion",
+      type: "TEXT",
+      position: 1,
+    },
+  });
+
+  // Mark all starter channels read for user
+  await tx.userChannelRead.createMany({
+    data: [
+      { userId: user.id, channelId: generalChannel.id },
+      { userId: user.id, channelId: frontendChannel.id },
+    ],
+  });
+
+  // 7. Seed an initial welcome message in #general
+  const welcomeMsg = await tx.discussionMessage.create({
+    data: {
+      channelId: generalChannel.id,
+      authorId: user.id,
+      content: "👋 Welcome to **Workflow Discussions**! Channels are organized by workspace and projects. You can chat, reply in threads, and turn any message into a tracked Issue with one click.",
+    },
+  });
+
+  await tx.discussionReaction.create({
+    data: {
+      messageId: welcomeMsg.id,
+      userId: user.id,
+      emoji: "🚀",
+    },
+  });
+
   return { org, workspace, project };
 }
+

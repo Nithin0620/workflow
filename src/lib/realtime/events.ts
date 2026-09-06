@@ -14,11 +14,22 @@ export type RealtimeEventType =
   | "COLUMN_DELETED"
   | "SPRINT_CREATED"
   | "SPRINT_UPDATED"
-  | "SPRINT_DELETED";
+  | "SPRINT_DELETED"
+  | "MESSAGE_SENT"
+  | "MESSAGE_UPDATED"
+  | "MESSAGE_DELETED"
+  | "REACTION_TOGGLED"
+  | "ISSUE_LINKED_TO_DISCUSSION"
+  | "CHANNEL_CREATED"
+  | "CHANNEL_UPDATED"
+  | "CHANNEL_DELETED"
+  | "TYPING_INDICATOR";
 
 export interface RealtimeEventPayload {
   type: RealtimeEventType;
-  projectId: string;
+  projectId?: string;
+  workspaceId?: string;
+  channelId?: string;
   timestamp: number;
   actor?: {
     id: string;
@@ -48,6 +59,9 @@ export interface RealtimeEventPayload {
       createdAt: string;
       author: { id: string; name?: string | null; image?: string | null };
     };
+    message?: any;
+    reaction?: any;
+    discussionChannel?: any;
     [key: string]: unknown;
   };
 }
@@ -59,15 +73,17 @@ declare global {
 }
 
 const eventBus = globalThis.__WORKFLOW_EVENT_BUS__ || new EventEmitter();
-eventBus.setMaxListeners(200); // Allow high concurrency subscriptions
+eventBus.setMaxListeners(500); // Allow high concurrency subscriptions
 
 if (process.env.NODE_ENV !== "production") {
   globalThis.__WORKFLOW_EVENT_BUS__ = eventBus;
 }
 
 export function broadcastProjectEvent(event: RealtimeEventPayload) {
-  const channel = `project:${event.projectId}`;
-  eventBus.emit(channel, event);
+  if (event.projectId) {
+    const channel = `project:${event.projectId}`;
+    eventBus.emit(channel, event);
+  }
 }
 
 export function subscribeToProjectEvents(
@@ -81,3 +97,37 @@ export function subscribeToProjectEvents(
     eventBus.off(channel, callback);
   };
 }
+
+export function broadcastDiscussionEvent(event: RealtimeEventPayload) {
+  if (event.channelId) {
+    eventBus.emit(`discussion-channel:${event.channelId}`, event);
+  }
+  if (event.workspaceId) {
+    eventBus.emit(`discussion-workspace:${event.workspaceId}`, event);
+  }
+}
+
+export function subscribeToDiscussionChannelEvents(
+  channelId: string,
+  callback: (event: RealtimeEventPayload) => void
+) {
+  const channel = `discussion-channel:${channelId}`;
+  eventBus.on(channel, callback);
+
+  return () => {
+    eventBus.off(channel, callback);
+  };
+}
+
+export function subscribeToWorkspaceDiscussionEvents(
+  workspaceId: string,
+  callback: (event: RealtimeEventPayload) => void
+) {
+  const channel = `discussion-workspace:${workspaceId}`;
+  eventBus.on(channel, callback);
+
+  return () => {
+    eventBus.off(channel, callback);
+  };
+}
+

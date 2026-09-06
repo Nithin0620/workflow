@@ -17,6 +17,28 @@ interface WorkspaceLayoutShellProps {
     role: string;
     organization: { name: string; slug: string };
   }>;
+  workspaceChannels?: Array<{
+    id: string;
+    name: string;
+    topic?: string | null;
+    type: "TEXT" | "ANNOUNCEMENT";
+    unreadCount?: number;
+  }>;
+  projectChannelGroups?: Array<{
+    project: {
+      id: string;
+      name: string;
+      key: string;
+      color?: string | null;
+    };
+    channels: Array<{
+      id: string;
+      name: string;
+      topic?: string | null;
+      type: "TEXT" | "ANNOUNCEMENT";
+      unreadCount?: number;
+    }>;
+  }>;
 }
 
 export function WorkspaceLayoutShell({
@@ -26,6 +48,8 @@ export function WorkspaceLayoutShell({
   workspaceId,
   projects,
   workspaces,
+  workspaceChannels = [],
+  projectChannelGroups = [],
 }: WorkspaceLayoutShellProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -62,6 +86,8 @@ export function WorkspaceLayoutShell({
         onToggleCollapse={toggleCollapsed}
         projects={projects}
         workspaces={workspaces}
+        workspaceChannels={workspaceChannels}
+        projectChannelGroups={projectChannelGroups}
       />
       <div className="flex flex-1 flex-col overflow-hidden bg-black">
         <Header

@@ -4,6 +4,7 @@ import { PublicNavbar } from "@/components/common/public-navbar";
 import { AnimatedSaasObjects } from "@/components/home/animated-saas-objects";
 import { MacKanbanMockup } from "@/components/home/mac-kanban-mockup";
 import { LiveKanbanDemo } from "@/components/home/live-kanban-demo";
+import { PlannedJourneysShowcase } from "@/components/home/planned-journeys-showcase";
 
 
 import {
@@ -261,6 +262,9 @@ export default async function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* 5b. PLANNED JOURNEYS SHOWCASE */}
+      <PlannedJourneysShowcase />
 
       {/* 6. PAID SERVICES & ENTERPRISE ENQUIRY BANNER */}
       <section className="bg-black text-white px-6 py-20 border-t border-neutral-900">

@@ -45,6 +45,7 @@ export function PublicNavbar({ theme = "dark", workspaceUrl }: PublicNavbarProps
     { label: "Features", href: "/#features" },
     { label: "How It Works", href: "/how-it-works" },
     { label: "Hierarchy", href: "/#hierarchy" },
+    { label: "Planned Journeys", href: "/planned-journey" },
     { label: "Contact & Enquiry", href: "/contact" },
   ];
 
