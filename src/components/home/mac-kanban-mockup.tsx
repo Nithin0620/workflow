@@ -110,7 +110,8 @@ export function MacKanbanMockup() {
                     repeatType: "reverse",
                     repeatDelay: 1
                   }}
-                  className="absolute bottom-3 left-3 right-3 rounded-lg border border-blue-500/50 bg-black p-3 space-y-2 shadow-xl z-10 ring-2 ring-blue-500/20"
+                  whileHover={{ scale: 1.05, boxShadow: "0px 0px 15px rgba(59, 130, 246, 0.5)" }}
+                  className="absolute bottom-3 left-3 right-3 rounded-lg border border-blue-500/50 bg-black p-3 space-y-2 shadow-xl z-10 ring-2 ring-blue-500/20 cursor-grab active:cursor-grabbing"
                 >
                   <span className="font-mono text-[10px] text-blue-400 font-bold">TRIP-101</span>
                   <p className="text-xs font-medium text-white">Fix OAuth session refresh on mobile browser</p>
@@ -123,7 +124,7 @@ export function MacKanbanMockup() {
                 {/* Animated Cursor */}
                 <motion.div
                   initial={{ x: -280, y: -40, opacity: 0 }}
-                  animate={{ x: 20, y: 60, opacity: [0, 1, 1, 0] }}
+                  animate={{ x: [20, 40, 20], y: [60, 20, 60], opacity: [0, 1, 1, 0] }}
                   transition={{
                     duration: 2,
                     ease: "easeInOut",
