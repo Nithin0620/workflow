@@ -15,6 +15,7 @@ import { ISSUE_STATUSES, ISSUE_PRIORITIES } from "@/lib/constants";
 import { formatIssueKey, formatDate } from "@/lib/utils";
 import { Markdown } from "@/components/markdown";
 import { AttachmentSection, AttachmentGrid, type AttachmentItem } from "./attachment-section";
+import Link from "next/link";
 import {
   X,
   MessageSquare,
@@ -33,6 +34,8 @@ import {
   ImagePlus,
   Bot,
   Sparkles,
+  ExternalLink,
+  Hash,
 } from "lucide-react";
 
 interface IssueDetailModalProps {
@@ -105,6 +108,24 @@ interface IssueDetailData {
     action: string;
     createdAt: string | Date;
     actor?: { id: string; name?: string | null; email?: string | null; image?: string | null } | null;
+  }>;
+  discussionLinks?: Array<{
+    id: string;
+    message: {
+      id: string;
+      content: string;
+      createdAt: string | Date;
+      author: { id: string; name?: string | null; email?: string | null; image?: string | null };
+      channel: {
+        id: string;
+        name: string;
+        workspace: {
+          slug: string;
+          organization: { slug: string };
+        };
+      };
+    };
+    creator?: { id: string; name?: string | null } | null;
   }>;
 }
 
@@ -516,6 +537,44 @@ export function IssueDetailModal({
                 />
               </div>
 
+              {/* Originating Discussion Card */}
+              {issue.discussionLinks && issue.discussionLinks.length > 0 && (
+                <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-4 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-neutral-800 text-neutral-300">
+                        <Hash className="h-3.5 w-3.5" />
+                      </div>
+                      <span className="text-xs font-bold text-white font-mono">
+                        Started in #{issue.discussionLinks[0].message.channel.name}
+                      </span>
+                    </div>
+                    {issue.discussionLinks[0].message.channel.workspace?.organization?.slug && (
+                      <Link
+                        href={`/${issue.discussionLinks[0].message.channel.workspace.organization.slug}/${issue.discussionLinks[0].message.channel.workspace.slug}/discussions/${issue.discussionLinks[0].message.channel.id}`}
+                        className="flex items-center gap-1.5 rounded-lg border border-neutral-800 bg-neutral-900 px-2.5 py-1 text-[11px] font-medium text-neutral-300 hover:border-neutral-700 hover:text-white transition"
+                      >
+                        <span>Open Discussion</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </Link>
+                    )}
+                  </div>
+                  <div className="rounded-xl border border-neutral-800/80 bg-black/60 p-3 text-xs text-neutral-300">
+                    <div className="flex items-center gap-2 mb-1 text-[11px] text-neutral-400">
+                      <span className="font-semibold text-white">
+                        {issue.discussionLinks[0].message.author.name || "Teammate"}
+                      </span>
+                      <span className="font-mono text-[10px] text-neutral-500">
+                        {new Date(issue.discussionLinks[0].message.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+                    <p className="line-clamp-2 text-neutral-300 italic font-mono text-[11px]">
+                      "{issue.discussionLinks[0].message.content}"
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Editable Markdown Description */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -770,25 +829,42 @@ export function IssueDetailModal({
                   <div className="space-y-3">
                     {activityList
                       .filter(Boolean)
-                      .map((log: any, index: number) => (
-                        <div
-                          key={log.id || `log-${index}`}
-                          className="flex items-center gap-3 text-xs text-neutral-300 py-1.5 border-b border-neutral-800/40 last:border-b-0"
-                        >
-                          <div className="h-2 w-2 rounded-full bg-neutral-400 shrink-0" />
-                          <span className="font-bold text-white">
-                            {log.actor?.name || log.actor?.email || "User"}
-                          </span>
-                          <span>
-                            {log.action
-                              ? String(log.action).replace(/_/g, " ").toLowerCase()
-                              : "updated"}
-                          </span>
-                          <span className="text-[11px] text-neutral-400 ml-auto font-mono">
-                            {formatDate(log.createdAt)}
-                          </span>
-                        </div>
-                      ))}
+                      .map((log: any, index: number) => {
+                        const isDiscussionAction =
+                          log.action === "CREATED_FROM_DISCUSSION" ||
+                          log.action === "LINKED_DISCUSSION";
+                        const channelName = log.details?.channelName;
+
+                        return (
+                          <div
+                            key={log.id || `log-${index}`}
+                            className={`flex items-center gap-3 text-xs py-2 border-b border-neutral-800/40 last:border-b-0 ${
+                              isDiscussionAction ? "text-amber-300 font-medium" : "text-neutral-300"
+                            }`}
+                          >
+                            <div
+                              className={`h-2 w-2 rounded-full shrink-0 ${
+                                isDiscussionAction ? "bg-amber-400" : "bg-neutral-400"
+                              }`}
+                            />
+                            <span className="font-bold text-white">
+                              {log.actor?.name || log.actor?.email || "User"}
+                            </span>
+                            <span>
+                              {log.action === "CREATED_FROM_DISCUSSION"
+                                ? `created this issue from discussion in #${channelName || "channel"}`
+                                : log.action === "LINKED_DISCUSSION"
+                                ? `linked this issue to discussion in #${channelName || "channel"}`
+                                : log.action
+                                ? String(log.action).replace(/_/g, " ").toLowerCase()
+                                : "updated"}
+                            </span>
+                            <span className="text-[11px] text-neutral-400 ml-auto font-mono">
+                              {formatDate(log.createdAt)}
+                            </span>
+                          </div>
+                        );
+                      })}
                     {activityList.length === 0 && (
                       <div className="py-6 text-center text-xs text-neutral-400">
                         No activity recorded yet.

@@ -192,3 +192,58 @@ export async function deleteAttachment(attachmentId: string) {
 
   return { success: true };
 }
+
+/**
+ * Server-side signed upload to Cloudinary using API Secret.
+ * Bypasses unsigned preset whitelist restrictions.
+ */
+export async function uploadServerFileToCloudinary(formData: FormData) {
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME;
+  const apiKey = process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+  const file = formData.get("file") as File;
+  if (!file) return { error: "No file provided" };
+
+  if (!cloudName || !apiKey || !apiSecret) {
+    return { error: "Cloudinary server credentials not configured" };
+  }
+
+  const timestamp = Math.floor(Date.now() / 1000).toString();
+  const folder = "workflow_discussions";
+
+  // Create SHA1 signature: sorted params + api_secret
+  const { createHash } = await import("crypto");
+  const signString = `folder=${folder}&timestamp=${timestamp}${apiSecret}`;
+  const signature = createHash("sha1").update(signString).digest("hex");
+
+  const uploadData = new FormData();
+  uploadData.append("file", file);
+  uploadData.append("api_key", apiKey);
+  uploadData.append("timestamp", timestamp);
+  uploadData.append("folder", folder);
+  uploadData.append("signature", signature);
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, {
+    method: "POST",
+    body: uploadData,
+  });
+
+  if (!res.ok) {
+    const errText = await res.text().catch(() => "");
+    console.error("Cloudinary signed upload failed:", res.status, errText);
+    return { error: `Cloudinary error (${res.status}): ${errText}` };
+  }
+
+  const data = await res.json();
+  return {
+    success: true,
+    result: {
+      publicId: data.public_id,
+      fileName: file.name,
+      fileType: file.type || "application/octet-stream",
+      fileSize: data.bytes || file.size,
+      fileUrl: data.secure_url,
+    },
+  };
+}

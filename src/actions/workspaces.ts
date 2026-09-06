@@ -91,6 +91,7 @@ export async function getUserWorkspaces() {
             select: {
               projects: true,
               members: true,
+              discussionChannels: true,
             },
           },
           banners: {

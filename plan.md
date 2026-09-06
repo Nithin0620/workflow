@@ -44,6 +44,18 @@ This document outlines the full roadmap for the **Workflow** engineering managem
 
 ---
 
+## 🐛 Known Bugs / Issues
+
+| # | Issue | Description | Status |
+|---|---|---|---|
+| 1 | Message delivery/send lag | "Message delivered ✓" and sent states in the message bar lag behind; no immediate visual feedback on send. | Open |
+| 2 | Issue linking — no popup | Linking an issue (from a message/discussion) doesn't open a popup/modal to pick the issue — link flow is broken or missing. | Open |
+| 3 | Website too slow | Overall performance is slow (page loads, interactions). Needs perf audit. | Open |
+| 4 | No active-members view per group | No UI showing which members are currently active/online in each group/channel. | Open |
+| 5 | No live typing indicator | "User is typing…" not present → indicates no websocket/SSE-driven typing presence. | Open |
+
+---
+
 ## 🔨 Active Task: Phase 1 — Repository Authorization & GitHub Integration
 
 ### Objectives:

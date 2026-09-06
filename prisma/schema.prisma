@@ -65,6 +65,10 @@ model User {
   leadProjects     Project[]         @relation("ProjectLead")
   projectMembers   ProjectMember[]
   tourProgress     TourProgress[]
+  discussionMessages DiscussionMessage[]
+  discussionReactions DiscussionReaction[]
+  channelReads     UserChannelRead[]
+  createdIssueLinks DiscussionIssueLink[]
 }
 
 model VerificationToken {
@@ -118,6 +122,7 @@ model Workspace {
   activityLogs ActivityLog[]
   banners      Banner[]
   cronJobs     CronJob[]
+  discussionChannels DiscussionChannel[]
 
   @@unique([organizationId, slug])
   @@index([organizationId])
@@ -191,6 +196,7 @@ model Project {
   repository ProjectRepository?
   cronLogs   CronExecutionLog[]
   cronJobs   CronJob[]
+  discussionChannels DiscussionChannel[]
 
   @@unique([workspaceId, key])
   @@index([workspaceId])
@@ -319,6 +325,7 @@ model Issue {
   attachments  Attachment[]
   activityLogs ActivityLog[]
   labels       Label[]
+  discussionLinks DiscussionIssueLink[]
 
   @@unique([projectId, issueNumber])
   @@index([projectId, status, order])
@@ -466,4 +473,130 @@ model CronJob {
   @@index([workspaceId])
   @@index([projectId])
 }
+
+// -------------------------------------------------------------
+// Discussions, Channels & Chat Models
+// -------------------------------------------------------------
+
+enum ChannelType {
+  TEXT
+  ANNOUNCEMENT
+}
+
+model DiscussionChannel {
+  id          String       @id @default(cuid())
+  workspaceId String
+  workspace   Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+  // Optional linkage to a Project (null for Workspace-wide channels like #general)
+  projectId   String?
+  project     Project?     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  name        String       // e.g. "backend", "frontend", "general"
+  topic       String?      @db.Text
+  type        ChannelType  @default(TEXT)
+  isPrivate   Boolean      @default(false)
+  position    Int          @default(0) // Ordering within category
+  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  messages    DiscussionMessage[]
+  reads       UserChannelRead[]
+
+  @@unique([workspaceId, projectId, name])
+  @@index([workspaceId])
+  @@index([projectId])
+}
+
+model DiscussionMessage {
+  id          String              @id @default(cuid())
+  channelId   String
+  channel     DiscussionChannel   @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  
+  authorId    String
+  author      User                @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  content     String              @db.Text
+  
+  // Threading support (Parent message -> replies)
+  parentId    String?
+  parent      DiscussionMessage?  @relation("ThreadReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies     DiscussionMessage[] @relation("ThreadReplies")
+  replyCount  Int                 @default(0)
+  lastReplyAt DateTime?
+
+  // System & AI flags
+  isSystem    Boolean             @default(false)
+  
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  attachments DiscussionAttachment[]
+  reactions   DiscussionReaction[]
+  issueLinks  DiscussionIssueLink[]
+
+  @@index([channelId, createdAt])
+  @@index([parentId])
+  @@index([authorId])
+}
+
+// First-class connection between discussion messages/threads and issues
+model DiscussionIssueLink {
+  id          String            @id @default(cuid())
+  messageId   String
+  message     DiscussionMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  issueId     String
+  issue       Issue             @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  
+  createdById String
+  creator     User              @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt   DateTime          @default(now())
+
+  @@unique([messageId, issueId])
+  @@index([issueId])
+  @@index([messageId])
+  @@index([createdById])
+}
+
+model DiscussionAttachment {
+  id        String            @id @default(cuid())
+  messageId String
+  message   DiscussionMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  fileName  String
+  fileSize  Int
+  fileType  String
+  fileUrl   String
+  createdAt DateTime          @default(now())
+
+  @@index([messageId])
+}
+
+model DiscussionReaction {
+  id        String            @id @default(cuid())
+  messageId String
+  message   DiscussionMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emoji     String            // e.g. "👍", "🚀", "👀"
+  createdAt DateTime          @default(now())
+
+  @@unique([messageId, userId, emoji])
+  @@index([messageId])
+  @@index([userId])
+}
+
+model UserChannelRead {
+  id          String            @id @default(cuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channelId   String
+  channel     DiscussionChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  lastReadAt  DateTime          @default(now())
+
+  @@unique([userId, channelId])
+  @@index([channelId])
+  @@index([userId])
+}
+
 

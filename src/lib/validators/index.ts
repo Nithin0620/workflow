@@ -99,4 +99,58 @@ export const updateRepositorySchema = z.object({
   cronSchedule: z.string().optional(),
 });
 
+// -------------------------------------------------------------
+// Discussions & Channels Validation Schemas
+// -------------------------------------------------------------
+
+export const createDiscussionChannelSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Channel name is required")
+    .max(50, "Channel name cannot exceed 50 characters")
+    .regex(/^[a-z0-9-_]+$/, "Channel name can only contain lowercase letters, numbers, hyphens, and underscores"),
+  topic: z.string().max(300, "Topic cannot exceed 300 characters").optional(),
+  type: z.enum(["TEXT", "ANNOUNCEMENT"]).default("TEXT"),
+  isPrivate: z.boolean().optional().default(false),
+  projectId: z.string().optional().nullable(),
+});
+
+export const updateDiscussionChannelSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Channel name is required")
+    .max(50, "Channel name cannot exceed 50 characters")
+    .regex(/^[a-z0-9-_]+$/, "Channel name can only contain lowercase letters, numbers, hyphens, and underscores")
+    .optional(),
+  topic: z.string().max(300, "Topic cannot exceed 300 characters").optional().nullable(),
+  isPrivate: z.boolean().optional(),
+  position: z.number().int().optional(),
+});
+
+export const sendDiscussionMessageSchema = z.object({
+  content: z.string().min(1, "Message content cannot be empty").max(10000, "Message is too long"),
+  parentId: z.string().optional().nullable(),
+  attachments: z
+    .array(
+      z.object({
+        fileName: z.string().min(1),
+        fileSize: z.number().int().positive(),
+        fileType: z.string(),
+        fileUrl: z.string().url(),
+      })
+    )
+    .optional(),
+});
+
+export const toggleDiscussionReactionSchema = z.object({
+  messageId: z.string().min(1),
+  emoji: z.string().min(1).max(32),
+});
+
+export const linkDiscussionToIssueSchema = z.object({
+  messageId: z.string().min(1),
+  issueId: z.string().min(1),
+});
+
+
 
