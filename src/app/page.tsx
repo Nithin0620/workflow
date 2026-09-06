@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AnimatedFooter } from "@/components/layout/animated-footer";
 import { getCurrentUser } from "@/lib/auth/session";
 import { PublicNavbar } from "@/components/common/public-navbar";
 import { AnimatedSaasObjects } from "@/components/home/animated-saas-objects";
@@ -6,7 +7,6 @@ import { MacKanbanMockup } from "@/components/home/mac-kanban-mockup";
 import { LiveKanbanDemo } from "@/components/home/live-kanban-demo";
 import { PlannedJourneysShowcase } from "@/components/home/planned-journeys-showcase";
 import { HeroContent } from "@/components/home/hero-content";
-
 
 import {
   Kanban,
@@ -27,10 +27,9 @@ import {
 export default async function LandingPage() {
   const user = await getCurrentUser();
 
-  const userWorkspaceUrl =
-    user?.workspaceMembers[0]?.workspace?.organization
-      ? `/${user.workspaceMembers[0].workspace.organization.slug}/${user.workspaceMembers[0].workspace.slug}`
-      : null;
+  const userWorkspaceUrl = user?.workspaceMembers[0]?.workspace?.organization
+    ? `/${user.workspaceMembers[0].workspace.organization.slug}/${user.workspaceMembers[0].workspace.slug}`
+    : null;
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
@@ -44,21 +43,24 @@ export default async function LandingPage() {
 
         <HeroContent user={user} />
 
-          {/* Keyboard Hint */}
-          <div className="mx-auto max-w-4xl text-center relative z-10 pt-2 flex items-center justify-center gap-2 text-xs text-neutral-500 font-mono">
-            <span>Press</span>
-            <kbd className="rounded border border-neutral-800 bg-neutral-900 px-2 py-0.5 text-neutral-300 font-semibold">
-              ⌘K
-            </kbd>
-            <span>anywhere for instant Command Palette</span>
-          </div>
+        {/* Keyboard Hint */}
+        <div className="mx-auto max-w-4xl text-center relative z-10 pt-2 flex items-center justify-center gap-2 text-xs text-neutral-500 font-mono">
+          <span>Press</span>
+          <kbd className="rounded border border-neutral-800 bg-neutral-900 px-2 py-0.5 text-neutral-300 font-semibold">
+            ⌘K
+          </kbd>
+          <span>anywhere for instant Command Palette</span>
+        </div>
       </section>
 
       {/* 3. INTERACTIVE MOCKUP - PURE BLACK */}
       <MacKanbanMockup />
 
       {/* 4. DOMAIN HIERARCHY - PURE WHITE SECTION */}
-      <section id="hierarchy" className="bg-white text-black px-6 py-24 border-t border-neutral-200">
+      <section
+        id="hierarchy"
+        className="bg-white text-black px-6 py-24 border-t border-neutral-200"
+      >
         <div className="mx-auto max-w-5xl space-y-12">
           <div className="text-center space-y-3">
             <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-500 font-mono">
@@ -68,7 +70,8 @@ export default async function LandingPage() {
               Built for engineering teams that scale.
             </p>
             <p className="text-sm text-neutral-600 max-w-xl mx-auto">
-              Clean separation of concerns from top-level companies to individual ticket discussions.
+              Clean separation of concerns from top-level companies to
+              individual ticket discussions.
             </p>
           </div>
 
@@ -79,7 +82,8 @@ export default async function LandingPage() {
               </div>
               <h3 className="text-base font-bold text-black">Organization</h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
-                Top-level governance and billing boundary for your entire company (e.g. Acme Corp).
+                Top-level governance and billing boundary for your entire
+                company (e.g. Acme Corp).
               </p>
             </div>
 
@@ -89,7 +93,8 @@ export default async function LandingPage() {
               </div>
               <h3 className="text-base font-bold text-black">Workspace</h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
-                Dedicated team spaces (e.g. Engineering, Mobile, DevOps) with custom members and RBAC.
+                Dedicated team spaces (e.g. Engineering, Mobile, DevOps) with
+                custom members and RBAC.
               </p>
             </div>
 
@@ -99,7 +104,9 @@ export default async function LandingPage() {
               </div>
               <h3 className="text-base font-bold text-black">Project</h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
-                Codebases or initiatives with unique keys (e.g. <span className="font-mono font-bold text-black">TRIP</span>, <span className="font-mono font-bold text-black">DEV</span>).
+                Codebases or initiatives with unique keys (e.g.{" "}
+                <span className="font-mono font-bold text-black">TRIP</span>,{" "}
+                <span className="font-mono font-bold text-black">DEV</span>).
               </p>
             </div>
 
@@ -109,7 +116,8 @@ export default async function LandingPage() {
               </div>
               <h3 className="text-base font-bold text-black">Issue & Tasks</h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
-                Atomic tasks with Markdown discussions, @mentions, story points, and activity logs.
+                Atomic tasks with Markdown discussions, @mentions, story points,
+                and activity logs.
               </p>
             </div>
           </div>
@@ -120,7 +128,10 @@ export default async function LandingPage() {
       <LiveKanbanDemo />
 
       {/* 5. FEATURES GRID - PURE WHITE SECTION */}
-      <section id="features" className="bg-[#f7f7f7] text-black px-6 py-24 border-t border-neutral-200">
+      <section
+        id="features"
+        className="bg-[#f7f7f7] text-black px-6 py-24 border-t border-neutral-200"
+      >
         <div className="mx-auto max-w-6xl space-y-12">
           <div className="text-center space-y-3">
             <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-500 font-mono">
@@ -136,9 +147,12 @@ export default async function LandingPage() {
               <div className="h-10 w-10 rounded-xl bg-black text-white flex items-center justify-center">
                 <Kanban className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-bold text-black">Fractional Kanban Engine</h3>
+              <h3 className="text-base font-bold text-black">
+                Fractional Kanban Engine
+              </h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
-                Instant drag-and-drop powered by fractional float indexing. Only 1 row updates in PostgreSQL on card drag.
+                Instant drag-and-drop powered by fractional float indexing. Only
+                1 row updates in PostgreSQL on card drag.
               </p>
             </div>
 
@@ -146,9 +160,12 @@ export default async function LandingPage() {
               <div className="h-10 w-10 rounded-xl bg-black text-white flex items-center justify-center">
                 <Command className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-bold text-black">Command Palette (⌘K)</h3>
+              <h3 className="text-base font-bold text-black">
+                Command Palette (⌘K)
+              </h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
-                Navigate anywhere, jump to projects, and run actions instantly without ever leaving your keyboard.
+                Navigate anywhere, jump to projects, and run actions instantly
+                without ever leaving your keyboard.
               </p>
             </div>
 
@@ -156,9 +173,12 @@ export default async function LandingPage() {
               <div className="h-10 w-10 rounded-xl bg-black text-white flex items-center justify-center">
                 <ShieldCheck className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-bold text-black">Granular RBAC Security</h3>
+              <h3 className="text-base font-bold text-black">
+                Granular RBAC Security
+              </h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
-                Owner, Admin, Member, and Viewer roles with strict server-side boundary validation on every mutation.
+                Owner, Admin, Member, and Viewer roles with strict server-side
+                boundary validation on every mutation.
               </p>
             </div>
 
@@ -166,9 +186,12 @@ export default async function LandingPage() {
               <div className="h-10 w-10 rounded-xl bg-black text-white flex items-center justify-center">
                 <Zap className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-bold text-black">Multi-Provider Auth</h3>
+              <h3 className="text-base font-bold text-black">
+                Multi-Provider Auth
+              </h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
-                Sign in with Google, GitHub, or secure Email + Password salted with 12 rounds of bcrypt.
+                Sign in with Google, GitHub, or secure Email + Password salted
+                with 12 rounds of bcrypt.
               </p>
             </div>
 
@@ -176,9 +199,12 @@ export default async function LandingPage() {
               <div className="h-10 w-10 rounded-xl bg-black text-white flex items-center justify-center">
                 <BarChart3 className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-bold text-black">Velocity & Analytics</h3>
+              <h3 className="text-base font-bold text-black">
+                Velocity & Analytics
+              </h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
-                Live metrics on sprint throughput, completion rates, bottleneck alerts, and active team workload.
+                Live metrics on sprint throughput, completion rates, bottleneck
+                alerts, and active team workload.
               </p>
             </div>
 
@@ -186,9 +212,12 @@ export default async function LandingPage() {
               <div className="h-10 w-10 rounded-xl bg-black text-white flex items-center justify-center">
                 <FolderKanban className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-bold text-black">Multi-Project Management</h3>
+              <h3 className="text-base font-bold text-black">
+                Multi-Project Management
+              </h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
-                Spin up codebases with custom issue sequence counters, color accents, and dedicated lead assignments.
+                Spin up codebases with custom issue sequence counters, color
+                accents, and dedicated lead assignments.
               </p>
             </div>
           </div>
@@ -210,7 +239,9 @@ export default async function LandingPage() {
               Need custom private hosting or dedicated enterprise setup?
             </h3>
             <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed">
-              We provide tailored on-premise deployments, SSO SAML integration, custom Jira/Linear migrations, and dedicated SLA engineering support.
+              We provide tailored on-premise deployments, SSO SAML integration,
+              custom Jira/Linear migrations, and dedicated SLA engineering
+              support.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto shrink-0">
@@ -232,7 +263,8 @@ export default async function LandingPage() {
             Build and ship software with Workflow.
           </h3>
           <p className="text-xs sm:text-sm text-neutral-600">
-            Join modern product engineering teams using fast, keyboard-first issue management.
+            Join modern product engineering teams using fast, keyboard-first
+            issue management.
           </p>
           <div className="flex items-center justify-center gap-4">
             <Link
@@ -253,32 +285,7 @@ export default async function LandingPage() {
       </section>
 
       {/* 8. FOOTER - PURE BLACK */}
-      <footer className="border-t border-neutral-900 bg-black px-6 py-16 text-white">
-        <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-white text-black font-black text-xs">
-              W
-            </div>
-            <span className="text-sm font-bold text-white">Workflow</span>
-            <span className="text-xs text-neutral-500">© 2026. Built with Next.js & PostgreSQL.</span>
-          </div>
-
-          <div className="flex items-center gap-6 text-xs text-neutral-400">
-            <Link href="/how-it-works" className="hover:text-white transition">
-              How It Works
-            </Link>
-            <Link href="/contact" className="hover:text-white transition">
-              Contact & Enquiry
-            </Link>
-            <Link href="/login" className="hover:text-white transition">
-              Sign In
-            </Link>
-            <Link href="/register" className="hover:text-white transition font-bold text-white">
-              Create Account
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <AnimatedFooter />
     </div>
   );
 }
