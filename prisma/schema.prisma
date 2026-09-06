@@ -113,6 +113,7 @@ model Workspace {
   projects     Project[]
   labels       Label[]
   activityLogs ActivityLog[]
+  banners      Banner[]
 
   @@unique([organizationId, slug])
   @@index([organizationId])
@@ -158,13 +159,49 @@ model Project {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  issues  Issue[]
-  sprints Sprint[]
-  members ProjectMember[]
-  columns BoardColumn[]
+  issues     Issue[]
+  sprints    Sprint[]
+  members    ProjectMember[]
+  columns    BoardColumn[]
+  banners    Banner[]
+  repository ProjectRepository?
+  cronLogs   CronExecutionLog[]
 
   @@unique([workspaceId, key])
   @@index([workspaceId])
+}
+
+model ProjectRepository {
+  id            String    @id @default(cuid())
+  projectId     String    @unique
+  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  repoUrl       String    // e.g. "https://github.com/owner/repo"
+  repoOwner     String    // e.g. "octocat"
+  repoName      String    // e.g. "Hello-World"
+  defaultBranch String    @default("main")
+  accessToken   String?   // Encrypted GitHub PAT / Auth token
+  aiScanEnabled Boolean   @default(true)
+  cronSchedule  String?   @default("0 12 * * *") // Daily 12:00 PM
+  lastScannedAt DateTime?
+  status        String    @default("ACTIVE") // ACTIVE, ERROR, DISCONNECTED
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([projectId])
+}
+
+model Banner {
+  id          String     @id @default(cuid())
+  imageUrl    String
+  sortOrder   Int        @default(0)
+  workspaceId String?
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  projectId   String?
+  project     Project?   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt   DateTime   @default(now())
+
+  @@index([workspaceId])
+  @@index([projectId])
 }
 
 model BoardColumn {
@@ -285,26 +322,33 @@ model Comment {
   authorId  String
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   content   String   @db.Text
+  isAi      Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  attachments Attachment[]
 
   @@index([issueId])
   @@index([authorId])
 }
 
 model Attachment {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   issueId    String
-  issue      Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  issue      Issue     @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  commentId  String?
+  comment    Comment?  @relation(fields: [commentId], references: [id], onDelete: SetNull)
+  publicId   String // Cloudinary asset id
   fileName   String
   fileSize   Int
   fileType   String
   fileUrl    String
   uploaderId String
-  uploader   User     @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
+  uploader   User      @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
 
   @@index([issueId])
+  @@index([commentId])
   @@index([uploaderId])
 }
 
@@ -337,3 +381,24 @@ model Notification {
 
   @@index([userId, isRead])
 }
+
+model CronExecutionLog {
+  id              String    @id @default(cuid())
+  projectId       String?
+  project         Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  workspaceId     String
+  triggerSource   String    @default("CRON") // CRON, MANUAL, WEBHOOK
+  status          String    @default("SUCCESS") // SUCCESS, FAILED, RUNNING
+  findingsCount   Int       @default(0)
+  issuesCreated   Int       @default(0)
+  durationMs      Int       @default(0)
+  summary         String    @db.Text
+  error           String?   @db.Text
+  rawOutput       String?   @db.Text
+  createdAt       DateTime  @default(now())
+
+  @@index([projectId])
+  @@index([workspaceId])
+  @@index([createdAt])
+}
+

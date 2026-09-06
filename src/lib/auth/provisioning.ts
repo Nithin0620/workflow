@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { slugify } from "@/lib/utils";
+import { defaultBannerUrls } from "@/lib/banners";
 
 type PrismaTx = Parameters<Parameters<PrismaClient["$transaction"]>[0]>[0];
 
@@ -31,6 +32,7 @@ export async function provisionDefaultUserWorkspace(
       slug: "engineering",
       description: "Default collaborative engineering workspace",
       organizationId: org.id,
+      banners: { create: defaultBannerUrls() },
     },
   });
 
@@ -54,6 +56,7 @@ export async function provisionDefaultUserWorkspace(
       icon: "FolderKanban",
       leadId: user.id,
       issueSequence: 4,
+      banners: { create: defaultBannerUrls() },
     },
   });
 

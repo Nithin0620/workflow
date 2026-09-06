@@ -202,6 +202,18 @@ export async function getIssueDetails(issueId: string) {
               },
             },
           },
+          sprints: {
+            orderBy: { number: "desc" },
+            select: {
+              id: true,
+              name: true,
+              number: true,
+              goal: true,
+              startDate: true,
+              endDate: true,
+              isActive: true,
+            },
+          },
         },
       },
       assignee: { select: { id: true, name: true, image: true, email: true } },
@@ -217,6 +229,12 @@ export async function getIssueDetails(issueId: string) {
       comments: {
         include: {
           author: { select: { id: true, name: true, image: true, email: true } },
+          attachments: {
+            include: {
+              uploader: { select: { id: true, name: true, image: true } },
+            },
+            orderBy: { createdAt: "asc" },
+          },
         },
         orderBy: { createdAt: "asc" },
       },

@@ -7,8 +7,13 @@ import {
   updateIssueDetails,
   addIssueComment,
 } from "@/actions/issues";
+import { attachFileToComment, deleteAttachment } from "@/actions/attachments";
+import { triggerAiIssueTriage } from "@/actions/ai-triage";
+import { uploadFileToCloudinary, type CloudinaryUploadResult } from "@/lib/cloudinary-client";
+import { ATTACHMENT_MAX_BYTES } from "@/lib/validators";
 import { ISSUE_STATUSES, ISSUE_PRIORITIES } from "@/lib/constants";
 import { formatIssueKey, formatDate } from "@/lib/utils";
+import { AttachmentSection, AttachmentGrid, type AttachmentItem } from "./attachment-section";
 import {
   X,
   MessageSquare,
@@ -23,6 +28,10 @@ import {
   Copy,
   Check,
   Trash2,
+  Paperclip,
+  ImagePlus,
+  Bot,
+  Sparkles,
 } from "lucide-react";
 
 interface IssueDetailModalProps {
@@ -50,6 +59,54 @@ const PRIORITY_ICONS: Record<IssuePriority, React.ReactNode> = {
 
 import { useProjectRealtime } from "@/hooks/use-project-realtime";
 
+interface IssueCommentDetail {
+  id: string;
+  content: string;
+  createdAt: string | Date;
+  author?: { id: string; name?: string | null; email?: string | null; image?: string | null } | null;
+  attachments?: AttachmentItem[];
+}
+
+interface IssueDetailData {
+  id: string;
+  projectId: string;
+  projectKey: string;
+  issueNumber: number;
+  title: string;
+  description?: string | null;
+  status: IssueStatus;
+  priority: IssuePriority;
+  estimate?: number | null;
+  assigneeId?: string | null;
+  sprintId?: string | null;
+  createdAt: string | Date;
+  creator?: { id: string; name?: string | null; email?: string | null; image?: string | null } | null;
+  project?: {
+    workspace?: {
+      members?: Array<{
+        user: { id: string; name?: string | null; email?: string | null; image?: string | null };
+      }>;
+    };
+    sprints?: Array<{
+      id: string;
+      name: string;
+      number: number;
+      goal?: string | null;
+      startDate: string | Date;
+      endDate: string | Date;
+      isActive: boolean;
+    }>;
+  } | null;
+  attachments?: AttachmentItem[];
+  comments?: IssueCommentDetail[];
+  activityLogs?: Array<{
+    id: string;
+    action: string;
+    createdAt: string | Date;
+    actor?: { id: string; name?: string | null; email?: string | null; image?: string | null } | null;
+  }>;
+}
+
 function deduplicateById<T extends { id?: string }>(items: T[]): T[] {
   const seen = new Set<string>();
   const result: T[] = [];
@@ -74,7 +131,7 @@ export function IssueDetailModal({
 }: IssueDetailModalProps) {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
-  const [issue, setIssue] = useState<any>(null);
+  const [issue, setIssue] = useState<IssueDetailData | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<IssueStatus>("TODO");
@@ -82,12 +139,24 @@ export function IssueDetailModal({
   const [estimate, setEstimate] = useState<number | "">("");
   const [assigneeId, setAssigneeId] = useState<string | null>(null);
   const [commentContent, setCommentContent] = useState("");
+  const [pendingAttachments, setPendingAttachments] = useState<CloudinaryUploadResult[]>([]);
   const [submittingComment, setSubmittingComment] = useState(false);
   const [activeTab, setActiveTab] = useState<"comments" | "activity">("comments");
   const [copied, setCopied] = useState(false);
+  const [sprintId, setSprintId] = useState<string | null>(null);
+  const [aiScanning, setAiScanning] = useState(false);
+  const [customGroqKey, setCustomGroqKey] = useState("");
 
-  const commentsList: any[] = deduplicateById(Array.isArray(issue?.comments) ? issue.comments : []);
-  const activityList: any[] = deduplicateById(Array.isArray(issue?.activityLogs) ? issue.activityLogs : []);
+  const issueAttachments: AttachmentItem[] = deduplicateById(
+    Array.isArray(issue?.attachments) ? issue.attachments.filter((a) => !a.commentId) : []
+  );
+
+  const commentsList: IssueCommentDetail[] = deduplicateById(
+    Array.isArray(issue?.comments) ? issue.comments : []
+  );
+  const activityList: IssueDetailData["activityLogs"] = deduplicateById(
+    Array.isArray(issue?.activityLogs) ? issue.activityLogs : []
+  );
 
   // Real-time synchronization for this issue's project channel
   useProjectRealtime({
@@ -95,13 +164,13 @@ export function IssueDetailModal({
     enabled: isOpen && !!issue?.projectId,
     onEvent: (event) => {
       if (event.type === "COMMENT_ADDED" && event.data.issueId === issueId && event.data.comment) {
-        setIssue((prev: any) => {
+        setIssue((prev) => {
           if (!prev) return prev;
           const currentComments = Array.isArray(prev.comments) ? prev.comments : [];
-          if (currentComments.some((c: any) => c?.id === event.data.comment?.id)) return prev;
+          if (currentComments.some((c) => c?.id === event.data.comment?.id)) return prev;
           return {
             ...prev,
-            comments: deduplicateById([...currentComments, event.data.comment]),
+            comments: deduplicateById([...currentComments, event.data.comment as IssueCommentDetail]),
           };
         });
       } else if (event.type === "ISSUE_UPDATED" && event.data.issueId === issueId && event.data.issue) {
@@ -110,7 +179,8 @@ export function IssueDetailModal({
         setStatus(updated.status);
         setPriority(updated.priority);
         setEstimate(updated.estimate ?? "");
-        setIssue((prev: any) =>
+        if (updated.sprintId !== undefined) setSprintId(updated.sprintId ?? null);
+        setIssue((prev) =>
           prev
             ? {
                 ...prev,
@@ -122,6 +192,40 @@ export function IssueDetailModal({
         );
       } else if (event.type === "ISSUE_DELETED" && event.data.issueId === issueId) {
         onClose();
+      } else if (event.type === "ATTACHMENT_ADDED" && event.data.issueId === issueId && event.data.attachment) {
+        setIssue((prev) => {
+          if (!prev) return prev;
+          const att = event.data.attachment as AttachmentItem;
+          if (att.commentId) {
+            return {
+              ...prev,
+              comments: (prev.comments || []).map((c) =>
+                c.id === att.commentId
+                  ? { ...c, attachments: deduplicateById([...(c.attachments || []), att]) }
+                  : c
+              ),
+            };
+          }
+          const current = Array.isArray(prev.attachments) ? prev.attachments : [];
+          if (current.some((a) => a?.id === att.id)) return prev;
+          return { ...prev, attachments: [...current, att] };
+        });
+      } else if (event.type === "ATTACHMENT_DELETED" && event.data.issueId === issueId && event.data.attachmentId) {
+        const id = event.data.attachmentId;
+        setIssue((prev) =>
+          prev
+            ? {
+                ...prev,
+                attachments: (Array.isArray(prev.attachments) ? prev.attachments : []).filter(
+                  (a) => a?.id !== id
+                ),
+                comments: (prev.comments || []).map((c) => ({
+                  ...c,
+                  attachments: (c.attachments || []).filter((a) => a?.id !== id),
+                })),
+              }
+            : prev
+        );
       }
     },
   });
@@ -146,6 +250,7 @@ export function IssueDetailModal({
         setPriority(data.priority);
         setEstimate(data.estimate ?? "");
         setAssigneeId(data.assigneeId);
+        setSprintId(data.sprintId ?? null);
         setLoading(false);
       })
       .catch(() => {
@@ -163,7 +268,7 @@ export function IssueDetailModal({
     if (!issue) return;
     const res = await updateIssueDetails(issue.id, fields);
     if (res.success && res.issue) {
-      setIssue((prev: any) => ({
+      setIssue((prev) => ({
         ...prev,
         ...res.issue,
         comments: Array.isArray(prev?.comments) ? prev.comments : [],
@@ -202,21 +307,45 @@ export function IssueDetailModal({
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!commentContent.trim() || submittingComment) return;
+    if ((!commentContent.trim() && pendingAttachments.length === 0) || submittingComment) return;
 
     setSubmittingComment(true);
-    const res = await addIssueComment(issue.id, commentContent.trim());
+    const res = await addIssueComment(issue!.id, commentContent.trim() || " ");
     if (res.success && res.comment) {
-      setIssue((prev: any) => {
+      setIssue((prev) => {
         if (!prev) return prev;
         const currentComments = Array.isArray(prev.comments) ? prev.comments : [];
-        if (currentComments.some((c: any) => c?.id === res.comment.id)) return prev;
+        if (currentComments.some((c) => c?.id === res.comment.id)) return prev;
         return {
           ...prev,
-          comments: deduplicateById([...currentComments, res.comment]),
+          comments: deduplicateById([...currentComments, { ...res.comment, attachments: [] }]),
         };
       });
+
+      if (pendingAttachments.length > 0) {
+        const attached: AttachmentItem[] = [];
+        for (const meta of pendingAttachments) {
+          const r = await attachFileToComment(issue!.id, res.comment.id, meta);
+          if (r.success && r.attachment) attached.push(r.attachment as AttachmentItem);
+        }
+        if (attached.length > 0) {
+          setIssue((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  comments: (prev.comments || []).map((c) =>
+                    c.id === res.comment.id
+                      ? { ...c, attachments: deduplicateById([...(c.attachments || []), ...attached]) }
+                      : c
+                  ),
+                }
+              : prev
+          );
+        }
+      }
+
       setCommentContent("");
+      setPendingAttachments([]);
       if (typeof window !== "undefined") {
         window.dispatchEvent(new Event("workflow_notification_updated"));
       }
@@ -224,10 +353,77 @@ export function IssueDetailModal({
     setSubmittingComment(false);
   };
 
+  const handleCommentFileUpload = async (files: FileList | File[]) => {
+    for (const file of Array.from(files)) {
+      if (file.size > ATTACHMENT_MAX_BYTES) {
+        alert(`${file.name} exceeds the 10MB limit and was skipped.`);
+        continue;
+      }
+      try {
+        const meta = await uploadFileToCloudinary(file);
+        setPendingAttachments((prev) => [...prev, meta]);
+      } catch {
+        alert(`Failed to upload ${file.name}. Check your Cloudinary configuration.`);
+      }
+    }
+  };
+
+  const handleDeleteCommentAttachment = async (attachmentId: string) => {
+    if (!window.confirm("Delete this attachment?")) return;
+    const res = await deleteAttachment(attachmentId);
+    if (res.success) {
+      setIssue((prev) =>
+        prev
+          ? {
+              ...prev,
+              comments: (prev.comments || []).map((c) => ({
+                ...c,
+                attachments: (c.attachments || []).filter((a) => a?.id !== attachmentId),
+              })),
+            }
+          : prev
+      );
+    } else {
+      alert(res.error || "Could not delete attachment.");
+    }
+  };
+
   const copyLink = () => {
     navigator.clipboard.writeText(window.location.href);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleTriggerAiFix = async (apiKeyOverride?: string) => {
+    if (!issue || aiScanning) return;
+    setAiScanning(true);
+    const res = await triggerAiIssueTriage(issue.id, apiKeyOverride || customGroqKey || undefined);
+    setAiScanning(false);
+
+    if (res.success && res.comment) {
+      setIssue((prev) => {
+        if (!prev) return prev;
+        const currentComments = Array.isArray(prev.comments) ? prev.comments : [];
+        return {
+          ...prev,
+          comments: deduplicateById([...currentComments, { ...res.comment, isAi: true, attachments: [] }]),
+        };
+      });
+      setActiveTab("comments");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("workflow_notification_updated"));
+      }
+    } else {
+      if (res.error && res.error.includes("GROQ_API_KEY")) {
+        const key = prompt("Enter your Groq API Key (gsk_...) to generate the autonomous AI fix:");
+        if (key && key.trim()) {
+          setCustomGroqKey(key.trim());
+          handleTriggerAiFix(key.trim());
+          return;
+        }
+      }
+      alert(res.error || "Failed to generate AI fix.");
+    }
   };
 
   const workspaceMembers = issue?.project?.workspace?.members || [];
@@ -258,6 +454,21 @@ export function IssueDetailModal({
                   <span>Copy link</span>
                 </>
               )}
+            </button>
+
+            {/* Ask AI for Fix Button */}
+            <button
+              onClick={() => handleTriggerAiFix()}
+              disabled={aiScanning}
+              title="Autonomous Codebase Scan & Recommended Patch via Groq AI"
+              className="flex items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-300 hover:border-emerald-500/70 hover:bg-emerald-500/20 transition shadow-sm disabled:opacity-50"
+            >
+              {aiScanning ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-400" />
+              ) : (
+                <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
+              )}
+              <span>{aiScanning ? "AI Scanning Code..." : "Ask AI for Fix"}</span>
             </button>
           </div>
 
@@ -318,6 +529,31 @@ export function IssueDetailModal({
                 />
               </div>
 
+              {/* Attachments */}
+              <AttachmentSection
+                issueId={issue.id}
+                attachments={issueAttachments}
+                onAdded={(att) =>
+                  setIssue((prev) =>
+                    prev
+                      ? { ...prev, attachments: deduplicateById([...(prev.attachments || []), att]) }
+                      : prev
+                  )
+                }
+                onDeleted={(attId) =>
+                  setIssue((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          attachments: (Array.isArray(prev.attachments) ? prev.attachments : []).filter(
+                            (a) => a?.id !== attId
+                          ),
+                        }
+                      : prev
+                  )
+                }
+              />
+
               {/* Activity & Comments Tabs */}
               <div className="border-t border-neutral-800 pt-4 space-y-4">
                 <div className="flex items-center gap-4">
@@ -354,30 +590,56 @@ export function IssueDetailModal({
                       {commentsList
                         .filter(Boolean)
                         .map((c: any, index: number) => {
-                          const authorName =
-                            c.author?.name || c.author?.email || "Teammate";
-                          const initial =
-                            authorName.charAt(0).toUpperCase() || "U";
+                          const isAiComment = !!c.isAi || (typeof c.content === "string" && c.content.includes("Autonomous AI"));
+                          const authorName = isAiComment ? "Workflow AI Assistant" : (c.author?.name || c.author?.email || "Teammate");
+                          const initial = isAiComment ? "AI" : (authorName.charAt(0).toUpperCase() || "U");
+
                           return (
                             <div
                               key={c.id || `comment-${index}`}
-                              className="flex gap-3 rounded-xl border border-neutral-800 bg-neutral-900/50 p-3.5"
+                              className={`flex gap-3 rounded-xl p-3.5 border transition ${
+                                isAiComment
+                                  ? "border-emerald-500/40 bg-emerald-950/20 shadow-lg shadow-emerald-950/10"
+                                  : "border-neutral-800 bg-neutral-900/50"
+                              }`}
                             >
-                              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-neutral-800 text-[10px] font-bold text-white border border-neutral-700 shadow-sm">
-                                {initial}
+                              <div
+                                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-bold border shadow-sm ${
+                                  isAiComment
+                                    ? "bg-emerald-900 border-emerald-500/50 text-emerald-300"
+                                    : "bg-neutral-800 text-white border-neutral-700"
+                                }`}
+                              >
+                                {isAiComment ? <Bot className="h-4 w-4" /> : initial}
                               </div>
                               <div className="flex-1 space-y-1">
                                 <div className="flex items-center justify-between">
-                                  <span className="text-xs font-bold text-neutral-200">
-                                    {authorName}
-                                  </span>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className={`text-xs font-bold ${isAiComment ? "text-emerald-300" : "text-neutral-200"}`}>
+                                      {authorName}
+                                    </span>
+                                    {isAiComment && (
+                                      <span className="rounded-md border border-emerald-500/30 bg-emerald-500/20 px-1.5 py-0.2 font-mono text-[10px] font-bold text-emerald-300 uppercase">
+                                        Groq AI
+                                      </span>
+                                    )}
+                                  </div>
                                   <span className="text-[11px] text-neutral-400">
                                     {formatDate(c.createdAt)}
                                   </span>
                                 </div>
-                                <p className="text-xs text-neutral-300 whitespace-pre-wrap leading-relaxed">
+                                <div className="text-xs text-neutral-300 whitespace-pre-wrap leading-relaxed font-sans">
                                   {c.content || ""}
-                                </p>
+                                </div>
+                                {c.attachments?.length > 0 && (
+                                  <div className="pt-2">
+                                    <AttachmentGrid
+                                      attachments={c.attachments}
+                                      onDelete={handleDeleteCommentAttachment}
+                                      compact
+                                    />
+                                  </div>
+                                )}
                               </div>
                             </div>
                           );
@@ -399,10 +661,68 @@ export function IssueDetailModal({
                         placeholder="Write a comment... (supports Markdown & @mentions)"
                         className="w-full rounded-xl border border-neutral-800 bg-neutral-900/60 p-3 text-xs text-neutral-200 placeholder:text-neutral-500 focus:border-neutral-600 focus:bg-neutral-900 focus:outline-none transition resize-none"
                       />
-                      <div className="flex justify-end">
+
+                      {pendingAttachments.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {pendingAttachments.map((meta, idx) =>
+                            meta.fileType.startsWith("image/") ? (
+                              <div key={idx} className="group relative">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={meta.fileUrl}
+                                  alt={meta.fileName}
+                                  className="h-12 w-12 rounded-lg border border-neutral-800 object-cover"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setPendingAttachments((prev) => prev.filter((_, i) => i !== idx))
+                                  }
+                                  className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-700 text-white hover:bg-rose-600"
+                                >
+                                  <X className="h-3 w-3" />
+                                </button>
+                              </div>
+                            ) : (
+                              <span
+                                key={idx}
+                                className="flex items-center gap-1.5 rounded-lg border border-neutral-800 bg-neutral-900 px-2 py-1 text-[11px] text-neutral-300"
+                              >
+                                <Paperclip className="h-3 w-3 text-neutral-400" />
+                                <span className="max-w-[120px] truncate">{meta.fileName}</span>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setPendingAttachments((prev) => prev.filter((_, i) => i !== idx))
+                                  }
+                                  className="text-neutral-500 hover:text-rose-400"
+                                >
+                                  <X className="h-3 w-3" />
+                                </button>
+                              </span>
+                            )
+                          )}
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between">
+                        <label className="cursor-pointer rounded-lg p-1.5 text-neutral-400 transition hover:bg-neutral-800 hover:text-white">
+                          <ImagePlus className="h-4 w-4" />
+                          <input
+                            type="file"
+                            multiple
+                            hidden
+                            onChange={(e) => {
+                              if (e.target.files) handleCommentFileUpload(e.target.files);
+                              e.target.value = "";
+                            }}
+                          />
+                        </label>
                         <button
                           type="submit"
-                          disabled={submittingComment || !commentContent.trim()}
+                          disabled={
+                            submittingComment || (!commentContent.trim() && pendingAttachments.length === 0)
+                          }
                           className="flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-1.5 text-xs font-bold text-black shadow transition hover:bg-neutral-200 disabled:opacity-50"
                         >
                           {submittingComment ? (
@@ -517,6 +837,29 @@ export function IssueDetailModal({
                   {workspaceMembers.map((m: any) => (
                     <option key={m.user.id} value={m.user.id} className="bg-neutral-900 text-white">
                       {m.user.name || m.user.email}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Sprint Picker */}
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-300 mb-1.5">
+                  Sprint
+                </label>
+                <select
+                  value={sprintId || ""}
+                  onChange={(e) => {
+                    const newSprint = e.target.value || null;
+                    setSprintId(newSprint);
+                    handleUpdate({ sprintId: newSprint });
+                  }}
+                  className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-2.5 py-1.5 text-xs font-semibold text-neutral-200 focus:border-neutral-600 focus:outline-none transition"
+                >
+                  <option value="" className="bg-neutral-900 text-white">No sprint</option>
+                  {(issue?.project?.sprints || []).map((s) => (
+                    <option key={s.id} value={s.id} className="bg-neutral-900 text-white">
+                      {s.isActive ? "● " : ""}Sprint {s.number} — {s.name}
                     </option>
                   ))}
                 </select>

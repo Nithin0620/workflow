@@ -4,7 +4,6 @@ import { prisma } from "@/lib/db/prisma";
 import { requireProjectAccess } from "@/lib/auth/session";
 import { createBoardColumnSchema, updateBoardColumnSchema } from "@/lib/validators";
 import { broadcastProjectEvent } from "@/lib/realtime/events";
-import { ISSUE_STATUSES } from "@/lib/constants";
 import { z } from "zod";
 
 export interface BoardColumnData {
@@ -14,53 +13,6 @@ export interface BoardColumnData {
   key: string;
   color: string;
   order: number;
-}
-
-/**
- * Initializes default columns for a project if none exist yet.
- */
-export async function initializeDefaultColumns(projectId: string) {
-  const existingCount = await prisma.boardColumn.count({
-    where: { projectId },
-  });
-
-  if (existingCount === 0) {
-    const defaultCols = ISSUE_STATUSES.map((status, index) => ({
-      projectId,
-      name: status.label,
-      key: status.id,
-      color: "#737373",
-      order: index * 1000,
-    }));
-
-    await prisma.boardColumn.createMany({
-      data: defaultCols,
-      skipDuplicates: true,
-    });
-  }
-
-  return prisma.boardColumn.findMany({
-    where: { projectId },
-    orderBy: { order: "asc" },
-  });
-}
-
-/**
- * Retrieves all columns for a project (creates defaults if none exist).
- */
-export async function getProjectColumns(projectId: string): Promise<BoardColumnData[]> {
-  await requireProjectAccess(projectId, "VIEWER");
-
-  let columns = await prisma.boardColumn.findMany({
-    where: { projectId },
-    orderBy: { order: "asc" },
-  });
-
-  if (columns.length === 0) {
-    columns = await initializeDefaultColumns(projectId);
-  }
-
-  return columns;
 }
 
 /**

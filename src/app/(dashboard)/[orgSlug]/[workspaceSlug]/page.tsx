@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { FolderKanban, CheckCircle2, Clock, Users, ArrowUpRight } from "lucide-react";
+import { BannerCarousel } from "@/components/banners/banner-carousel";
+import { BannerStrip } from "@/components/banners/banner-strip";
 
 interface WorkspacePageProps {
   params: Promise<{ orgSlug: string; workspaceSlug: string }>;
@@ -23,15 +25,25 @@ export default async function WorkspaceOverviewPage({ params }: WorkspacePagePro
       projects: {
         include: {
           _count: { select: { issues: true } },
+          banners: {
+            select: { id: true, imageUrl: true },
+            orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+          },
         },
       },
       members: {
         include: { user: true },
       },
+      banners: {
+        select: { id: true, imageUrl: true },
+        orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+      },
     },
   });
 
   if (!workspace) return null;
+
+  const userRole = user.workspaceMembers.find((wm) => wm.workspace.id === workspace.id)?.role;
 
   // Aggregate issue statistics
   const totalProjects = workspace.projects.length;
@@ -64,6 +76,13 @@ export default async function WorkspaceOverviewPage({ params }: WorkspacePagePro
           Here is an overview of what is happening across <span className="font-semibold text-white">{workspace.name}</span>.
         </p>
       </div>
+
+      {/* Workspace banner carousel */}
+      <BannerCarousel
+        banners={workspace.banners}
+        canEdit={userRole === "OWNER" || userRole === "ADMIN"}
+        workspaceId={workspace.id}
+      />
 
       {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -142,7 +161,9 @@ export default async function WorkspaceOverviewPage({ params }: WorkspacePagePro
                 {p.description || "No description provided."}
               </p>
 
-              <div className="mt-6 flex items-center justify-between border-t border-neutral-900 pt-3 text-xs text-neutral-400">
+              <BannerStrip imageUrls={p.banners.map((b) => b.imageUrl)} className="mt-4" />
+
+              <div className="mt-4 flex items-center justify-between border-t border-neutral-900 pt-3 text-xs text-neutral-400">
                 <span>{p._count.issues} issues</span>
                 <span className="text-white font-semibold group-hover:underline">Open board →</span>
               </div>

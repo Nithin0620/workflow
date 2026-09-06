@@ -16,6 +16,8 @@ Workflow brings together the high-velocity, keyboard-first user experience of Li
 - **⌨️ Keyboard-First Productivity**: Global Command Palette (`⌘K`), quick-action shortcuts (`C` for create, `J`/`K` navigation).
 - **🔒 Role-Based Access Control (RBAC)**: Fine-grained permissions for Owners, Admins, Members, and Viewers.
 - **📊 Analytics & Dashboards**: Team velocity, burn-down metrics, and sprint progress tracking.
+- **🤖 Groq AI & GitHub Intelligence**: On-demand issue triage ("Ask AI for Fix") with code patches and autonomous scheduled bug hunting via Cron.
+- **⏱️ Centralized Cron Management**: Workspace-wide cron scheduler, project run history, and bug patch inspection drawer.
 
 ---
 
@@ -44,6 +46,7 @@ Organization (e.g. Acme Corp)
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) & Lucide Icons
 - **Database & ORM**: PostgreSQL with [Prisma ORM](https://www.prisma.io/)
 - **Authentication**: [NextAuth.js / Auth.js](https://next-auth.js.org/) (Google, GitHub, Credentials)
+- **AI Engine**: [Groq Cloud API](https://groq.com/) (`openai/gpt-oss-120b`)
 - **Validation**: [Zod](https://zod.dev/)
 
 ---
@@ -53,6 +56,7 @@ Organization (e.g. Acme Corp)
 All architecture and technical specifications are organized within the [`docs/`](./docs/) directory:
 
 - 📖 **[`docs/README.md`](./docs/README.md)** — Master documentation index
+- 🤖 **[`docs/ai-and-automation/ai-and-cron-automation.md`](./docs/ai-and-automation/ai-and-cron-automation.md)** — GitHub integration, Groq AI triage, Autonomous Bug Hunter & Cron
 - 🔐 **[`docs/auth/authentication.md`](./docs/auth/authentication.md)** — Google, GitHub & Credentials Auth + RBAC guards
 - 🗄️ **[`docs/database/schema-and-models.md`](./docs/database/schema-and-models.md)** — PostgreSQL ER models & Prisma schema
 - 🏢 **[`docs/workspaces/hierarchy-and-rbac.md`](./docs/workspaces/hierarchy-and-rbac.md)** — 4-Tier domain hierarchy & permissions

@@ -45,3 +45,14 @@ export function slugify(text: string): string {
     .replace(/^-+|-+$/g, "")     // Trim leading and trailing hyphens
     .replace(/--+/g, "-");       // Collapse consecutive hyphens
 }
+
+/**
+ * Formats a byte count into a human-friendly size (e.g. "2.4 MB")
+ */
+export function formatFileSize(bytes: number): string {
+  if (!bytes || bytes <= 0) return "0 B";
+  const units = ["B", "KB", "MB", "GB"];
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  const value = bytes / Math.pow(1024, i);
+  return `${value.toFixed(value >= 10 || i === 0 ? 0 : 1)} ${units[i]}`;
+}

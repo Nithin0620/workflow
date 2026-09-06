@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createIssue } from "@/actions/issues";
+import { uploadIssueAttachment } from "@/actions/attachments";
+import { uploadFileToCloudinary, type CloudinaryUploadResult } from "@/lib/cloudinary-client";
+import { ATTACHMENT_MAX_BYTES } from "@/lib/validators";
 import { ISSUE_STATUSES, ISSUE_PRIORITIES } from "@/lib/constants";
-import { PlusCircle, X, Loader2 } from "lucide-react";
+import { PlusCircle, X, Loader2, Paperclip, ImagePlus } from "lucide-react";
 
 interface ColumnOption {
   id: string;
@@ -36,6 +39,10 @@ export function CreateIssueDialog({
   const [status, setStatus] = useState(defaultStatus);
   const [priority, setPriority] = useState<"NO_PRIORITY" | "LOW" | "MEDIUM" | "HIGH" | "URGENT">("MEDIUM");
   const [estimate, setEstimate] = useState<number | "">("");
+  const [pendingUploads, setPendingUploads] = useState<CloudinaryUploadResult[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -66,8 +73,15 @@ export function CreateIssueDialog({
         return;
       }
 
+      if (res.success && res.issue) {
+        for (const meta of pendingUploads) {
+          await uploadIssueAttachment(res.issue.id, meta);
+        }
+      }
+
       setTitle("");
       setDescription("");
+      setPendingUploads([]);
       if (typeof window !== "undefined") {
         window.dispatchEvent(new Event("workflow_notification_updated"));
       }
@@ -77,6 +91,27 @@ export function CreateIssueDialog({
       setError("Failed to create issue. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (files: FileList | File[]) => {
+    setUploading(true);
+    try {
+      for (const file of Array.from(files)) {
+        if (file.size > ATTACHMENT_MAX_BYTES) {
+          alert(`${file.name} exceeds the 10MB limit and was skipped.`);
+          continue;
+        }
+        try {
+          const meta = await uploadFileToCloudinary(file);
+          setPendingUploads((prev) => [...prev, meta]);
+        } catch {
+          alert(`Failed to upload ${file.name}. Check your Cloudinary configuration.`);
+        }
+      }
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
     }
   };
 
@@ -182,6 +217,86 @@ export function CreateIssueDialog({
                 onChange={(e) => setEstimate(e.target.value === "" ? "" : Number(e.target.value))}
                 placeholder="Pts (e.g. 5)"
                 className="w-full rounded-xl border border-neutral-800 bg-black px-3 py-2 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none font-mono"
+              />
+            </div>
+          </div>
+
+          {/* Attachments */}
+          <div className="space-y-2">
+            {pendingUploads.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {pendingUploads.map((meta, idx) =>
+                  meta.fileType.startsWith("image/") ? (
+                    <div key={idx} className="group relative">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={meta.fileUrl}
+                        alt={meta.fileName}
+                        className="h-12 w-12 rounded-lg border border-neutral-800 object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setPendingUploads((prev) => prev.filter((_, i) => i !== idx))}
+                        className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-700 text-white hover:bg-rose-600"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <span
+                      key={idx}
+                      className="flex items-center gap-1.5 rounded-lg border border-neutral-800 bg-neutral-900 px-2 py-1 text-[11px] text-neutral-300"
+                    >
+                      <Paperclip className="h-3 w-3 text-neutral-400" />
+                      <span className="max-w-[120px] truncate">{meta.fileName}</span>
+                      <button
+                        type="button"
+                        onClick={() => setPendingUploads((prev) => prev.filter((_, i) => i !== idx))}
+                        className="text-neutral-500 hover:text-rose-400"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  )
+                )}
+              </div>
+            )}
+
+            <div
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragging(true);
+              }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragging(false);
+                if (e.dataTransfer.files?.length) handleFileUpload(e.dataTransfer.files);
+              }}
+              onClick={() => inputRef.current?.click()}
+              className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed px-3 py-2.5 text-xs font-semibold transition ${
+                dragging
+                  ? "border-white bg-neutral-800 text-white"
+                  : "border-neutral-800 bg-neutral-900/40 text-neutral-400 hover:border-neutral-600 hover:text-neutral-200"
+              }`}
+            >
+              {uploading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Uploading...</span>
+                </>
+              ) : (
+                <>
+                  <ImagePlus className="h-4 w-4" />
+                  <span>Drop files here or click to attach to this issue</span>
+                </>
+              )}
+              <input
+                ref={inputRef}
+                type="file"
+                multiple
+                hidden
+                onChange={(e) => e.target.files && handleFileUpload(e.target.files)}
               />
             </div>
           </div>

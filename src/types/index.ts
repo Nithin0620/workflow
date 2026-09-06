@@ -125,6 +125,8 @@ export interface Comment {
 export interface Attachment {
   id: string;
   issueId: string;
+  commentId?: string;
+  publicId: string;
   fileName: string;
   fileSize: number;
   fileType: string;

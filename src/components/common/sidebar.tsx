@@ -9,6 +9,7 @@ import {
   FolderKanban,
   BarChart3,
   Settings,
+  Clock,
   Plus,
   ChevronLeft,
   ChevronRight,
@@ -49,6 +50,7 @@ export function Sidebar({
     { label: "Overview", href: baseUrl, icon: LayoutDashboard },
     { label: "Projects", href: `${baseUrl}/projects`, icon: FolderKanban },
     { label: "Analytics", href: `${baseUrl}/analytics`, icon: BarChart3 },
+    { label: "Cron Jobs & AI", href: `${baseUrl}/cron`, icon: Clock },
     { label: "Settings & Team", href: `${baseUrl}/settings`, icon: Settings },
   ];
 

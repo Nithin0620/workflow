@@ -7,9 +7,14 @@ export type RealtimeEventType =
   | "ISSUE_UPDATED"
   | "ISSUE_DELETED"
   | "COMMENT_ADDED"
+  | "ATTACHMENT_ADDED"
+  | "ATTACHMENT_DELETED"
   | "COLUMN_CREATED"
   | "COLUMN_UPDATED"
-  | "COLUMN_DELETED";
+  | "COLUMN_DELETED"
+  | "SPRINT_CREATED"
+  | "SPRINT_UPDATED"
+  | "SPRINT_DELETED";
 
 export interface RealtimeEventPayload {
   type: RealtimeEventType;
@@ -32,6 +37,7 @@ export interface RealtimeEventPayload {
       status: IssueStatus;
       priority: IssuePriority;
       estimate?: number | null;
+      sprintId?: string | null;
       assignee?: { id: string; name?: string | null; image?: string | null } | null;
       _count?: { comments: number; attachments: number };
     };

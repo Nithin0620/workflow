@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { FolderKanban, ArrowUpRight, Plus } from "lucide-react";
+import { BannerStrip } from "@/components/banners/banner-strip";
 
 interface ProjectsPageProps {
   params: Promise<{ orgSlug: string; workspaceSlug: string }>;
@@ -24,6 +25,10 @@ export default async function ProjectsPage({ params }: ProjectsPageProps) {
         include: {
           lead: { select: { name: true, email: true } },
           _count: { select: { issues: true } },
+          banners: {
+            select: { id: true, imageUrl: true },
+            orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+          },
         },
         orderBy: { createdAt: "desc" },
       },
@@ -73,6 +78,8 @@ export default async function ProjectsPage({ params }: ProjectsPageProps) {
               <p className="mt-4 text-xs text-neutral-400 line-clamp-2 leading-relaxed">
                 {p.description || "No description provided."}
               </p>
+
+              <BannerStrip imageUrls={p.banners.map((b) => b.imageUrl)} className="mt-4" />
             </div>
 
             <div className="mt-6 flex items-center justify-between border-t border-neutral-900 pt-3 text-xs text-neutral-400">

@@ -16,8 +16,9 @@ This document outlines the full roadmap for the **Workflow** engineering managem
 | **4. Granular Project-Level RBAC & Privacy** | Restrict projects to specific teammates (`Public` vs `Private`), assign Project Roles (`👑 Co-Owner`, `✏️ Write/Editor`, `👁️ Read-Only/Viewer`), and manage team permissions. | High | **Completed** ✅ |
 | **5. Customizable Board Columns & Custom Lists** | Create, rename, customize colors, and delete custom workflow columns on project boards (Owner & Co-Owner permissions), with real-time SSE live sync. | High | **Completed** ✅ |
 | **6. Collapsible Left Sidebar** | Collapse left navigation sidebar into compact icon-only view with persisted `localStorage` state and smooth transition. | High | **Completed** ✅ |
-| **7. File & Image Attachments** | Drag-and-drop file/image upload inside issue modal and comments with preview and deletion. | Medium | Queued |
-| **8. Sprint Planning & Milestones** | Create sprints, assign issues to sprints, start/complete sprints with backlog drawer. | Medium | Queued |
+| **7. File & Image Attachments** | Drag-and-drop file/image upload inside issue modal and comments with preview and deletion. | Medium | **Completed** ✅ |
+| **8. Sprint Planning & Milestones** | Create sprints, assign issues to sprints, start/complete sprints with backlog drawer. | Medium | **Completed** ✅ |
+| **9. Project & Workspace Banner Carousel** | Auto-attached default banner images (3-4 picsum.photos) per workspace/project with sliding carousel on board + workspace overview, small previews in dashboard/workspace/projects cards, add-by-URL & delete (RBAC). | Low | **Completed** ✅ |
 
 ---
 
@@ -33,18 +34,32 @@ This document outlines the full roadmap for the **Workflow** engineering managem
 
 ---
 
-## 🔨 Active Task: 1. Team Member Invites & Role Management
+### 🤖 Phase C: AI Repository Intelligence & Autonomous Engineering Agent
+
+| Phase | Description | Priority | Status |
+|---|---|---|---|
+| **Phase 1: Repository Authorization & GitHub Codebase Integration** | Connect GitHub repositories to projects with encrypted access token / PAT, test repo connectivity, fetch branch/file tree, and configure AI scanner permissions. | High | **Completed** ✅ |
+| **Phase 2: AI Issue Code Scanner & Recommended Fixes (Groq API)** | Analyze issue descriptions against repository code using Groq AI (`llama-3.3-70b-versatile`) to generate Root Cause Analysis, file location mapping, and actionable code diffs/patches with unit test suggestions. | High | **Completed** ✅ |
+| **Phase 3: Scheduled Daily Bug Hunter & Security Scanner (Cron 12:00 PM)** | Automated recurring daily scan of connected repositories at 12:00 PM to detect bugs, type errors, dead code, and security risks, automatically creating tagged issues on the board. | Medium | **Completed** ✅ |
+
+---
+
+## 🔨 Active Task: Phase 1 — Repository Authorization & GitHub Integration
 
 ### Objectives:
-1. **Server Actions (`src/actions/members.ts`)**:
-   - `inviteOrAddMember(workspaceId, email, role)`: Add existing user or create invite.
-   - `updateMemberRole(workspaceId, memberId, newRole)`: Enforce RBAC (only `OWNER` / `ADMIN` can update roles; cannot demote the only `OWNER`).
-   - `removeMember(workspaceId, memberId)`: Remove a member from the workspace (cannot remove the last `OWNER`).
-   - `leaveWorkspace(workspaceId)`: Allow non-owners to leave the workspace.
-2. **Client Components**:
-   - `src/components/settings/invite-member-dialog.tsx`: Dialog to enter email and select role (`ADMIN`, `MEMBER`, `VIEWER`).
-   - `src/components/settings/members-list.tsx`: Interactive members table with role dropdown selector and remove member button.
-3. **Integration**:
-   - Update `src/app/(dashboard)/[orgSlug]/[workspaceSlug]/settings/page.tsx` with the new interactive members management UI.
-4. **Validation & Tests**:
-   - Add unit/integration tests for member invitation, role changes, and permission boundaries.
+1. **Prisma Schema (`prisma/schema.prisma`)**:
+   - Add `ProjectRepository` model linked to `Project` with fields for `repoOwner`, `repoName`, `branch`, `accessToken`, `aiScanEnabled`, `cronSchedule`, `lastScannedAt`, and `status`.
+2. **GitHub Integration Library (`src/lib/github/client.ts`)**:
+   - Validate repository existence and access token permissions.
+   - Fetch repo details, branch list, file tree, and raw file contents via GitHub REST API.
+3. **Server Actions (`src/actions/repositories.ts`)**:
+   - `connectProjectRepository`: Link and validate a GitHub repository for a project (Owner/Editor only).
+   - `getProjectRepository`: Retrieve current repository connection status and settings.
+   - `updateRepositorySettings`: Toggle AI scan permissions and default branch.
+   - `disconnectProjectRepository`: Unlink repository from project.
+   - `testRepositoryConnection`: Verify live token connectivity.
+4. **UI Components (`src/components/repositories/`)**:
+   - `repository-settings-dialog.tsx`: Dialog inside Project Permissions/Board to connect GitHub repo, test connection, select default branch, and toggle AI analyzer settings.
+   - `repository-badge.tsx`: Header badge on Kanban board showing connected repo status and quick branch switcher.
+5. **Validation & Unit Tests (`tests/unit/repositories.test.ts`)**:
+   - Test repository URL parser, token validator schemas, and GitHub client mock workflows.

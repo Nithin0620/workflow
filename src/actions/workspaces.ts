@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db/prisma";
 import { requireAuth, requireWorkspaceMember } from "@/lib/auth/session";
 import { createWorkspaceSchema, inviteMemberSchema } from "@/lib/validators";
 import { slugify } from "@/lib/utils";
+import { defaultBannerUrls } from "@/lib/banners";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -55,6 +56,7 @@ export async function createWorkspace(orgIdOrSlug: string, input: CreateWorkspac
         slug,
         description,
         organizationId: org.id,
+        banners: { create: defaultBannerUrls() },
       },
     });
 
@@ -90,6 +92,10 @@ export async function getUserWorkspaces() {
               projects: true,
               members: true,
             },
+          },
+          banners: {
+            select: { id: true, imageUrl: true },
+            orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
           },
         },
       },

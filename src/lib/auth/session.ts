@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./options";
 import { prisma } from "@/lib/db/prisma";
@@ -12,9 +13,11 @@ export async function getSession() {
 }
 
 /**
- * Retrieves the current authenticated user record from the database
+ * Retrieves the current authenticated user record from the database.
+ * React cache() dedupes across all callers within a single render/request
+ * (page, layouts, requireAuth chains) — one DB query instead of 3-4.
  */
-export async function getCurrentUser() {
+export const getCurrentUser = cache(async () => {
   const session = await getSession();
   if (!session?.user?.email) {
     return null;
@@ -58,7 +61,7 @@ export async function getCurrentUser() {
   }
 
   return user;
-}
+});
 
 /**
  * Enforces that a user is authenticated or throws an error

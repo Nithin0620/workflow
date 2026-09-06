@@ -2,6 +2,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import { redirect } from "next/navigation";
 import { MembersList } from "@/components/settings/members-list";
+import { WorkspaceAiScanner } from "@/components/settings/workspace-ai-scanner";
 import { WorkspaceDangerZone } from "@/components/settings/workspace-danger-zone";
 import { UserProfileSettings } from "@/components/settings/user-profile-settings";
 
@@ -71,6 +72,12 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
           </div>
         </div>
       </div>
+
+      {/* Autonomous AI Codebase Scanners (Daily 12:00 PM) */}
+      <WorkspaceAiScanner
+        workspaceId={workspace.id}
+        canManage={currentUserRole === "OWNER" || currentUserRole === "ADMIN"}
+      />
 
       {/* Interactive Members Directory */}
       <MembersList

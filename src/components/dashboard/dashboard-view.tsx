@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { CreateWorkspaceDialog } from "@/components/workspaces/create-workspace-dialog";
+import { BannerStrip } from "@/components/banners/banner-strip";
 import {
   FolderKanban,
   Building2,
@@ -34,6 +35,7 @@ interface WorkspaceData {
     projects: number;
     members: number;
   };
+  banners?: { id: string; imageUrl: string }[];
 }
 
 interface DashboardViewProps {
@@ -213,6 +215,8 @@ export function DashboardView({
                       )}
                     </div>
                   </div>
+
+                  <BannerStrip imageUrls={ws.banners?.map((b) => b.imageUrl) || []} />
 
                   <div className="mt-6 flex items-center justify-between border-t border-neutral-900 pt-3 text-xs text-neutral-400">
                     <div className="flex items-center gap-3">

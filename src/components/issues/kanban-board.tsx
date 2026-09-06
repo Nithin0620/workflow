@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { IssueStatus, IssuePriority } from "@prisma/client";
 import { KanbanColumn } from "./kanban-column";
 import { IssueListView } from "./issue-list-view";
@@ -8,7 +8,11 @@ import { CreateIssueDialog } from "./create-issue-dialog";
 import { CreateColumnDialog } from "./create-column-dialog";
 import { EditColumnDialog } from "./edit-column-dialog";
 import { IssueDetailModal } from "./issue-detail-modal";
+import { SprintManagementDialog } from "./sprints-dialog";
 import { ProjectPermissionsDialog } from "@/components/projects/project-permissions-dialog";
+import { BannerDialog } from "@/components/banners/banner-dialog";
+import { RepositoryBadge } from "@/components/repositories/repository-badge";
+import { ProjectRepoDetails } from "@/actions/repositories";
 import { ISSUE_STATUSES } from "@/lib/constants";
 import { moveIssue } from "@/actions/issues";
 import { reorderBoardColumns } from "@/actions/columns";
@@ -25,6 +29,10 @@ import {
   UserCheck,
   AlertCircle,
   X,
+  Flag,
+  ChevronLeft,
+  ChevronRight,
+  Image as ImageIcon,
 } from "lucide-react";
 
 export interface BoardColumnItem {
@@ -57,6 +65,8 @@ interface KanbanBoardProps {
   currentUserId?: string;
   initialColumns?: BoardColumnItem[];
   initialIssues: IssueItem[];
+  banners?: { id: string; imageUrl: string }[];
+  initialRepository?: ProjectRepoDetails | null;
 }
 
 export function KanbanBoard({
@@ -69,6 +79,8 @@ export function KanbanBoard({
   currentUserId = "",
   initialColumns = [],
   initialIssues,
+  banners = [],
+  initialRepository = null,
 }: KanbanBoardProps) {
   // Ensure default 6 columns fallback if initialColumns is empty
   const defaultCols: BoardColumnItem[] = ISSUE_STATUSES.map((s, idx) => ({
@@ -95,9 +107,30 @@ export function KanbanBoard({
   const [createColumnDialogOpen, setCreateColumnDialogOpen] = useState(false);
   const [editingColumn, setEditingColumn] = useState<BoardColumnItem | null>(null);
   const [permissionsDialogOpen, setPermissionsDialogOpen] = useState(false);
+  const [sprintsDialogOpen, setSprintsDialogOpen] = useState(false);
+  const [bannerModalOpen, setBannerModalOpen] = useState(false);
+  const [activeBannerIndex, setActiveBannerIndex] = useState(0);
   const [selectedStatus, setSelectedStatus] = useState<string>("TODO");
   const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
   const [exporting, setExporting] = useState<"csv" | "json" | null>(null);
+
+  const displayBanners = useMemo(() => {
+    if (banners.length > 0) return banners;
+    return [
+      { id: "default-bw-0", imageUrl: `https://picsum.photos/seed/bw-${projectKey.toLowerCase()}-0/1600/400?grayscale` },
+      { id: "default-bw-1", imageUrl: `https://picsum.photos/seed/bw-${projectKey.toLowerCase()}-1/1600/400?grayscale` },
+      { id: "default-bw-2", imageUrl: `https://picsum.photos/seed/bw-${projectKey.toLowerCase()}-2/1600/400?grayscale` },
+      { id: "default-bw-3", imageUrl: `https://picsum.photos/seed/bw-${projectKey.toLowerCase()}-3/1600/400?grayscale` },
+    ];
+  }, [banners, projectKey]);
+
+  useEffect(() => {
+    if (displayBanners.length <= 1) return;
+    const timer = setInterval(() => {
+      setActiveBannerIndex((prev) => (prev + 1) % displayBanners.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [displayBanners.length]);
 
   const canManageBoard = userRole === "OWNER";
 
@@ -174,6 +207,22 @@ export function KanbanBoard({
         }
       } else if (event.type === "COLUMN_DELETED" && event.data.columnId) {
         setColumns((prev) => prev.filter((c) => c.id !== event.data.columnId));
+      } else if (event.type === "ATTACHMENT_ADDED" && event.data.issueId) {
+        setIssues((prev) =>
+          prev.map((i) =>
+            i.id === event.data.issueId
+              ? { ...i, _count: { comments: i._count?.comments || 0, attachments: (i._count?.attachments || 0) + 1 } }
+              : i
+          )
+        );
+      } else if (event.type === "ATTACHMENT_DELETED" && event.data.issueId) {
+        setIssues((prev) =>
+          prev.map((i) =>
+            i.id === event.data.issueId
+              ? { ...i, _count: { comments: i._count?.comments || 0, attachments: Math.max(0, (i._count?.attachments || 0) - 1) } }
+              : i
+          )
+        );
       }
     },
   });
@@ -275,59 +324,104 @@ export function KanbanBoard({
 
   return (
     <div className="flex h-full flex-col space-y-4">
-      {/* Board Top Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-900 pb-4">
-        {/* Title, Key & Realtime Status */}
-        <div className="flex items-center gap-3">
-          <h1 className="text-xl font-extrabold tracking-tight text-white">
-            {projectName}
-          </h1>
-          <span className="font-mono text-xs rounded-md bg-neutral-900 border border-neutral-800 px-2 py-0.5 font-bold text-neutral-300">
-            {projectKey}
-          </span>
-          <div
-            title={isConnected ? "Live real-time sync active" : "Attempting real-time connection..."}
-            className="flex items-center gap-1.5 rounded-full border border-neutral-800 bg-neutral-950 px-2.5 py-0.5 text-[11px] font-medium text-neutral-400 select-none"
-          >
-            <span
-              className={`h-2 w-2 rounded-full ${
-                isConnected
-                  ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse"
-                  : "bg-neutral-600"
+      {/* Board Top Toolbar with Ambient Pure B&W Backdrop */}
+      <div className="relative overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 p-4 shadow-xl">
+        {/* Ambient B&W Backdrop Images with Smooth Cross-fade Transition */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          {displayBanners.map((banner, idx) => (
+            <img
+              key={banner.id}
+              src={banner.imageUrl}
+              alt=""
+              className={`absolute inset-0 h-full w-full object-cover object-center grayscale contrast-110 brightness-105 transition-opacity duration-1000 ease-in-out ${
+                idx === activeBannerIndex % displayBanners.length ? "opacity-80" : "opacity-0"
               }`}
             />
-            <span className="text-[10px] tracking-wide uppercase font-semibold text-neutral-300">
-              {isConnected ? "Live" : "Connecting"}
-            </span>
-          </div>
+          ))}
+          {/* Gentle vignette to ensure text contrast while keeping photo bright and clear */}
+          <div className="absolute inset-0 bg-gradient-to-r from-neutral-950/80 via-neutral-950/25 to-neutral-950/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/70 via-transparent to-neutral-950/10" />
         </div>
 
-        {/* View Switcher, Filters & Actions */}
+        <div className="relative z-10 space-y-4">
+          {/* Title, Key, Realtime Status & Banners */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl font-extrabold tracking-tight text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                {projectName}
+              </h1>
+              <span className="font-mono text-xs rounded-md bg-neutral-900/90 border border-neutral-800 px-2 py-0.5 font-bold text-neutral-300">
+                {projectKey}
+              </span>
+              <div
+                title={isConnected ? "Live real-time sync active" : "Attempting real-time connection..."}
+                className="flex items-center gap-1.5 rounded-full border border-neutral-800 bg-neutral-950/90 px-2.5 py-0.5 text-[11px] font-medium text-neutral-400 select-none backdrop-blur-sm"
+              >
+                <span
+                  className={`h-2 w-2 rounded-full ${
+                    isConnected
+                      ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse"
+                      : "bg-neutral-600"
+                  }`}
+                />
+                <span className="text-[10px] tracking-wide uppercase font-semibold text-neutral-300">
+                  {isConnected ? "Live" : "Connecting"}
+                </span>
+              </div>
+            </div>
+
+            {/* Banners Trigger & Cycle Controls */}
+            <div className="flex items-center gap-1.5">
+              {displayBanners.length > 1 && (
+                <div className="flex items-center gap-1 rounded-xl border border-neutral-800 bg-neutral-900/80 px-2 py-1 backdrop-blur-sm shadow-sm">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveBannerIndex((prev) => (prev - 1 + displayBanners.length) % displayBanners.length);
+                    }}
+                    title="Previous banner image"
+                    className="text-neutral-400 hover:text-white transition p-0.5"
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                  </button>
+                  <span className="text-[10px] font-mono text-neutral-400 select-none px-0.5">
+                    {(activeBannerIndex % displayBanners.length) + 1}/{displayBanners.length}
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveBannerIndex((prev) => (prev + 1) % displayBanners.length);
+                    }}
+                    title="Next banner image"
+                    className="text-neutral-400 hover:text-white transition p-0.5"
+                  >
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
+              <button
+                onClick={() => setBannerModalOpen(true)}
+                title="View & manage project banner images"
+                className="flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-900/80 px-2.5 py-1 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition backdrop-blur-sm shadow-sm"
+              >
+                <ImageIcon className="h-3.5 w-3.5 text-neutral-400" />
+                <span className="hidden sm:inline">Banners</span>
+              </button>
+            </div>
+          </div>
+
+        {/* Filters & Actions */}
         <div className="flex flex-wrap items-center gap-2.5">
-          {/* View Mode Toggle */}
-          <div className="flex items-center rounded-xl border border-neutral-800 bg-neutral-950 p-1">
-            <button
-              onClick={() => setViewMode("board")}
-              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
-                viewMode === "board"
-                  ? "bg-white text-black shadow-sm"
-                  : "text-neutral-400 hover:text-white"
-              }`}
-            >
-              <Kanban className="h-3.5 w-3.5" />
-              <span>Board</span>
-            </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
-                viewMode === "list"
-                  ? "bg-white text-black shadow-sm"
-                  : "text-neutral-400 hover:text-white"
-              }`}
-            >
-              <List className="h-3.5 w-3.5" />
-              <span>List</span>
-            </button>
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-neutral-500" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search issues..."
+              className="w-32 sm:w-44 rounded-xl border border-neutral-800 bg-neutral-950 py-1.5 pl-8 pr-3 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+            />
           </div>
 
           {/* Quick Filter Pills */}
@@ -372,20 +466,8 @@ export function KanbanBoard({
             </button>
           )}
 
-          {/* Search Bar */}
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-neutral-500" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search issues..."
-              className="w-32 sm:w-44 rounded-xl border border-neutral-800 bg-neutral-950 py-1.5 pl-8 pr-3 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
-            />
-          </div>
-
           {/* Export Menu */}
-          <div className="flex items-center rounded-xl border border-neutral-800 bg-neutral-950 p-0.5">
+          <div className="ml-auto flex items-center rounded-xl border border-neutral-800 bg-neutral-950 p-0.5">
             <button
               onClick={() => handleExport("csv")}
               disabled={exporting !== null}
@@ -417,6 +499,25 @@ export function KanbanBoard({
             </button>
           )}
 
+          {/* Sprint Planning */}
+          <button
+            onClick={() => setSprintsDialogOpen(true)}
+            title="Plan sprints & manage the backlog"
+            className="flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
+          >
+            <Flag className="h-3.5 w-3.5 text-neutral-400" />
+            <span className="hidden sm:inline">Sprints</span>
+          </button>
+
+          {/* AI Repository Integration */}
+          <RepositoryBadge
+            projectId={projectId}
+            projectName={projectName}
+            projectKey={projectKey}
+            repository={initialRepository}
+            canManage={userRole !== "VIEWER"}
+          />
+
           {/* Project Access & Permissions */}
           <button
             onClick={() => setPermissionsDialogOpen(true)}
@@ -434,8 +535,35 @@ export function KanbanBoard({
             <Plus className="h-4 w-4" />
             <span>New Issue</span>
           </button>
+
+          {/* View Mode Toggle */}
+          <div className="flex items-center rounded-xl border border-neutral-800 bg-neutral-950 p-1">
+            <button
+              onClick={() => setViewMode("board")}
+              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
+                viewMode === "board"
+                  ? "bg-white text-black shadow-sm"
+                  : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              <Kanban className="h-3.5 w-3.5" />
+              <span>Board</span>
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
+                viewMode === "list"
+                  ? "bg-white text-black shadow-sm"
+                  : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              <List className="h-3.5 w-3.5" />
+              <span>List</span>
+            </button>
+          </div>
         </div>
       </div>
+    </div>
 
       {/* Main Content Area: Board or List */}
       {viewMode === "board" ? (
@@ -536,6 +664,14 @@ export function KanbanBoard({
         onClose={() => setPermissionsDialogOpen(false)}
       />
 
+      {/* Sprint Planning Dialog */}
+      <SprintManagementDialog
+        projectId={projectId}
+        projectKey={projectKey}
+        isOpen={sprintsDialogOpen}
+        onClose={() => setSprintsDialogOpen(false)}
+      />
+
       {/* Issue Detail & Discussion Modal */}
       <IssueDetailModal
         issueId={selectedIssueId}
@@ -545,6 +681,15 @@ export function KanbanBoard({
           setIssues((prev) => prev.filter((i) => i.id !== deletedId));
         }}
         onIssueUpdated={handleIssueUpdated}
+      />
+
+      {/* Project Banners Modal */}
+      <BannerDialog
+        banners={displayBanners}
+        isOpen={bannerModalOpen}
+        onClose={() => setBannerModalOpen(false)}
+        canEdit={userRole !== "VIEWER"}
+        projectId={projectId}
       />
     </div>
   );

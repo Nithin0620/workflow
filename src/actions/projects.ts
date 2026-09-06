@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db/prisma";
 import { requireWorkspaceMember, requireProjectAccess } from "@/lib/auth/session";
 import { createProjectSchema } from "@/lib/validators";
 import { ProjectRole } from "@prisma/client";
+import { defaultBannerUrls } from "@/lib/banners";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -45,6 +46,7 @@ export async function createProject(workspaceId: string, input: CreateProjectInp
       workspaceId,
       leadId: user.id,
       issueSequence: 100, // Starts at #100
+      banners: { create: defaultBannerUrls() },
       members: {
         create: {
           userId: user.id,
