@@ -5,6 +5,7 @@ import { AnimatedSaasObjects } from "@/components/home/animated-saas-objects";
 import { MacKanbanMockup } from "@/components/home/mac-kanban-mockup";
 import { LiveKanbanDemo } from "@/components/home/live-kanban-demo";
 import { PlannedJourneysShowcase } from "@/components/home/planned-journeys-showcase";
+import { HeroContent } from "@/components/home/hero-content";
 
 
 import {
@@ -41,85 +42,16 @@ export default async function LandingPage() {
         <AnimatedSaasObjects />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[350px] w-[600px] rounded-full bg-white/5 blur-[120px] pointer-events-none" />
 
-        <div className="mx-auto max-w-4xl text-center relative z-10 space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-950 px-3.5 py-1.5 text-xs text-neutral-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-            <span>Workflow — Built for High-Velocity Product Teams</span>
-          </div>
-
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.08] text-white">
-            The real-time workspace for modern engineering.
-          </h1>
-
-          <p className="mx-auto max-w-2xl text-base sm:text-lg text-neutral-400 leading-relaxed">
-            Manage issues, sprint cycles, and cross-team roadmaps with keyboard-first speed,
-            instant drag-and-drop Kanban, and real-time collaboration.
-          </p>
-
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
-            {user ? (
-              <Link
-                href="/dashboard"
-                className="flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-bold text-black shadow-lg shadow-white/10 transition hover:bg-neutral-200"
-              >
-                <span>Go to Dashboard & Workspaces</span>
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            ) : (
-              <Link
-                href="/register"
-                className="flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-bold text-black shadow-lg shadow-white/10 transition hover:bg-neutral-200"
-              >
-                <span>Create Free Workspace</span>
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            )}
-
-            <Link
-              href="/how-it-works"
-              className="flex items-center gap-2 rounded-xl border border-neutral-800 bg-neutral-950 px-6 py-3.5 text-sm font-semibold text-white transition hover:border-neutral-700 hover:bg-neutral-900"
-            >
-              <span>See How It Works</span>
-              <ChevronRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          {/* Quick Workspaces Section for logged in users */}
-          {user && user.workspaceMembers.length > 0 && (
-            <div className="pt-6">
-              <p className="text-[11px] font-mono uppercase tracking-wider text-neutral-500 font-bold mb-3">
-                Your Active Workspaces
-              </p>
-              <div className="flex flex-wrap items-center justify-center gap-2.5">
-                {user.workspaceMembers.map((m) => {
-                  const wsUrl = `/${m.workspace.organization.slug}/${m.workspace.slug}`;
-                  return (
-                    <Link
-                      key={m.id}
-                      href={wsUrl}
-                      className="flex items-center gap-2 rounded-xl border border-neutral-800 bg-neutral-950/80 px-4 py-2 text-xs font-semibold text-white hover:border-neutral-600 hover:bg-neutral-900 transition"
-                    >
-                      <FolderKanban className="h-3.5 w-3.5 text-neutral-400" />
-                      <span>{m.workspace.name}</span>
-                      <span className="font-mono text-[10px] text-neutral-500">
-                        ({m.workspace.slug})
-                      </span>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+        <HeroContent user={user} />
 
           {/* Keyboard Hint */}
-          <div className="pt-2 flex items-center justify-center gap-2 text-xs text-neutral-500 font-mono">
+          <div className="mx-auto max-w-4xl text-center relative z-10 pt-2 flex items-center justify-center gap-2 text-xs text-neutral-500 font-mono">
             <span>Press</span>
             <kbd className="rounded border border-neutral-800 bg-neutral-900 px-2 py-0.5 text-neutral-300 font-semibold">
               ⌘K
             </kbd>
             <span>anywhere for instant Command Palette</span>
           </div>
-        </div>
       </section>
 
       {/* 3. INTERACTIVE MOCKUP - PURE BLACK */}
