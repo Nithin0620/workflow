@@ -152,20 +152,15 @@ function JourneyCard({ j, i }: { j: Journey; i: number }) {
 export function PlannedJourneys() {
   return (
     <section id="planned-journeys" className="relative overflow-hidden bg-black text-white">
-      {/* ambient orbs */}
-      <GlowOrb hue={262} size={420} delay={0} style={{ top: "-120px", left: "-100px" }} />
-      <GlowOrb hue={160} size={380} delay={2} style={{ top: "20%", right: "-120px" }} />
-      <GlowOrb hue={330} size={340} delay={4} style={{ bottom: "-100px", left: "30%" }} />
-
-      {/* faint dotted grid */}
-      <div
-        aria-hidden
-        className="absolute inset-0 opacity-[0.08] pointer-events-none"
-        style={{
-          backgroundImage: "radial-gradient(circle, #444 1px, transparent 1px)",
-          backgroundSize: "36px 36px",
-        }}
-      />
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 h-full w-full object-cover opacity-40 pointer-events-none"
+      >
+        <source src="/tech-bg.mp4" type="video/mp4" />
+      </video>
 
       <div className="relative mx-auto max-w-6xl px-6 pt-20 pb-6">
         {/* Hero */}
