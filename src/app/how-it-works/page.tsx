@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AnimatedFooter } from "@/components/layout/animated-footer";
 import { getCurrentUser } from "@/lib/auth/session";
 import { PublicNavbar } from "@/components/common/public-navbar";
 import {
@@ -20,10 +21,9 @@ import {
 export default async function HowItWorksPage() {
   const user = await getCurrentUser();
 
-  const userWorkspaceUrl =
-    user?.workspaceMembers[0]?.workspace?.organization
-      ? `/${user.workspaceMembers[0].workspace.organization.slug}/${user.workspaceMembers[0].workspace.slug}`
-      : null;
+  const userWorkspaceUrl = user?.workspaceMembers[0]?.workspace?.organization
+    ? `/${user.workspaceMembers[0].workspace.organization.slug}/${user.workspaceMembers[0].workspace.slug}`
+    : null;
   const steps = [
     {
       number: "01",
@@ -116,7 +116,9 @@ export default async function HowItWorksPage() {
             How Workflow Powers Modern Engineering Teams
           </h1>
           <p className="text-sm sm:text-base text-neutral-400 max-w-2xl mx-auto leading-relaxed">
-            A comprehensive overview of our 4-tier multi-tenant hierarchy, zero-latency fractional indexing, and keyboard-first productivity engine.
+            A comprehensive overview of our 4-tier multi-tenant hierarchy,
+            zero-latency fractional indexing, and keyboard-first productivity
+            engine.
           </p>
         </div>
       </section>
@@ -162,9 +164,7 @@ export default async function HowItWorksPage() {
                     <div className="flex items-center gap-3">
                       <div
                         className={`h-10 w-10 rounded-xl flex items-center justify-center font-bold text-sm ${
-                          isEven
-                            ? "bg-black text-white"
-                            : "bg-white text-black"
+                          isEven ? "bg-black text-white" : "bg-white text-black"
                         }`}
                       >
                         <Icon className="h-5 w-5" />
@@ -177,7 +177,9 @@ export default async function HowItWorksPage() {
                         >
                           STEP {step.number}
                         </span>
-                        <h3 className="text-base font-bold leading-snug">{step.title}</h3>
+                        <h3 className="text-base font-bold leading-snug">
+                          {step.title}
+                        </h3>
                       </div>
                     </div>
                   </div>
@@ -237,7 +239,8 @@ export default async function HowItWorksPage() {
               High Performance Architecture
             </p>
             <p className="text-xs sm:text-sm text-neutral-400 max-w-xl mx-auto">
-              Engineered with PostgreSQL transactions, Next.js Turbopack, and NextAuth session guards.
+              Engineered with PostgreSQL transactions, Next.js Turbopack, and
+              NextAuth session guards.
             </p>
           </div>
 
@@ -246,9 +249,13 @@ export default async function HowItWorksPage() {
               <div className="h-10 w-10 rounded-xl bg-white text-black flex items-center justify-center font-bold">
                 <Zap className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-bold text-white">Fractional Indexing</h3>
+              <h3 className="text-base font-bold text-white">
+                Fractional Indexing
+              </h3>
               <p className="text-xs text-neutral-400 leading-relaxed">
-                Positions are calculated using midpoint floats (P_prev + P_next) / 2, eliminating cascading database locks during card reordering.
+                Positions are calculated using midpoint floats (P_prev + P_next)
+                / 2, eliminating cascading database locks during card
+                reordering.
               </p>
             </div>
 
@@ -256,9 +263,13 @@ export default async function HowItWorksPage() {
               <div className="h-10 w-10 rounded-xl bg-white text-black flex items-center justify-center font-bold">
                 <ShieldCheck className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-bold text-white">Server-Guarded RBAC</h3>
+              <h3 className="text-base font-bold text-white">
+                Server-Guarded RBAC
+              </h3>
               <p className="text-xs text-neutral-400 leading-relaxed">
-                Role checks happen strictly inside Server Actions (`OWNER`, `ADMIN`, `MEMBER`, `VIEWER`), preventing any unauthorized mutations.
+                Role checks happen strictly inside Server Actions (`OWNER`,
+                `ADMIN`, `MEMBER`, `VIEWER`), preventing any unauthorized
+                mutations.
               </p>
             </div>
 
@@ -266,9 +277,12 @@ export default async function HowItWorksPage() {
               <div className="h-10 w-10 rounded-xl bg-white text-black flex items-center justify-center font-bold">
                 <Terminal className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-bold text-white">Zero-Config Turbopack</h3>
+              <h3 className="text-base font-bold text-white">
+                Zero-Config Turbopack
+              </h3>
               <p className="text-xs text-neutral-400 leading-relaxed">
-                Sub-second hot-reloads and instant server component renders powered by Next.js 16 with React 19 server transitions.
+                Sub-second hot-reloads and instant server component renders
+                powered by Next.js 16 with React 19 server transitions.
               </p>
             </div>
           </div>
@@ -282,7 +296,8 @@ export default async function HowItWorksPage() {
             Ready to experience high-velocity issue management?
           </h3>
           <p className="text-xs sm:text-sm text-neutral-600">
-            Create your account in seconds with Google, GitHub, or Email. Or get in touch for custom enterprise onboarding.
+            Create your account in seconds with Google, GitHub, or Email. Or get
+            in touch for custom enterprise onboarding.
           </p>
           <div className="flex items-center justify-center gap-4">
             {userWorkspaceUrl ? (
@@ -331,7 +346,9 @@ export default async function HowItWorksPage() {
               W
             </div>
             <span className="text-sm font-bold text-white">Workflow</span>
-            <span className="text-xs text-neutral-500">© 2026. Built with Next.js & PostgreSQL.</span>
+            <span className="text-xs text-neutral-500">
+              © 2026. Built with Next.js & PostgreSQL.
+            </span>
           </div>
 
           <div className="flex items-center gap-6 text-xs text-neutral-400 font-medium">
@@ -344,7 +361,10 @@ export default async function HowItWorksPage() {
             <Link href="/login" className="hover:text-white transition">
               Sign In
             </Link>
-            <Link href="/register" className="hover:text-white transition font-bold text-white">
+            <Link
+              href="/register"
+              className="hover:text-white transition font-bold text-white"
+            >
               Create Account
             </Link>
           </div>
