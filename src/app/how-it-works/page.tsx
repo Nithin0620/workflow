@@ -121,9 +121,20 @@ export default async function HowItWorksPage() {
         </div>
       </section>
 
+
       {/* 3. STEP BY STEP GUIDE - ALTERNATING BLACK & WHITE CARDS */}
-      <section className="bg-neutral-950 px-6 py-20 border-b border-neutral-900">
-        <div className="max-w-5xl mx-auto space-y-6">
+      <section className="relative overflow-hidden bg-neutral-950 px-6 py-20 border-b border-neutral-900">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover opacity-10 pointer-events-none"
+        >
+          <source src="/tech-bg-2.mp4" type="video/mp4" />
+        </video>
+        <div className="relative max-w-5xl mx-auto space-y-6">
+
           <div className="text-center pb-8 space-y-2">
             <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-400 font-mono">
               LIFECYCLE WALKTHROUGH
@@ -204,9 +215,20 @@ export default async function HowItWorksPage() {
         </div>
       </section>
 
+
       {/* 4. UNDER THE HOOD - PURE BLACK TECHNICAL DEEP DIVE */}
-      <section className="bg-black text-white px-6 py-24 border-b border-neutral-900">
-        <div className="max-w-5xl mx-auto space-y-12">
+      <section className="relative overflow-hidden bg-black text-white px-6 py-24 border-b border-neutral-900">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover opacity-40 pointer-events-none"
+        >
+          <source src="/tech-bg-2.mp4" type="video/mp4" />
+        </video>
+        <div className="relative max-w-5xl mx-auto space-y-12">
+
           <div className="text-center space-y-3">
             <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-500 font-mono">
               UNDER THE HOOD
@@ -290,9 +312,20 @@ export default async function HowItWorksPage() {
         </div>
       </section>
 
+
       {/* 6. FOOTER - PURE BLACK */}
-      <footer className="border-t border-neutral-900 bg-black px-6 py-12 text-white">
-        <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-6">
+      <footer className="relative overflow-hidden border-t border-neutral-900 bg-black px-6 py-12 text-white">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover opacity-10 pointer-events-none"
+        >
+          <source src="/tech-bg-2.mp4" type="video/mp4" />
+        </video>
+        <div className="relative mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-6">
+
           <div className="flex items-center gap-2.5">
             <div className="flex h-6 w-6 items-center justify-center rounded-md bg-white text-black font-black text-xs">
               W
