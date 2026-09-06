@@ -40,7 +40,7 @@ export default async function LandingPage() {
       {/* 2. HERO SECTION - PURE BLACK */}
       <section className="relative overflow-hidden bg-black px-6 pt-20 pb-16 md:pt-28 md:pb-24">
         <AnimatedSaasObjects />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[350px] w-[600px] rounded-full bg-white/5 blur-[120px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[350px] w-full md:w-[600px] rounded-full bg-white/5 blur-[120px] pointer-events-none" />
 
         <HeroContent user={user} />
 

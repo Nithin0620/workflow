@@ -429,7 +429,7 @@ export function KanbanBoard({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search issues..."
-              className="w-32 sm:w-44 rounded-xl border border-neutral-800 bg-neutral-950 py-1.5 pl-8 pr-3 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+              className="w-full sm:w-32 sm:w-44 rounded-xl border border-neutral-800 bg-neutral-950 py-1.5 pl-8 pr-3 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
             />
           </div>
 

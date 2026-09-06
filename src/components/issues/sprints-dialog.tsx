@@ -225,7 +225,7 @@ export function SprintManagementDialog({
                               autoFocus
                               value={renameName}
                               onChange={(e) => setRenameName(e.target.value)}
-                              className="w-48 rounded-lg border border-neutral-800 bg-black px-2.5 py-1 text-xs text-white focus:border-neutral-600 focus:outline-none"
+                              className="w-full sm:w-48 rounded-lg border border-neutral-800 bg-black px-2.5 py-1 text-xs text-white focus:border-neutral-600 focus:outline-none"
                             />
                             <button
                               onClick={async () => {

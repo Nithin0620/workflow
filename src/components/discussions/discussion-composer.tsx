@@ -342,7 +342,7 @@ export function DiscussionComposer({
 
       {/* Issue Autocomplete Suggestion Popup */}
       {showIssueMenu && issueSuggestions.length > 0 && (
-        <div className="absolute bottom-full left-2 mb-2 w-80 max-h-64 overflow-y-auto rounded-2xl border border-neutral-800 bg-neutral-950 p-1.5 shadow-2xl z-40 animate-in fade-in zoom-in-95 duration-100">
+        <div className="absolute bottom-full left-2 mb-2 w-full sm:w-80 max-h-64 overflow-y-auto rounded-2xl border border-neutral-800 bg-neutral-950 p-1.5 shadow-2xl z-40 animate-in fade-in zoom-in-95 duration-100">
           <div className="px-2.5 py-1 text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 border-b border-neutral-800/80 mb-1 flex items-center justify-between">
             <span className="flex items-center gap-1">
               <Sparkles className="h-3 w-3 text-amber-400" />
