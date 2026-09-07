@@ -122,7 +122,7 @@ export default function ContactPage() {
           <div className="lg:col-span-7 rounded-3xl border border-neutral-800 bg-white p-6 sm:p-10 text-black shadow-2xl">
             {submitted ? (
               <div className="text-center py-12 space-y-4">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-black text-white shadow-lg">
+                <div className="mx-auto flex h-14 w-full sm:w-14 items-center justify-center rounded-full bg-black text-white shadow-lg">
                   <CheckCircle2 className="h-7 w-7" />
                 </div>
                 <h2 className="text-2xl font-bold tracking-tight text-black">

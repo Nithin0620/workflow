@@ -22,7 +22,7 @@ export function BannerStrip({ imageUrls, max = 3, className = "" }: BannerStripP
           src={url}
           alt=""
           loading="lazy"
-          className="h-7 w-14 rounded-md object-cover border border-neutral-800 grayscale contrast-125 brightness-95"
+          className="h-7 w-full sm:w-14 rounded-md object-cover border border-neutral-800 grayscale contrast-125 brightness-95"
         />
       ))}
       {imageUrls.length > max && (
