@@ -41,6 +41,7 @@ export function KanbanColumn({
   onColumnDrop,
 }: KanbanColumnProps) {
   const [isCardOver, setIsCardOver] = useState(false);
+  const [draggedIssueId, setDraggedIssueId] = useState<string | null>(null);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -87,8 +88,8 @@ export function KanbanColumn({
         isColumnDragOver
           ? "border-blue-500 bg-neutral-900/90 shadow-[0_0_20px_rgba(59,130,246,0.3)] ring-2 ring-blue-500/50"
           : isCardOver
-          ? "border-neutral-500 bg-neutral-900/50"
-          : "border-neutral-800 shadow-xl"
+            ? "border-neutral-500 bg-neutral-900/50"
+            : "border-neutral-800 shadow-xl"
       }`}
     >
       {/* Column Header */}
@@ -152,9 +153,15 @@ export function KanbanColumn({
             onDragStart={(e) => {
               e.dataTransfer.setData("type", "issue");
               e.dataTransfer.setData("text/plain", issue.id);
+              setDraggedIssueId(issue.id);
             }}
+            onDragEnd={() => setDraggedIssueId(null)}
           >
-            <IssueCard issue={issue} onSelect={() => onSelectIssue(issue)} />
+            <IssueCard
+              issue={issue}
+              onSelect={() => onSelectIssue(issue)}
+              isDragging={draggedIssueId === issue.id}
+            />
           </div>
         ))}
 

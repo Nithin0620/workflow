@@ -1,8 +1,16 @@
 "use client";
 
 import { IssuePriority } from "@prisma/client";
-import { MessageSquare, Paperclip, ArrowUp, ArrowDown, Equal, AlertCircle, Minus } from "lucide-react";
-import { formatIssueKey } from "@/lib/utils";
+import {
+  MessageSquare,
+  Paperclip,
+  ArrowUp,
+  ArrowDown,
+  Equal,
+  AlertCircle,
+  Minus,
+} from "lucide-react";
+import { formatIssueKey, cn } from "@/lib/utils";
 
 interface IssueCardProps {
   issue: {
@@ -13,11 +21,16 @@ interface IssueCardProps {
     status: string;
     priority: IssuePriority;
     estimate?: number | null;
-    assignee?: { id: string; name?: string | null; image?: string | null } | null;
+    assignee?: {
+      id: string;
+      name?: string | null;
+      image?: string | null;
+    } | null;
     _count?: { comments: number; attachments: number };
   };
   onSelect?: () => void;
   onStatusChange?: (newStatus: string) => void;
+  isDragging?: boolean;
 }
 
 const PRIORITY_ICONS: Record<IssuePriority, React.ReactNode> = {
@@ -28,13 +41,17 @@ const PRIORITY_ICONS: Record<IssuePriority, React.ReactNode> = {
   URGENT: <AlertCircle className="h-3.5 w-3.5 text-rose-600" />,
 };
 
-export function IssueCard({ issue, onSelect }: IssueCardProps) {
+export function IssueCard({ issue, onSelect, isDragging }: IssueCardProps) {
   const issueKey = formatIssueKey(issue.projectKey, issue.issueNumber);
 
   return (
     <div
       onClick={onSelect}
-      className="group cursor-pointer rounded-xl border border-neutral-800 bg-neutral-900/80 p-3.5 shadow-md transition hover:border-neutral-500 hover:bg-neutral-900"
+      className={cn(
+        "group cursor-pointer rounded-xl border border-neutral-800 bg-neutral-900/80 p-3.5 shadow-md transition-all duration-200",
+        "hover:-translate-y-0.5 hover:shadow-lg hover:shadow-neutral-950/50 hover:border-neutral-500 hover:bg-neutral-900",
+        isDragging && "opacity-60 ring-2 ring-blue-500/50 scale-[1.02]",
+      )}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="font-mono text-xs font-bold text-neutral-400">
