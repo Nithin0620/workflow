@@ -157,7 +157,7 @@ export function CreateIssueDialog({
             />
           </div>
 
-          <div>
+          <div className="space-y-1.5">
             <textarea
               rows={4}
               value={description}
@@ -165,6 +165,15 @@ export function CreateIssueDialog({
               placeholder="Add a description, acceptance criteria, or context (Markdown supported)..."
               className="w-full rounded-xl border border-neutral-800 bg-black p-3 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
             />
+            <div className="flex items-center justify-between px-1 text-[10px] text-neutral-500">
+              <div className="flex items-center gap-3">
+                <span><strong className="text-neutral-400 font-bold">**B**</strong></span>
+                <span><em className="text-neutral-400 italic">*I*</em></span>
+                <code className="rounded bg-neutral-800 px-1 py-0.5 font-mono text-neutral-400">`Code`</code>
+                <span>- List</span>
+              </div>
+              <span>{description?.length || 0} characters</span>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
