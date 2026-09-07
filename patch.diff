@@ -1,0 +1,19 @@
+--- src/components/issues/kanban-column.tsx
++++ src/components/issues/kanban-column.tsx
+@@ -148,8 +148,15 @@
+
+         {issues.length === 0 && !isCardOver && (
+-          <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-neutral-800 p-4 text-center text-xs text-neutral-500">
+-            No issues in {label}
++          <div className="flex flex-col h-32 items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-800 p-4 text-center text-xs text-neutral-500">
++            <Inbox className="h-10 w-10 text-neutral-700" />
++            <p>No issues in this column</p>
++            <button
++              onClick={() => onAddIssue(id)}
++              className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
++            >
++              + Add issue
++            </button>
+           </div>
+         )}
+       </div>
