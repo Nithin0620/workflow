@@ -1,0 +1,25 @@
+# REST API Endpoints Added
+
+- GET /api/users/me
+- GET /api/workspaces
+- POST /api/workspaces
+- GET /api/workspaces/:workspaceId
+- GET /api/workspaces/:workspaceId/projects
+- POST /api/workspaces/:workspaceId/projects
+- GET /api/projects/:projectId
+- PATCH /api/projects/:projectId
+- DELETE /api/projects/:projectId
+- GET /api/projects/:projectId/issues
+- POST /api/projects/:projectId/issues
+- GET /api/issues/:issueId
+- PATCH /api/issues/:issueId
+- DELETE /api/issues/:issueId
+- POST /api/issues/:issueId/comments
+- GET /api/workspaces/:workspaceId/discussions
+- POST /api/workspaces/:workspaceId/discussions
+- GET /api/discussions/:discussionId/messages
+- POST /api/discussions/:discussionId/messages
+- GET /api/notifications
+- PATCH /api/notifications
+- PATCH /api/notifications/:notificationId
+- DELETE /api/notifications/:notificationId
