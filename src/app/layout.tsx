@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SessionProvider } from "@/components/common/session-provider";
 import { SmoothScrollProvider } from "@/components/common/smooth-scroll-provider";
 import "./globals.css";
+import { VersionDisplay } from "@/components/common/version-display";
 
 export const metadata: Metadata = {
   title: "Workflow — Real-Time Project & Issue Management",
@@ -18,6 +19,7 @@ export default function RootLayout({
       <body className="h-full antialiased bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
         <SessionProvider>
           <SmoothScrollProvider>{children}</SmoothScrollProvider>
+          <VersionDisplay />
         </SessionProvider>
       </body>
     </html>

@@ -48,7 +48,7 @@ export function AttachmentGrid({
     <div className={`grid gap-2 ${compact ? "grid-cols-4 sm:grid-cols-6" : "grid-cols-2 sm:grid-cols-3"}`}>
       {attachments.map((att) =>
         isImage(att) ? (
-          <div key={att.id} className={`group relative overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900 ${compact ? "h-14 w-14" : "h-24"}`}>
+          <div key={att.id} className={`group relative overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900 ${compact ? "h-14 w-full sm:w-14" : "h-24"}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={att.fileUrl}

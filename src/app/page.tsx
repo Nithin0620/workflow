@@ -39,7 +39,7 @@ export default async function LandingPage() {
       {/* 2. HERO SECTION - PURE BLACK */}
       <section className="relative overflow-hidden bg-black px-6 pt-20 pb-16 md:pt-28 md:pb-24">
         <AnimatedSaasObjects />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[350px] w-[600px] rounded-full bg-white/5 blur-[120px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[350px] w-full md:w-[600px] rounded-full bg-white/5 blur-[120px] pointer-events-none" />
 
         <HeroContent user={user} />
 
@@ -227,6 +227,7 @@ export default async function LandingPage() {
       {/* 5b. PLANNED JOURNEYS SHOWCASE */}
       <PlannedJourneysShowcase />
 
+
       {/* 6. PAID SERVICES & ENTERPRISE ENQUIRY BANNER */}
       <section className="relative overflow-hidden bg-black text-white px-6 py-20 border-t border-neutral-900">
         <video
@@ -239,6 +240,7 @@ export default async function LandingPage() {
           <source src="/tech-bg-2.mp4" type="video/mp4" />
         </video>
         <div className="relative mx-auto max-w-5xl rounded-3xl border border-neutral-800 bg-neutral-950/80 backdrop-blur-sm p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden">
+
           <div className="space-y-4 max-w-xl text-left">
             <div className="inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900 px-3 py-1 text-xs font-mono text-neutral-300">
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -293,8 +295,44 @@ export default async function LandingPage() {
         </div>
       </section>
 
+
       {/* 8. FOOTER - PURE BLACK */}
-      <AnimatedFooter />
+      <footer className="relative overflow-hidden border-t border-neutral-900 bg-black px-6 py-16 text-white">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover opacity-10 pointer-events-none"
+        >
+          <source src="/tech-bg-2.mp4" type="video/mp4" />
+        </video>
+        <div className="relative mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-6">
+
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-white text-black font-black text-xs">
+              W
+            </div>
+            <span className="text-sm font-bold text-white">Workflow</span>
+            <span className="text-xs text-neutral-500">© 2026. Built with Next.js & PostgreSQL.</span>
+          </div>
+
+          <div className="flex items-center gap-6 text-xs text-neutral-400">
+            <Link href="/how-it-works" className="hover:text-white transition">
+              How It Works
+            </Link>
+            <Link href="/contact" className="hover:text-white transition">
+              Contact & Enquiry
+            </Link>
+            <Link href="/login" className="hover:text-white transition">
+              Sign In
+            </Link>
+            <Link href="/register" className="hover:text-white transition font-bold text-white">
+              Create Account
+            </Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

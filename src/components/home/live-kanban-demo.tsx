@@ -421,7 +421,7 @@ export function LiveKanbanDemo() {
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Search issues..."
-                        className="w-32 sm:w-48 rounded-xl border border-neutral-800 bg-neutral-950 py-1.5 pl-9 pr-3 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+                        className="w-full sm:w-32 sm:w-full sm:w-48 rounded-xl border border-neutral-800 bg-neutral-950 py-1.5 pl-9 pr-3 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
                       />
                     </div>
 
@@ -596,7 +596,7 @@ export function LiveKanbanDemo() {
               <div className="relative">
                 {/* Floating Note for Drag & Drop */}
                 <div className="hidden xl:flex absolute -left-6 top-1/2 -translate-y-1/2 -translate-x-full z-30 pointer-events-none items-center">
-                  <div className="w-48 rounded-xl bg-white text-black p-3 shadow-2xl border border-neutral-200 relative">
+                  <div className="w-full sm:w-48 rounded-xl bg-white text-black p-3 shadow-2xl border border-neutral-200 relative">
                     <h4 className="font-extrabold text-xs mb-0.5">Instant Drag & Drop</h4>
                     <p className="text-[10px] text-neutral-600 leading-tight">
                       Grab a card and drop it into any column — exactly how it works in the real board.
@@ -607,7 +607,7 @@ export function LiveKanbanDemo() {
 
                 {/* Floating Note for It's Actually Real */}
                 <div className="hidden xl:flex absolute -right-6 top-1/3 -translate-y-1/2 translate-x-full z-30 pointer-events-none items-center">
-                  <div className="w-48 rounded-xl bg-emerald-500 text-white p-3 shadow-2xl shadow-emerald-950/40 relative">
+                  <div className="w-full sm:w-48 rounded-xl bg-emerald-500 text-white p-3 shadow-2xl shadow-emerald-950/40 relative">
                     <h4 className="font-extrabold text-xs mb-0.5 flex items-center gap-1">
                       <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
                       It&apos;s Actually Real

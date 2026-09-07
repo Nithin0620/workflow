@@ -84,7 +84,7 @@ export function DiscussionThreadDrawer({
   };
 
   return (
-    <div className="flex h-full w-96 flex-col border-l border-neutral-900 bg-neutral-950/95 backdrop-blur shadow-2xl animate-in slide-in-from-right duration-200">
+    <div className="flex h-full w-full sm:w-96 flex-col border-l border-neutral-900 bg-neutral-950/95 backdrop-blur shadow-2xl animate-in slide-in-from-right duration-200">
       {/* Header */}
       <div className="flex h-14 items-center justify-between border-b border-neutral-900 px-4">
         <div className="flex items-center gap-2">
