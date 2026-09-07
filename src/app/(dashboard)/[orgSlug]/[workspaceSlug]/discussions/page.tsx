@@ -15,19 +15,17 @@ export default async function DiscussionsPage({ params }: DiscussionsPageProps) 
     redirect("/login");
   }
 
-  const workspace = await prisma.workspace.findFirst({
-    where: {
-      slug: workspaceSlug,
-      organization: { slug: orgSlug },
-      members: { some: { userId: user.id } },
-    },
-  });
+  const currentMembership = user.workspaceMembers.find(
+    (m) =>
+      m.workspace.slug === workspaceSlug &&
+      m.workspace.organization.slug === orgSlug
+  );
 
-  if (!workspace) {
+  if (!currentMembership) {
     notFound();
   }
 
-  const { workspaceChannels, projectGroups } = await getWorkspaceChannels(workspace.id);
+  const { workspaceChannels, projectGroups } = await getWorkspaceChannels(currentMembership.workspaceId);
 
   // Redirect to first available channel
   const firstChannel =

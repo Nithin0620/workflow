@@ -55,6 +55,7 @@ export default async function ProjectsPage({ params }: ProjectsPageProps) {
           <Link
             key={p.id}
             href={`/${orgSlug}/${workspaceSlug}/projects/${p.key}/board`}
+            prefetch={true}
             className="group flex flex-col justify-between rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-lg transition hover:border-neutral-600 hover:bg-neutral-900"
           >
             <div>

@@ -23,7 +23,10 @@ export type RealtimeEventType =
   | "CHANNEL_CREATED"
   | "CHANNEL_UPDATED"
   | "CHANNEL_DELETED"
-  | "TYPING_INDICATOR";
+  | "TYPING_INDICATOR"
+  | "WHITEBOARD_ELEMENTS_UPDATED"
+  | "WHITEBOARD_CURSOR_MOVED"
+  | "WHITEBOARD_PAGE_CHANGED";
 
 export interface RealtimeEventPayload {
   type: RealtimeEventType;
@@ -124,6 +127,22 @@ export function subscribeToWorkspaceDiscussionEvents(
   callback: (event: RealtimeEventPayload) => void
 ) {
   const channel = `discussion-workspace:${workspaceId}`;
+  eventBus.on(channel, callback);
+
+  return () => {
+    eventBus.off(channel, callback);
+  };
+}
+
+export function broadcastWhiteboardEvent(whiteboardId: string, event: RealtimeEventPayload) {
+  eventBus.emit(`whiteboard:${whiteboardId}`, event);
+}
+
+export function subscribeToWhiteboardEvents(
+  whiteboardId: string,
+  callback: (event: RealtimeEventPayload) => void
+) {
+  const channel = `whiteboard:${whiteboardId}`;
   eventBus.on(channel, callback);
 
   return () => {

@@ -188,97 +188,116 @@ export async function moveIssue(
 export async function getIssueDetails(issueId: string) {
   const user = await requireAuth();
 
-  const issue = await prisma.issue.findUnique({
-    where: { id: issueId },
-    include: {
-      project: {
-        include: {
-          workspace: {
-            include: {
-              members: {
-                include: {
-                  user: { select: { id: true, name: true, image: true, email: true } },
-                },
+  const [issueCore, comments, activityLogs, discussionLinks] = await Promise.all([
+    prisma.issue.findUnique({
+      where: { id: issueId },
+      include: {
+        assignee: { select: { id: true, name: true, image: true, email: true } },
+        creator: { select: { id: true, name: true, image: true, email: true } },
+        sprint: true,
+        labels: true,
+        attachments: {
+          include: {
+            uploader: { select: { id: true, name: true, image: true } },
+          },
+          orderBy: { createdAt: "desc" },
+        },
+        project: {
+          select: {
+            id: true,
+            workspaceId: true,
+            sprints: {
+              orderBy: { number: "desc" },
+              select: {
+                id: true,
+                name: true,
+                number: true,
+                goal: true,
+                startDate: true,
+                endDate: true,
+                isActive: true,
               },
             },
           },
-          sprints: {
-            orderBy: { number: "desc" },
-            select: {
-              id: true,
-              name: true,
-              number: true,
-              goal: true,
-              startDate: true,
-              endDate: true,
-              isActive: true,
-            },
+        },
+      },
+    }),
+    prisma.comment.findMany({
+      where: { issueId },
+      include: {
+        author: { select: { id: true, name: true, image: true, email: true } },
+        attachments: {
+          include: {
+            uploader: { select: { id: true, name: true, image: true } },
           },
+          orderBy: { createdAt: "asc" },
         },
       },
-      assignee: { select: { id: true, name: true, image: true, email: true } },
-      creator: { select: { id: true, name: true, image: true, email: true } },
-      sprint: true,
-      labels: true,
-      attachments: {
-        include: {
-          uploader: { select: { id: true, name: true, image: true } },
-        },
-        orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: "asc" },
+    }),
+    prisma.activityLog.findMany({
+      where: { issueId },
+      include: {
+        actor: { select: { id: true, name: true, image: true } },
       },
-      comments: {
-        include: {
-          author: { select: { id: true, name: true, image: true, email: true } },
-          attachments: {
-            include: {
-              uploader: { select: { id: true, name: true, image: true } },
-            },
-            orderBy: { createdAt: "asc" },
-          },
-        },
-        orderBy: { createdAt: "asc" },
-      },
-      activityLogs: {
-        include: {
-          actor: { select: { id: true, name: true, image: true } },
-        },
-        orderBy: { createdAt: "desc" },
-      },
-      discussionLinks: {
-        include: {
-          message: {
-            include: {
-              author: { select: { id: true, name: true, image: true, email: true } },
-              channel: {
-                select: {
-                  id: true,
-                  name: true,
-                  workspace: {
-                    select: {
-                      slug: true,
-                      organization: { select: { slug: true } },
-                    },
+      orderBy: { createdAt: "desc" },
+      take: 40,
+    }),
+    prisma.discussionIssueLink.findMany({
+      where: { issueId },
+      include: {
+        message: {
+          include: {
+            author: { select: { id: true, name: true, image: true, email: true } },
+            channel: {
+              select: {
+                id: true,
+                name: true,
+                workspace: {
+                  select: {
+                    slug: true,
+                    organization: { select: { slug: true } },
                   },
                 },
               },
-              attachments: true,
-              reactions: true,
             },
+            attachments: true,
+            reactions: true,
           },
-          creator: { select: { id: true, name: true, image: true } },
         },
-        orderBy: { createdAt: "asc" },
+        creator: { select: { id: true, name: true, image: true } },
       },
-    },
-  });
+      orderBy: { createdAt: "asc" },
+    }),
+  ]);
 
-  if (!issue) {
+  if (!issueCore) {
     return null;
   }
 
-  await requireWorkspaceMember(issue.project.workspaceId);
+  // Verify access (re-uses cached membership in memory)
+  await requireWorkspaceMember(issueCore.project.workspaceId);
 
-  return issue;
+  // Fetch workspace members for assignee selection
+  const members = await prisma.workspaceMember.findMany({
+    where: { workspaceId: issueCore.project.workspaceId },
+    select: {
+      user: { select: { id: true, name: true, image: true, email: true } },
+    },
+  });
+
+  return {
+    ...issueCore,
+    comments,
+    activityLogs,
+    discussionLinks,
+    project: {
+      ...issueCore.project,
+      workspace: {
+        members,
+      },
+    },
+  };
 }
 
 /**

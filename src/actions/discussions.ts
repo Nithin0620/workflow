@@ -110,24 +110,33 @@ export async function getWorkspaceChannels(workspaceId: string) {
     });
   }
 
-  // Calculate unread counts per channel
-  const channelsWithUnread = await Promise.all(
-    channels.map(async (channel) => {
-      const lastRead = channel.reads[0]?.lastReadAt;
-      const unreadCount = await prisma.discussionMessage.count({
-        where: {
-          channelId: channel.id,
-          createdAt: lastRead ? { gt: lastRead } : undefined,
-          authorId: { not: user.id }, // don't count own messages as unread
-        },
-      });
+  // Calculate unread counts in a single batch query across all channels
+  const channelIds = channels.map((c) => c.id);
+  const unreadMap = new Map<string, number>();
 
-      return {
-        ...channel,
-        unreadCount,
-      };
-    })
-  );
+  if (channelIds.length > 0) {
+    try {
+      const unreadCounts = await prisma.$queryRaw<Array<{ channelId: string; count: number }>>`
+        SELECT dm."channelId", COUNT(*)::int as count
+        FROM "DiscussionMessage" dm
+        LEFT JOIN "UserChannelRead" ucr ON ucr."channelId" = dm."channelId" AND ucr."userId" = ${user.id}
+        WHERE dm."channelId" = ANY(${channelIds})
+          AND dm."authorId" != ${user.id}
+          AND (ucr."lastReadAt" IS NULL OR dm."createdAt" > ucr."lastReadAt")
+        GROUP BY dm."channelId";
+      `;
+      for (const row of unreadCounts) {
+        unreadMap.set(row.channelId, row.count);
+      }
+    } catch {
+      // Fallback if raw query is not supported
+    }
+  }
+
+  const channelsWithUnread = channels.map((channel) => ({
+    ...channel,
+    unreadCount: unreadMap.get(channel.id) || 0,
+  }));
 
   const workspaceChannels = channelsWithUnread.filter((c) => !c.projectId);
   const projectChannels = channelsWithUnread.filter((c) => Boolean(c.projectId));

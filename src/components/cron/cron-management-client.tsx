@@ -34,6 +34,8 @@ interface CronManagementClientProps {
   orgSlug: string;
   workspaceSlug: string;
   canManage: boolean;
+  initialJobs?: CronJobItem[];
+  initialLogs?: CronRunItem[];
 }
 
 const fmtDate = (d: Date | null | undefined) =>
@@ -45,17 +47,19 @@ export function CronManagementClient({
   orgSlug,
   workspaceSlug,
   canManage,
+  initialJobs = [],
+  initialLogs = [],
 }: CronManagementClientProps) {
   const router = useRouter();
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(initialJobs.length === 0 && initialLogs.length === 0);
   const [refreshing, setRefreshing] = useState(false);
   const [runningAll, setRunningAll] = useState(false);
   const [runningJobId, setRunningJobId] = useState<string | null>(null);
   const [notification, setNotification] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  const [jobs, setJobs] = useState<CronJobItem[]>([]);
-  const [logs, setLogs] = useState<CronRunItem[]>([]);
+  const [jobs, setJobs] = useState<CronJobItem[]>(initialJobs);
+  const [logs, setLogs] = useState<CronRunItem[]>(initialLogs);
   const [createOpen, setCreateOpen] = useState(false);
 
   // History filters

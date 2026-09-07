@@ -19,6 +19,9 @@ import {
   Smartphone,
   HardDrive,
   KeyRound,
+  PenTool,
+  MessagesSquare,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 
@@ -73,6 +76,12 @@ const categories: { name: string; blurb: string; items: Journey[] }[] = [
 
 const total = categories.reduce((n, c) => n + c.items.length, 0);
 
+const active: Journey[] = [
+  { icon: MessagesSquare, name: "Discussions", tag: "Channels · Threads · Live Sync", desc: "Real-time threads with connected servers, team members, and all workspaces.", hue: 28 },
+  { icon: Users, name: "Workspace Collaboration", tag: "Boards · Live Cursors · Roles", desc: "Shared boards, live cursors, and roles for seamless team collaboration.", hue: 250 },
+  { icon: PenTool, name: "Collaborative Whiteboards", tag: "Excalidraw · Multi-cursor · Diagrams", desc: "Infinite canvas for real-time architecture, flowcharts, and visual brainstorming.", hue: 170 },
+];
+
 function GlowOrb({ hue, size, delay, style }: { hue: number; size: number; delay: number; style?: CSSProperties }) {
   return (
     <motion.div
@@ -100,7 +109,7 @@ function JourneyCard({ j, i }: { j: Journey; i: number }) {
       transition={{ duration: 0.5, delay: (i % 4) * 0.08 }}
       animate={{ y: [0, -10, 0] }}
       whileHover={{ y: 0, scale: 1.04, transition: { duration: 0.3 } }}
-      className="group relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.02] p-5 backdrop-blur-sm overflow-hidden transition-colors duration-300 hover:border-transparent"
+      className="group relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.02] p-5 overflow-hidden transition-colors duration-300 hover:border-transparent"
       style={{ boxShadow: `0 0 0 1px hsl(${j.hue} 80% 60% / 0) inset` }}
     >
       {/* colored border glow on hover */}
@@ -195,11 +204,32 @@ export function PlannedJourneys() {
             </div>
             <div className="h-10 w-px bg-white/10" />
             <div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-white">0</div>
+              <div className="text-2xl sm:text-3xl font-extrabold text-white">{active.length}</div>
               <div className="text-[10px] font-mono uppercase tracking-widest text-neutral-500">Shipped</div>
             </div>
           </div>
         </motion.div>
+      </div>
+
+      {/* Active / Shipped section */}
+      <div className="relative mx-auto max-w-6xl px-6 pb-16 space-y-6">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.5 }}
+          className="flex items-center gap-4"
+        >
+          <h2 className="text-sm font-bold uppercase tracking-widest text-emerald-400">Active</h2>
+          <div className="h-px flex-1 bg-gradient-to-r from-emerald-500/40 to-transparent" />
+          <span className="text-[11px] font-mono text-neutral-500">Live in your workspace now</span>
+        </motion.div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {active.map((j, i) => (
+            <JourneyCard key={j.name} j={j} i={i} />
+          ))}
+        </div>
       </div>
 
       {/* Category sections */}

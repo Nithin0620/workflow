@@ -6,6 +6,35 @@ export const createWorkspaceSchema = z.object({
   description: z.string().max(200).optional(),
 });
 
+export const renameChannelSchema = z.object({
+  name: z.string().min(2, "Channel name must be at least 2 characters").max(40),
+});
+
+// -------------------------------------------------------------
+// Whiteboards & Canvas Validators
+// -------------------------------------------------------------
+
+export const createWhiteboardSchema = z.object({
+  title: z.string().min(1, "Title is required").max(120),
+  description: z.string().max(1000).optional().nullable(),
+  initialData: z.any().optional(),
+  projectIds: z.array(z.string()).optional(),
+});
+
+export const updateWhiteboardSchema = z.object({
+  title: z.string().min(1, "Title is required").max(120).optional(),
+  description: z.string().max(1000).optional().nullable(),
+  data: z.any().optional(),
+  appState: z.any().optional(),
+  thumbnail: z.string().optional().nullable(),
+  projectIds: z.array(z.string()).optional(),
+});
+
+export const linkWhiteboardProjectSchema = z.object({
+  whiteboardId: z.string().min(1, "Whiteboard ID is required"),
+  projectId: z.string().min(1, "Project ID is required"),
+});
+
 export const createProjectSchema = z.object({
   name: z.string().min(2, "Project name must be at least 2 characters").max(60),
   key: z.string().min(2, "Key must be at least 2 characters").max(8).toUpperCase().regex(/^[A-Z0-9]+$/, "Key can only contain uppercase letters and numbers"),

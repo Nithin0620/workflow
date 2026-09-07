@@ -20,9 +20,11 @@ import {
   MessagesSquare,
   Search,
   ArrowLeft,
+  ArrowRight,
   Sparkles,
+  PenTool,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export interface ChannelItem {
   id: string;
@@ -78,12 +80,28 @@ export function Sidebar({
   const [createChannelOpen, setCreateChannelOpen] = useState(false);
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
   const [targetProjectIdForChannel, setTargetProjectIdForChannel] = useState<string | null>(null);
+  const [canGoForward, setCanGoForward] = useState(false);
+
+  useEffect(() => {
+    const originalPushState = window.history.pushState;
+    window.history.pushState = function (...args) {
+      originalPushState.apply(this, args);
+      setTimeout(() => setCanGoForward(false), 0);
+    };
+    const onPopState = () => setCanGoForward(true);
+    window.addEventListener("popstate", onPopState);
+    return () => {
+      window.history.pushState = originalPushState;
+      window.removeEventListener("popstate", onPopState);
+    };
+  }, []);
 
   const baseUrl = `/${orgSlug}/${workspaceSlug}`;
 
   const navLinks = [
     { label: "Overview", href: baseUrl, icon: LayoutDashboard },
     { label: "Projects", href: `${baseUrl}/projects`, icon: FolderKanban },
+    { label: "Whiteboards", href: `${baseUrl}/whiteboards`, icon: PenTool },
     { label: "Analytics", href: `${baseUrl}/analytics`, icon: BarChart3 },
     { label: "Cron Jobs & AI", href: `${baseUrl}/cron`, icon: Clock },
     { label: "Settings & Team", href: `${baseUrl}/settings`, icon: Settings },
@@ -114,6 +132,31 @@ export function Sidebar({
           )}
         </button>
       )}
+
+      {/* Back / Forward Buttons */}
+      <div className={`relative z-10 flex justify-center gap-2 ${isCollapsed ? "" : "mb-2"}`}>
+        <button
+          onClick={() => window.history.back()}
+          title="Go back"
+          className={`flex items-center gap-2 rounded-xl border border-emerald-900/40 bg-emerald-950/30 text-emerald-400 transition hover:border-emerald-500/50 hover:bg-emerald-950/60 hover:text-emerald-300 ${
+            isCollapsed ? "h-10 w-10 justify-center" : "px-2.5 py-2 text-xs font-medium"
+          }`}
+        >
+          <ArrowLeft className="h-4 w-4 shrink-0" />
+          {!isCollapsed && <span>Back</span>}
+        </button>
+        <button
+          onClick={() => window.history.forward()}
+          title="Go forward"
+          disabled={!canGoForward}
+          className={`flex items-center gap-2 rounded-xl border border-amber-900/40 bg-amber-950/30 text-amber-400 transition hover:border-amber-500/50 hover:bg-amber-950/60 hover:text-amber-300 disabled:cursor-not-allowed disabled:opacity-30 ${
+            isCollapsed ? "h-10 w-10 justify-center" : "px-2.5 py-2 text-xs font-medium"
+          }`}
+        >
+          {!isCollapsed && <span>Forward</span>}
+          <ArrowRight className="h-4 w-4 shrink-0" />
+        </button>
+      </div>
 
       {/* Workspace Switcher / Header */}
       <div className="relative z-20 flex items-center justify-between">
@@ -180,6 +223,7 @@ export function Sidebar({
                         <Link
                           key={c.id}
                           href={channelHref}
+                          prefetch={true}
                           className={`flex items-center justify-between rounded-xl px-2.5 py-1.5 text-xs font-medium transition ${
                             isActive
                               ? "bg-white text-black font-bold shadow-md"
@@ -240,6 +284,7 @@ export function Sidebar({
                           <Link
                             key={c.id}
                             href={channelHref}
+                            prefetch={true}
                             className={`flex items-center justify-between rounded-xl px-2.5 py-1.5 text-xs font-medium transition ${
                               isActive
                                 ? "bg-white text-black font-bold shadow-md"
@@ -271,6 +316,7 @@ export function Sidebar({
               <div className="pt-3 mt-auto border-t border-neutral-900">
                 <Link
                   href={baseUrl}
+                  prefetch={true}
                   className="flex items-center justify-center gap-2 w-full rounded-xl border border-neutral-800 bg-neutral-900/60 p-2.5 text-xs font-bold text-neutral-200 hover:border-neutral-700 hover:bg-neutral-900 hover:text-white transition shadow-sm"
                 >
                   <ArrowLeft className="h-4 w-4" />
@@ -326,6 +372,7 @@ export function Sidebar({
                   <Link
                     key={link.href}
                     href={link.href}
+                    prefetch={true}
                     title={isCollapsed ? link.label : undefined}
                     className={`flex items-center rounded-xl transition ${
                       isCollapsed
@@ -346,6 +393,7 @@ export function Sidebar({
               {/* Discussions Navigation Link */}
               <Link
                 href={`${baseUrl}/discussions`}
+                prefetch={true}
                 title={isCollapsed ? "Discussions" : undefined}
                 className={`flex items-center rounded-xl transition ${
                   isCollapsed
@@ -401,6 +449,7 @@ export function Sidebar({
                   <Link
                     key={p.id}
                     href={boardHref}
+                    prefetch={true}
                     title={isCollapsed ? `${p.name} (${p.key})` : undefined}
                     className={`flex items-center rounded-xl transition ${
                       isCollapsed

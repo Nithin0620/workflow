@@ -69,6 +69,7 @@ model User {
   discussionReactions DiscussionReaction[]
   channelReads     UserChannelRead[]
   createdIssueLinks DiscussionIssueLink[]
+  createdWhiteboards Whiteboard[]
 }
 
 model VerificationToken {
@@ -123,6 +124,7 @@ model Workspace {
   banners      Banner[]
   cronJobs     CronJob[]
   discussionChannels DiscussionChannel[]
+  whiteboards  Whiteboard[]
 
   @@unique([organizationId, slug])
   @@index([organizationId])
@@ -197,6 +199,7 @@ model Project {
   cronLogs   CronExecutionLog[]
   cronJobs   CronJob[]
   discussionChannels DiscussionChannel[]
+  whiteboards ProjectWhiteboard[]
 
   @@unique([workspaceId, key])
   @@index([workspaceId])
@@ -597,6 +600,51 @@ model UserChannelRead {
   @@unique([userId, channelId])
   @@index([channelId])
   @@index([userId])
+}
+
+// -------------------------------------------------------------
+// Collaborative Whiteboards & Canvas Architecture (N:M Multi-Project)
+// -------------------------------------------------------------
+
+model Whiteboard {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+  title       String
+  description String?  @db.Text
+  
+  // Canvas element tree and viewport camera/background configuration
+  data        Json     @default("[]") // Excalidraw / Canvas elements JSON
+  appState    Json?    // Zoom, scroll, viewMode, activeTheme
+  thumbnail   String?  @db.Text       // Base64 or Cloudinary preview thumbnail
+  
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 2-Way Many-to-Many Linking with Projects
+  projects    ProjectWhiteboard[]
+
+  @@index([workspaceId])
+  @@index([createdById])
+  @@index([createdAt])
+}
+
+model ProjectWhiteboard {
+  id           String     @id @default(cuid())
+  projectId    String
+  project      Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  whiteboardId String
+  whiteboard   Whiteboard @relation(fields: [whiteboardId], references: [id], onDelete: Cascade)
+  
+  linkedAt     DateTime   @default(now())
+
+  @@unique([projectId, whiteboardId])
+  @@index([projectId])
+  @@index([whiteboardId])
 }
 
 

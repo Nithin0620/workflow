@@ -13,22 +13,40 @@ export default async function CronJobsPage({ params }: CronJobsPageProps) {
 
   if (!user) redirect("/login");
 
-  const workspace = await prisma.workspace.findFirst({
-    where: {
-      slug: workspaceSlug,
-      organization: { slug: orgSlug },
-    },
-    include: {
-      organization: true,
-      members: {
-        where: { userId: user.id },
+  const { getWorkspaceCronJobs, getCronRunHistory } = await import("@/actions/cron-jobs");
+
+  // In-memory membership lookup
+  const currentMembership = user.workspaceMembers.find(
+    (m) =>
+      m.workspace.slug === workspaceSlug &&
+      m.workspace.organization.slug === orgSlug
+  );
+
+  const workspaceId = currentMembership?.workspaceId;
+
+  const [workspace, jobsRes, historyRes] = await Promise.all([
+    prisma.workspace.findFirst({
+      where: {
+        slug: workspaceSlug,
+        organization: { slug: orgSlug },
+        members: { some: { userId: user.id } },
       },
-    },
-  });
+      select: {
+        id: true,
+        name: true,
+      },
+    }),
+    workspaceId
+      ? getWorkspaceCronJobs(workspaceId)
+      : Promise.resolve({ success: false, jobs: [] }),
+    workspaceId
+      ? getCronRunHistory(workspaceId)
+      : Promise.resolve({ success: false, logs: [] }),
+  ]);
 
   if (!workspace) redirect("/dashboard");
 
-  const memberRole = workspace.members[0]?.role || "MEMBER";
+  const memberRole = currentMembership?.role || "MEMBER";
   const canManage = memberRole === "OWNER" || memberRole === "ADMIN";
 
   return (
@@ -38,6 +56,8 @@ export default async function CronJobsPage({ params }: CronJobsPageProps) {
       orgSlug={orgSlug}
       workspaceSlug={workspaceSlug}
       canManage={canManage}
+      initialJobs={jobsRes.success ? jobsRes.jobs : []}
+      initialLogs={historyRes.success ? historyRes.logs : []}
     />
   );
 }

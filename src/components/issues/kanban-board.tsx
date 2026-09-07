@@ -710,6 +710,7 @@ export function KanbanBoard({
       {/* Issue Detail & Discussion Modal */}
       <IssueDetailModal
         issueId={selectedIssueId}
+        initialData={selectedIssueId ? (issues.find((i) => i.id === selectedIssueId) as any) : null}
         isOpen={!!selectedIssueId}
         onClose={() => setSelectedIssueId(null)}
         onIssueDeleted={(deletedId) => {

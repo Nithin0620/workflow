@@ -20,30 +20,36 @@ export default async function ChannelPage({ params }: ChannelPageProps) {
     redirect("/login");
   }
 
-  const workspace = await prisma.workspace.findFirst({
-    where: {
-      slug: workspaceSlug,
-      organization: { slug: orgSlug },
-      members: { some: { userId: user.id } },
-    },
-    include: {
-      projects: {
-        select: { id: true, name: true, key: true },
+  // Run workspace, channel metadata, and message list in parallel
+  const [workspace, channelRes, messagesRes] = await Promise.all([
+    prisma.workspace.findFirst({
+      where: {
+        slug: workspaceSlug,
+        organization: { slug: orgSlug },
+        members: { some: { userId: user.id } },
       },
-    },
-  });
+      select: {
+        id: true,
+        projects: {
+          select: { id: true, name: true, key: true },
+        },
+      },
+    }),
+    getChannelDetails(channelId),
+    getChannelMessages(channelId, { limit: 50 }),
+  ]);
 
   if (!workspace) {
     notFound();
   }
 
-  const { channel, error } = await getChannelDetails(channelId);
+  const { channel, error } = channelRes;
 
   if (error || !channel || channel.workspaceId !== workspace.id) {
     notFound();
   }
 
-  const { messages = [] } = await getChannelMessages(channelId, { limit: 50 });
+  const messages = messagesRes.messages || [];
 
   return (
     <div className="-m-6 h-[calc(100vh-3.5rem)] overflow-hidden">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { Sidebar } from "./sidebar";
 import { Header } from "./header";
 
@@ -52,6 +53,8 @@ export function WorkspaceLayoutShell({
   projectChannelGroups = [],
 }: WorkspaceLayoutShellProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const pathname = usePathname();
+  const isFullBleed = /\/whiteboards\/[^/]+$/.test(pathname);
 
   useEffect(() => {
     try {
@@ -96,7 +99,11 @@ export function WorkspaceLayoutShell({
           workspaceId={workspaceId}
         />
         <main
-          className="flex-1 overflow-y-auto p-6 bg-black text-white"
+          className={
+            isFullBleed
+              ? "flex-1 overflow-hidden bg-black text-white"
+              : "flex-1 overflow-y-auto p-6 bg-black text-white"
+          }
           data-lenis-prevent
         >
           {children}

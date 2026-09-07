@@ -19,36 +19,42 @@ export default async function WorkspaceLayout({
     redirect("/login");
   }
 
-  // Run workspace lookup and membership list in parallel — both are independent
-  const [workspace, userMemberships] = await Promise.all([
+  // Find workspace membership from in-memory cached user record
+  const currentMembership = user.workspaceMembers.find(
+    (m) =>
+      m.workspace.slug === workspaceSlug &&
+      m.workspace.organization.slug === orgSlug
+  );
+
+  const { getWorkspaceChannels } = await import("@/actions/discussions");
+
+  // Fetch workspace projects and discussion channels in parallel
+  const [workspace, discussionData] = await Promise.all([
     prisma.workspace.findFirst({
       where: {
         slug: workspaceSlug,
         organization: { slug: orgSlug },
         members: { some: { userId: user.id } },
       },
-      include: {
-        organization: true,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
         projects: {
           select: { id: true, name: true, key: true, color: true },
         },
       },
     }),
-    prisma.workspaceMember.findMany({
-      where: { userId: user.id },
-      include: {
-        workspace: {
-          include: { organization: true },
-        },
-      },
-    }),
+    currentMembership
+      ? getWorkspaceChannels(currentMembership.workspaceId)
+      : Promise.resolve({ workspaceChannels: [], projectGroups: [] }),
   ]);
 
   if (!workspace) {
     notFound();
   }
 
-  const formattedWorkspaces = userMemberships.map((m) => ({
+  const formattedWorkspaces = user.workspaceMembers.map((m) => ({
     id: m.workspace.id,
     name: m.workspace.name,
     slug: m.workspace.slug,
@@ -59,11 +65,7 @@ export default async function WorkspaceLayout({
     },
   }));
 
-  // Fetch discussion channels for the sidebar
-  const { getWorkspaceChannels } = await import("@/actions/discussions");
-  const { workspaceChannels, projectGroups } = await getWorkspaceChannels(
-    workspace.id
-  );
+  const { workspaceChannels, projectGroups } = discussionData;
 
   return (
     <WorkspaceLayoutShell

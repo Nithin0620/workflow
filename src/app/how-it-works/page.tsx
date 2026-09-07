@@ -131,7 +131,7 @@ export default async function HowItWorksPage() {
           loop
           muted
           playsInline
-          className="absolute inset-0 h-full w-full object-cover opacity-10 pointer-events-none"
+          className="absolute inset-0 h-full w-full object-cover opacity-40 pointer-events-none"
         >
           <source src="/tech-bg-2.mp4" type="video/mp4" />
         </video>

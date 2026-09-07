@@ -40,6 +40,7 @@ import {
 
 interface IssueDetailModalProps {
   issueId: string | null;
+  initialData?: Partial<IssueDetailData> | null;
   isOpen: boolean;
   onClose: () => void;
   onIssueDeleted?: (deletedIssueId: string) => void;
@@ -146,6 +147,7 @@ function deduplicateById<T extends { id?: string }>(items: T[]): T[] {
 
 export function IssueDetailModal({
   issueId,
+  initialData,
   isOpen,
   onClose,
   onIssueDeleted,
@@ -254,7 +256,20 @@ export function IssueDetailModal({
   });
 
   useEffect(() => {
-    if (!issueId || !isOpen) return;
+    if (!isOpen) return;
+
+    if (initialData) {
+      setIssue((prev) => (prev?.id === initialData.id ? prev : (initialData as IssueDetailData)));
+      if (initialData.title) setTitle(initialData.title);
+      if (initialData.description !== undefined) setDescription(initialData.description || "");
+      if (initialData.status) setStatus(initialData.status as IssueStatus);
+      if (initialData.priority) setPriority(initialData.priority as IssuePriority);
+      if (initialData.estimate !== undefined) setEstimate(initialData.estimate ?? "");
+      if (initialData.assigneeId !== undefined) setAssigneeId(initialData.assigneeId);
+      if (initialData.sprintId !== undefined) setSprintId(initialData.sprintId ?? null);
+    }
+
+    if (!issueId) return;
 
     let isMounted = true;
     setLoading(true);

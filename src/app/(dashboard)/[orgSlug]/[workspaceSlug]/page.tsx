@@ -22,18 +22,22 @@ export default async function WorkspaceOverviewPage({ params }: WorkspacePagePro
       slug: workspaceSlug,
       organization: { slug: orgSlug },
     },
-    include: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
       projects: {
-        include: {
+        select: {
+          id: true,
+          name: true,
+          key: true,
+          description: true,
           _count: { select: { issues: true } },
           banners: {
             select: { id: true, imageUrl: true },
             orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
           },
         },
-      },
-      members: {
-        include: { user: true },
       },
       banners: {
         select: { id: true, imageUrl: true },
@@ -147,6 +151,7 @@ export default async function WorkspaceOverviewPage({ params }: WorkspacePagePro
             <Link
               key={p.id}
               href={`/${orgSlug}/${workspaceSlug}/projects/${p.key}/board`}
+              prefetch={true}
               className="group rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-lg transition hover:border-neutral-600 hover:bg-neutral-900"
             >
               <div className="flex items-start justify-between">
