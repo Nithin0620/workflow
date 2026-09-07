@@ -54,11 +54,15 @@ export async function getProjectSprints(projectId: string) {
     orderBy: { order: "asc" },
   });
 
-  const doneCount = await prisma.issue.count({
-    where: { projectId, status: "DONE" },
+  // ⚡ Bolt: Batch issue counting queries using groupBy to reduce DB roundtrips
+  const statusCounts = await prisma.issue.groupBy({
+    by: ["status"],
+    where: { projectId },
+    _count: { _all: true },
   });
 
-  const totalIssueCount = await prisma.issue.count({ where: { projectId } });
+  const totalIssueCount = statusCounts.reduce((sum, s) => sum + s._count._all, 0);
+  const doneCount = statusCounts.find((s) => s.status === "DONE")?._count._all ?? 0;
 
   return {
     sprints: sprints.map((s) => ({
