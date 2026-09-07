@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { CommandPalette } from "./command-palette";
 import { NotificationCenter } from "../notifications/notification-center";
+import { ThemeToggle } from "../theme/theme-toggle";
 import { Search, LogOut } from "lucide-react";
 
 interface HeaderProps {
@@ -56,12 +57,9 @@ export function Header({
         <NotificationCenter />
 
         <div className="mr-2 border-r border-neutral-800 dark:border-neutral-200 pr-2">
-            <ThemeToggle />
-          </div>
-          <div className="mr-2 border-r border-neutral-800 dark:border-neutral-200 pr-2">
-            <ThemeToggle />
-          </div>
-          {/* User profile & Logout */}
+          <ThemeToggle />
+        </div>
+        {/* User profile & Logout */}
         <div className="flex items-center gap-2.5 pl-3 border-l border-neutral-800 dark:border-neutral-200">
           <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white dark:bg-black text-xs font-bold text-black dark:text-white shadow-sm">
             {(session?.user?.name || "U").charAt(0).toUpperCase()}
