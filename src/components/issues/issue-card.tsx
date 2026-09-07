@@ -1,8 +1,9 @@
 "use client";
 
 import { IssuePriority } from "@prisma/client";
-import { MessageSquare, Paperclip, ArrowUp, ArrowDown, Equal, AlertCircle, Minus } from "lucide-react";
+import { MessageSquare, Paperclip, ArrowUp, ArrowDown, Equal, AlertCircle, Minus, Copy, Check } from "lucide-react";
 import { formatIssueKey } from "@/lib/utils";
+import { useState } from "react";
 
 interface IssueCardProps {
   issue: {
@@ -30,6 +31,7 @@ const PRIORITY_ICONS: Record<IssuePriority, React.ReactNode> = {
 
 export function IssueCard({ issue, onSelect }: IssueCardProps) {
   const issueKey = formatIssueKey(issue.projectKey, issue.issueNumber);
+  const [copied, setCopied] = useState(false);
 
   return (
     <div
@@ -37,9 +39,23 @@ export function IssueCard({ issue, onSelect }: IssueCardProps) {
       className="group cursor-pointer rounded-xl border border-neutral-800 bg-neutral-900/80 p-3.5 shadow-md transition hover:border-neutral-500 hover:bg-neutral-900"
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="font-mono text-xs font-bold text-neutral-400">
-          {issueKey}
-        </span>
+        <div className="flex items-center gap-1 group/key">
+          <span className="font-mono text-xs font-bold text-neutral-400">
+            {issueKey}
+          </span>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigator.clipboard.writeText(issueKey);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+            }}
+            className="opacity-0 group-hover/key:opacity-100 transition-opacity p-0.5 rounded hover:bg-neutral-800 text-neutral-500 hover:text-neutral-300"
+            title="Copy Issue Key"
+          >
+            {copied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
+          </button>
+        </div>
         <div className="flex items-center gap-1.5">
           {issue.estimate && (
             <span className="rounded bg-neutral-800 px-1.5 py-0.5 text-[10px] font-bold text-neutral-200 border border-neutral-700 font-mono">
