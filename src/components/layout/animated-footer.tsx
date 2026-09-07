@@ -51,7 +51,7 @@ export function AnimatedFooter() {
         ))}
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 relative z-10 flex flex-col items-center">
+      <div className="mx-auto max-w-7xl px-10 relative z-10 flex flex-col items-center">
         {/* Animated WORKFLOW text */}
         <motion.div
           style={{ opacity, y, scale }}

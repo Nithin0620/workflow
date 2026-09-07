@@ -6,10 +6,10 @@ import { motion } from "framer-motion";
 export function VersionDisplay() {
   return (
     <div className="fixed bottom-4 right-4 z-[9999] pointer-events-none group">
-      <div className="relative overflow-hidden rounded-md bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm border border-neutral-300 dark:border-neutral-700 shadow-sm opacity-50 group-hover:opacity-100 transition-opacity p-[1px]">
+      <div className="relative overflow-hidden rounded-md bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm border border-neutral-300 dark:border-neutral-700 shadow-[0_0_12px_rgba(163,163,163,0.4)] group-hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] opacity-50 group-hover:opacity-100 transition-all p-[1px]">
         {/* Animated Laser Border */}
         <motion.div
-          className="absolute inset-0 z-0 bg-[conic-gradient(from_0deg,transparent_0_340deg,rgba(163,163,163,0.5)_360deg)]"
+          className="absolute inset-0 z-0 bg-[conic-gradient(from_0deg,transparent_0_310deg,rgba(255,255,255,0.9)_350deg,rgba(255,255,255,1)_360deg)]"
           animate={{ rotate: 360 }}
           transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
         />

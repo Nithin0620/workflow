@@ -14,7 +14,8 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
       pathname === "/how-it-works" ||
       pathname === "/contact" ||
       pathname === "/login" ||
-      pathname === "/register";
+      pathname === "/register" ||
+      pathname === "/planned-journey";
 
     if (!isPublicPage) {
       return;
