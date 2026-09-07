@@ -69,15 +69,15 @@ export default async function WorkspaceOverviewPage({ params }: WorkspacePagePro
   const doneIssues = groupedIssues.find((g) => g.status === "DONE")?._count || 0;
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto text-white">
+    <div className="space-y-8 max-w-6xl mx-auto text-white dark:text-black">
       {/* Header banner */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">
+          <h1 className="text-2xl font-bold tracking-tight text-white dark:text-black">
             Welcome back, {user.name?.split(" ")[0] || "there"} 👋
           </h1>
-          <p className="text-xs text-neutral-400 mt-1">
-            Here is an overview of what is happening across <span className="font-semibold text-white">{workspace.name}</span>.
+          <p className="text-xs text-neutral-400 dark:text-neutral-600 mt-1">
+            Here is an overview of what is happening across <span className="font-semibold text-white dark:text-black">{workspace.name}</span>.
           </p>
         </div>
         <TourReplayButton tourId="workspace" />
@@ -94,49 +94,49 @@ export default async function WorkspaceOverviewPage({ params }: WorkspacePagePro
 
       {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" data-tour="ws-metrics">
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-5 shadow-lg">
-          <div className="flex items-center justify-between text-neutral-400">
+        <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-5 shadow-lg">
+          <div className="flex items-center justify-between text-neutral-400 dark:text-neutral-600">
             <span className="text-xs font-bold uppercase tracking-wider font-mono">Active Projects</span>
-            <FolderKanban className="h-4 w-4 text-white" />
+            <FolderKanban className="h-4 w-4 text-white dark:text-black" />
           </div>
-          <div className="mt-3 text-3xl font-extrabold text-white">{totalProjects}</div>
+          <div className="mt-3 text-3xl font-extrabold text-white dark:text-black">{totalProjects}</div>
         </div>
 
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-5 shadow-lg">
-          <div className="flex items-center justify-between text-neutral-400">
+        <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-5 shadow-lg">
+          <div className="flex items-center justify-between text-neutral-400 dark:text-neutral-600">
             <span className="text-xs font-bold uppercase tracking-wider font-mono">Total Issues</span>
-            <CheckCircle2 className="h-4 w-4 text-white" />
+            <CheckCircle2 className="h-4 w-4 text-white dark:text-black" />
           </div>
-          <div className="mt-3 text-3xl font-extrabold text-white">{totalIssues}</div>
+          <div className="mt-3 text-3xl font-extrabold text-white dark:text-black">{totalIssues}</div>
         </div>
 
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-5 shadow-lg">
-          <div className="flex items-center justify-between text-neutral-400">
+        <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-5 shadow-lg">
+          <div className="flex items-center justify-between text-neutral-400 dark:text-neutral-600">
             <span className="text-xs font-bold uppercase tracking-wider font-mono">In Progress</span>
-            <Clock className="h-4 w-4 text-white" />
+            <Clock className="h-4 w-4 text-white dark:text-black" />
           </div>
-          <div className="mt-3 text-3xl font-extrabold text-white">{inProgressIssues}</div>
+          <div className="mt-3 text-3xl font-extrabold text-white dark:text-black">{inProgressIssues}</div>
         </div>
 
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-5 shadow-lg">
-          <div className="flex items-center justify-between text-neutral-400">
+        <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-5 shadow-lg">
+          <div className="flex items-center justify-between text-neutral-400 dark:text-neutral-600">
             <span className="text-xs font-bold uppercase tracking-wider font-mono">Completed</span>
             <CheckCircle2 className="h-4 w-4 text-emerald-400" />
           </div>
-          <div className="mt-3 text-3xl font-extrabold text-white">{doneIssues}</div>
+          <div className="mt-3 text-3xl font-extrabold text-white dark:text-black">{doneIssues}</div>
         </div>
       </div>
 
       {/* Projects Grid */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 font-mono">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono">
             YOUR PROJECTS
           </h3>
           <Link
             href={`/${orgSlug}/${workspaceSlug}/projects`}
             data-tour="ws-view-all"
-            className="text-xs font-semibold text-neutral-300 hover:text-white transition"
+            className="text-xs font-semibold text-neutral-300 dark:text-neutral-700 hover:text-white dark:text-black transition"
           >
             View all projects →
           </Link>
@@ -147,34 +147,34 @@ export default async function WorkspaceOverviewPage({ params }: WorkspacePagePro
             <Link
               key={p.id}
               href={`/${orgSlug}/${workspaceSlug}/projects/${p.key}/board`}
-              className="group rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-lg transition hover:border-neutral-600 hover:bg-neutral-900"
+              className="group rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-6 shadow-lg transition hover:border-neutral-600 dark:hover:border-neutral-400 hover:bg-neutral-900 dark:hover:bg-neutral-100"
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <div
-                    className="flex h-9 w-9 items-center justify-center rounded-xl font-black text-black bg-white text-xs shadow"
+                    className="flex h-9 w-9 items-center justify-center rounded-xl font-black text-black dark:text-white bg-white dark:bg-black text-xs shadow"
                   >
                     {p.key.slice(0, 2)}
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-white group-hover:text-neutral-200 transition-colors">
+                    <h4 className="text-sm font-bold text-white dark:text-black group-hover:text-neutral-200 transition-colors">
                       {p.name}
                     </h4>
-                    <span className="font-mono text-xs text-neutral-500">{p.key}</span>
+                    <span className="font-mono text-xs text-neutral-500 dark:text-neutral-500">{p.key}</span>
                   </div>
                 </div>
-                <ArrowUpRight className="h-4 w-4 text-neutral-500 group-hover:text-white transition" />
+                <ArrowUpRight className="h-4 w-4 text-neutral-500 dark:text-neutral-500 group-hover:text-white dark:text-black transition" />
               </div>
 
-              <p className="mt-4 line-clamp-2 text-xs text-neutral-400 leading-relaxed">
+              <p className="mt-4 line-clamp-2 text-xs text-neutral-400 dark:text-neutral-600 leading-relaxed">
                 {p.description || "No description provided."}
               </p>
 
               <BannerStrip imageUrls={p.banners.map((b) => b.imageUrl)} className="mt-4" />
 
-              <div className="mt-4 flex items-center justify-between border-t border-neutral-900 pt-3 text-xs text-neutral-400">
+              <div className="mt-4 flex items-center justify-between border-t border-neutral-900 dark:border-neutral-100 pt-3 text-xs text-neutral-400 dark:text-neutral-600">
                 <span>{p._count.issues} issues</span>
-                <span className="text-white font-semibold group-hover:underline">Open board →</span>
+                <span className="text-white dark:text-black font-semibold group-hover:underline">Open board →</span>
               </div>
             </Link>
           ))}
@@ -182,28 +182,28 @@ export default async function WorkspaceOverviewPage({ params }: WorkspacePagePro
       </div>
 
       {/* Discussions & Collaboration Row */}
-      <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-xl relative overflow-hidden">
+      <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-6 shadow-xl relative overflow-hidden">
         <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-white/[0.02] to-transparent pointer-events-none" />
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-neutral-900 border border-neutral-800 text-white shadow-inner">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-neutral-900 dark:bg-neutral-100 border border-neutral-800 text-white dark:text-black shadow-inner">
               <MessageSquare className="h-6 w-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-white">Discussions Hub</h3>
-                <span className="rounded-full border border-neutral-800 bg-neutral-900 px-2 py-0.5 text-[10px] font-mono text-neutral-400">
+                <h3 className="text-base font-bold text-white dark:text-black">Discussions Hub</h3>
+                <span className="rounded-full border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-2 py-0.5 text-[10px] font-mono text-neutral-400 dark:text-neutral-600">
                   Real-time
                 </span>
               </div>
-              <p className="mt-1 text-xs text-neutral-400 max-w-xl">
+              <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-600 max-w-xl">
                 Chat in workspace-wide or project-specific channels, collaborate in threads, and turn any message into a tracked issue with one click.
               </p>
             </div>
           </div>
           <Link
             href={`/${orgSlug}/${workspaceSlug}/discussions`}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-xs font-semibold text-black shadow-md hover:bg-neutral-200 transition shrink-0"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-white dark:bg-black px-4 py-2.5 text-xs font-semibold text-black dark:text-white shadow-md hover:bg-neutral-200 transition shrink-0"
           >
             <span>Open Discussions</span>
             <ArrowUpRight className="h-4 w-4" />

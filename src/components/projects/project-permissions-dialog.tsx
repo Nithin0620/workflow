@@ -54,7 +54,7 @@ const PROJECT_ROLE_META: Record<
   VIEWER: {
     label: "Read-Only / Viewer",
     icon: Eye,
-    color: "border-neutral-500/30 bg-neutral-500/10 text-neutral-400",
+    color: "border-neutral-500/30 dark:border-neutral-500/30 bg-neutral-500/10 dark:bg-neutral-500/10 text-neutral-400",
     desc: "Can view issues, boards, and comments with no edit permissions.",
   },
 };
@@ -196,22 +196,22 @@ export function ProjectPermissionsDialog({
   ) || [];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-2xl rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-2xl text-white max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black dark:bg-white/80 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-2xl rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-6 shadow-2xl text-white dark:text-black max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-neutral-900 pb-4">
+        <div className="flex items-center justify-between border-b border-neutral-900 dark:border-neutral-100 pb-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-black font-bold">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white dark:bg-black text-black font-bold">
               <Shield className="h-5 w-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-white">{projectName}</h2>
-                <span className="font-mono text-xs rounded bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 text-neutral-400">
+                <h2 className="text-base font-bold text-white dark:text-black">{projectName}</h2>
+                <span className="font-mono text-xs rounded bg-neutral-900 dark:bg-neutral-100 border border-neutral-800 px-1.5 py-0.5 text-neutral-400 dark:text-neutral-600">
                   {projectKey}
                 </span>
               </div>
-              <p className="text-xs text-neutral-400">
+              <p className="text-xs text-neutral-400 dark:text-neutral-600">
                 Project-Level Access Control (RBAC) & Permissions
               </p>
             </div>
@@ -219,7 +219,7 @@ export function ProjectPermissionsDialog({
 
           <button
             onClick={onClose}
-            className="cursor-pointer rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+            className="cursor-pointer rounded-lg p-1.5 text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
           >
             <X className="h-4 w-4" />
           </button>
@@ -240,22 +240,22 @@ export function ProjectPermissionsDialog({
 
         {loading ? (
           <div className="flex h-48 items-center justify-center">
-            <Loader2 className="h-6 w-6 animate-spin text-neutral-400" />
+            <Loader2 className="h-6 w-6 animate-spin text-neutral-400 dark:text-neutral-600" />
           </div>
         ) : (
           <div className="mt-5 space-y-6">
             {/* Project Access Mode / Privacy Switch */}
-            <div className="rounded-xl border border-neutral-800 bg-black/60 p-4">
+            <div className="rounded-xl border border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white/60 p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-900 text-neutral-300">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-900 dark:bg-neutral-100 text-neutral-300">
                     {isPrivate ? <Lock className="h-4 w-4 text-amber-400" /> : <Globe className="h-4 w-4 text-blue-400" />}
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-white">
+                    <div className="text-xs font-bold text-white dark:text-black">
                       {isPrivate ? "Private Project (Restricted)" : "Public Project (Workspace Wide)"}
                     </div>
-                    <p className="text-[11px] text-neutral-400">
+                    <p className="text-[11px] text-neutral-400 dark:text-neutral-600">
                       {isPrivate
                         ? "Only explicitly assigned project members and workspace admins can access this board."
                         : "All workspace members can view or edit based on default workspace roles."}
@@ -266,7 +266,7 @@ export function ProjectPermissionsDialog({
                 {isOwner && (
                   <button
                     onClick={handleTogglePrivacy}
-                    className="cursor-pointer rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-1.5 text-xs font-bold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
+                    className="cursor-pointer rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-3 py-1.5 text-xs font-bold text-neutral-300 dark:text-neutral-700 hover:border-neutral-700 hover:text-white dark:text-black transition"
                   >
                     {isPrivate ? "Make Public" : "Make Private"}
                   </button>
@@ -276,8 +276,8 @@ export function ProjectPermissionsDialog({
 
             {/* Add Team Member to Project */}
             {isOwner && availableWorkspaceUsers.length > 0 && (
-              <form onSubmit={handleAddMember} className="rounded-xl border border-neutral-800 bg-neutral-950 p-4">
-                <h3 className="text-xs font-bold text-white mb-2 flex items-center gap-1.5">
+              <form onSubmit={handleAddMember} className="rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-4">
+                <h3 className="text-xs font-bold text-white dark:text-black mb-2 flex items-center gap-1.5">
                   <UserPlus className="h-3.5 w-3.5" />
                   <span>Grant Project Access to Workspace Member</span>
                 </h3>
@@ -285,7 +285,7 @@ export function ProjectPermissionsDialog({
                   <select
                     value={selectedUserIdToAdd}
                     onChange={(e) => setSelectedUserIdToAdd(e.target.value)}
-                    className="flex-1 rounded-xl border border-neutral-800 bg-black px-3 py-2 text-xs text-white focus:border-neutral-600 focus:outline-none"
+                    className="flex-1 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white px-3 py-2 text-xs text-white dark:text-black focus:border-neutral-600 focus:outline-none"
                   >
                     <option value="">Select a teammate...</option>
                     {availableWorkspaceUsers.map((wm: any) => (
@@ -298,7 +298,7 @@ export function ProjectPermissionsDialog({
                   <select
                     value={selectedRoleToAdd}
                     onChange={(e) => setSelectedRoleToAdd(e.target.value as ProjectRole)}
-                    className="rounded-xl border border-neutral-800 bg-black px-3 py-2 text-xs text-neutral-300 focus:border-neutral-600 focus:outline-none font-bold"
+                    className="rounded-xl border border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white px-3 py-2 text-xs text-neutral-300 dark:text-neutral-700 focus:border-neutral-600 focus:outline-none font-bold"
                   >
                     <option value="EDITOR">Write / Editor</option>
                     <option value="VIEWER">Read-Only / Viewer</option>
@@ -308,7 +308,7 @@ export function ProjectPermissionsDialog({
                   <button
                     type="submit"
                     disabled={!selectedUserIdToAdd || savingId === "adding"}
-                    className="cursor-pointer rounded-xl bg-white px-4 py-2 text-xs font-bold text-black hover:bg-neutral-200 transition disabled:opacity-50"
+                    className="cursor-pointer rounded-xl bg-white dark:bg-black px-4 py-2 text-xs font-bold text-black dark:text-white hover:bg-neutral-200 transition disabled:opacity-50"
                   >
                     Add to Project
                   </button>
@@ -318,11 +318,11 @@ export function ProjectPermissionsDialog({
 
             {/* Assigned Project Members Table */}
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 font-mono mb-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono mb-3">
                 Assigned Project Members ({projectData?.members?.length || 0})
               </h3>
 
-              <div className="divide-y divide-neutral-900 rounded-xl border border-neutral-800 bg-black/40">
+              <div className="divide-y divide-neutral-900 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white/40">
                 {projectData?.members?.map((pm: any) => {
                   const roleMeta = PROJECT_ROLE_META[pm.role as ProjectRole] || PROJECT_ROLE_META.EDITOR;
                   const Icon = roleMeta.icon;
@@ -334,21 +334,21 @@ export function ProjectPermissionsDialog({
                       className="flex flex-wrap items-center justify-between gap-3 p-3.5"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-neutral-900 border border-neutral-800 text-xs font-extrabold text-white">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-neutral-900 dark:bg-neutral-100 border border-neutral-800 text-xs font-extrabold text-white dark:text-black">
                           {(pm.user.name || pm.user.email || "U").charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-white">
+                            <span className="text-xs font-bold text-white dark:text-black">
                               {pm.user.name || "Teammate"}
                             </span>
                             {isMe && (
-                              <span className="rounded bg-neutral-900 border border-neutral-800 px-1.5 py-0.2 text-[9px] font-mono font-bold text-neutral-400">
+                              <span className="rounded bg-neutral-900 dark:bg-neutral-100 border border-neutral-800 px-1.5 py-0.2 text-[9px] font-mono font-bold text-neutral-400 dark:text-neutral-600">
                                 YOU
                               </span>
                             )}
                           </div>
-                          <div className="text-[11px] text-neutral-500 font-mono">
+                          <div className="text-[11px] text-neutral-500 dark:text-neutral-500 font-mono">
                             {pm.user.email}
                           </div>
                         </div>
@@ -360,7 +360,7 @@ export function ProjectPermissionsDialog({
                             value={pm.role}
                             disabled={savingId === pm.userId}
                             onChange={(e) => handleRoleChange(pm.userId, e.target.value as ProjectRole)}
-                            className="rounded-xl border border-neutral-800 bg-neutral-900 px-2.5 py-1.5 text-xs font-bold text-neutral-300 focus:border-neutral-600 focus:outline-none"
+                            className="rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-2.5 py-1.5 text-xs font-bold text-neutral-300 dark:text-neutral-700 focus:border-neutral-600 focus:outline-none"
                           >
                             <option value="OWNER">👑 Project Co-Owner</option>
                             <option value="EDITOR">✏️ Write / Editor</option>
@@ -380,7 +380,7 @@ export function ProjectPermissionsDialog({
                             onClick={() => handleRemoveMember(pm.id)}
                             disabled={savingId === pm.id}
                             title="Remove from project"
-                            className="cursor-pointer rounded-xl border border-neutral-800 bg-neutral-900 p-2 text-neutral-400 hover:border-rose-900 hover:bg-rose-950/30 hover:text-rose-400 transition"
+                            className="cursor-pointer rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 p-2 text-neutral-400 hover:border-rose-900 hover:bg-rose-950/30 hover:text-rose-400 transition"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -398,13 +398,13 @@ export function ProjectPermissionsDialog({
                 <div className="flex items-center justify-between">
                   <div>
                     <h4 className="text-xs font-bold text-rose-300">Danger Zone</h4>
-                    <p className="text-[11px] text-neutral-400">
+                    <p className="text-[11px] text-neutral-400 dark:text-neutral-600">
                       Permanently delete this project, all its issues, and activity logs.
                     </p>
                   </div>
                   <button
                     onClick={handleDeleteProject}
-                    className="cursor-pointer rounded-xl border border-rose-900/60 bg-rose-950/60 px-3.5 py-1.5 text-xs font-bold text-rose-300 hover:bg-rose-900 hover:text-white transition"
+                    className="cursor-pointer rounded-xl border border-rose-900/60 bg-rose-950/60 px-3.5 py-1.5 text-xs font-bold text-rose-300 hover:bg-rose-900 hover:text-white dark:text-black transition"
                   >
                     Delete Project
                   </button>

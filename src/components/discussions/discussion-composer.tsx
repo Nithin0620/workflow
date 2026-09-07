@@ -284,14 +284,14 @@ export function DiscussionComposer({
   };
 
   return (
-    <div className="relative rounded-2xl border border-neutral-800 bg-neutral-950 p-2.5 shadow-lg focus-within:border-neutral-700 transition">
+    <div className="relative rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-2.5 shadow-lg focus-within:border-neutral-700 transition">
       {/* Attachment Preview Chips */}
       {pendingAttachments.length > 0 && (
-        <div className="flex flex-wrap gap-2 pb-2.5 mb-2 border-b border-neutral-800/80">
+        <div className="flex flex-wrap gap-2 pb-2.5 mb-2 border-b border-neutral-800/80 dark:border-neutral-200/80">
           {pendingAttachments.map((att, idx) => (
             <div
               key={idx}
-              className="flex items-center gap-2 rounded-xl border border-neutral-800 bg-neutral-900 p-1.5 pr-2.5 text-xs text-neutral-300 shadow-sm"
+              className="flex items-center gap-2 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 p-1.5 pr-2.5 text-xs text-neutral-300 dark:text-neutral-700 shadow-sm"
             >
               {att.fileType.startsWith("image/") ? (
                 <button
@@ -304,11 +304,11 @@ export function DiscussionComposer({
                   <img
                     src={att.previewUrl}
                     alt={att.fileName}
-                    className="h-8 w-8 rounded-lg object-cover border border-neutral-800 transition group-hover/thumb:scale-105"
+                    className="h-8 w-8 rounded-lg object-cover border border-neutral-800 dark:border-neutral-200 transition group-hover/thumb:scale-105"
                   />
                 </button>
               ) : (
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-800 text-neutral-400">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-800 dark:bg-neutral-200 text-neutral-400">
                   <Paperclip className="h-4 w-4" />
                 </div>
               )}
@@ -320,17 +320,17 @@ export function DiscussionComposer({
                   }
                 }}
               >
-                <span className="truncate font-medium text-[11px] text-white hover:underline">
+                <span className="truncate font-medium text-[11px] text-white dark:text-black hover:underline">
                   {att.fileName}
                 </span>
-                <span className="text-[9px] text-neutral-500 font-mono">
+                <span className="text-[9px] text-neutral-500 dark:text-neutral-500 font-mono">
                   {Math.round(att.fileSize / 1024)} KB
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => removeAttachment(idx)}
-                className="text-neutral-500 hover:text-white p-1 rounded-md hover:bg-neutral-800 transition ml-1"
+                className="text-neutral-500 dark:text-neutral-500 hover:text-white dark:text-black p-1 rounded-md hover:bg-neutral-800 dark:hover:bg-neutral-200 transition ml-1"
                 title="Remove attachment"
               >
                 <X className="h-3.5 w-3.5" />
@@ -342,13 +342,13 @@ export function DiscussionComposer({
 
       {/* Issue Autocomplete Suggestion Popup */}
       {showIssueMenu && issueSuggestions.length > 0 && (
-        <div className="absolute bottom-full left-2 mb-2 w-80 max-h-64 overflow-y-auto rounded-2xl border border-neutral-800 bg-neutral-950 p-1.5 shadow-2xl z-40 animate-in fade-in zoom-in-95 duration-100">
-          <div className="px-2.5 py-1 text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 border-b border-neutral-800/80 mb-1 flex items-center justify-between">
+        <div className="absolute bottom-full left-2 mb-2 w-80 max-h-64 overflow-y-auto rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-1.5 shadow-2xl z-40 animate-in fade-in zoom-in-95 duration-100">
+          <div className="px-2.5 py-1 text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-500 border-b border-neutral-800/80 dark:border-neutral-200/80 mb-1 flex items-center justify-between">
             <span className="flex items-center gap-1">
               <Sparkles className="h-3 w-3 text-amber-400" />
               Tag Issue (#{issueQuery})
             </span>
-            <span className="text-[9px] text-neutral-600">Tab / Enter to insert</span>
+            <span className="text-[9px] text-neutral-600 dark:text-neutral-400">Tab / Enter to insert</span>
           </div>
           <div className="space-y-0.5">
             {issueSuggestions.map((issue, idx) => {
@@ -364,7 +364,7 @@ export function DiscussionComposer({
                   }}
                   onMouseEnter={() => setSelectedIssueIdx(idx)}
                   className={`w-full flex items-center justify-between gap-2 rounded-xl px-2.5 py-1.5 text-left text-xs transition cursor-pointer ${
-                    isSelected ? "bg-blue-600/20 border border-blue-500/30 text-white" : "text-neutral-300 hover:bg-neutral-900"
+                    isSelected ? "bg-blue-600/20 border border-blue-500/30 text-white dark:text-black" : "text-neutral-300 hover:bg-neutral-900 dark:hover:bg-neutral-100"
                   }`}
                 >
                   <div className="min-w-0 flex-1">
@@ -372,12 +372,12 @@ export function DiscussionComposer({
                       <span className="font-mono font-bold text-[11px] text-blue-400">
                         {issue.projectKey}-{issue.issueNumber}
                       </span>
-                      <span className="truncate font-medium text-neutral-200">
+                      <span className="truncate font-medium text-neutral-200 dark:text-neutral-800">
                         {issue.title}
                       </span>
                     </div>
                     {issue.project?.name && (
-                      <div className="text-[10px] text-neutral-500 truncate mt-0.5">
+                      <div className="text-[10px] text-neutral-500 dark:text-neutral-500 truncate mt-0.5">
                         Project: {issue.project.name}
                       </div>
                     )}
@@ -415,17 +415,17 @@ export function DiscussionComposer({
         onKeyDown={handleKeyDown}
         disabled={disabled || sending}
         placeholder={placeholder}
-        className="w-full resize-none bg-transparent px-2 text-xs text-white placeholder-neutral-500 focus:outline-none max-h-44 leading-relaxed"
+        className="w-full resize-none bg-transparent px-2 text-xs text-white dark:text-black placeholder-neutral-500 focus:outline-none max-h-44 leading-relaxed"
       />
 
       {/* Action Toolbar */}
-      <div className="mt-2 flex items-center justify-between border-t border-neutral-800/50 pt-2 px-1">
+      <div className="mt-2 flex items-center justify-between border-t border-neutral-800/50 dark:border-neutral-200/50 pt-2 px-1">
         {/* Formatting tools */}
         <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={() => wrapSelection("**")}
-            className="rounded p-1 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+            className="rounded p-1 text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
             title="Bold (**text**)"
           >
             <Bold className="h-3.5 w-3.5" />
@@ -433,7 +433,7 @@ export function DiscussionComposer({
           <button
             type="button"
             onClick={() => wrapSelection("*")}
-            className="rounded p-1 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+            className="rounded p-1 text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
             title="Italic (*text*)"
           >
             <Italic className="h-3.5 w-3.5" />
@@ -441,7 +441,7 @@ export function DiscussionComposer({
           <button
             type="button"
             onClick={() => wrapSelection("`")}
-            className="rounded p-1 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+            className="rounded p-1 text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
             title="Inline code (`code`)"
           >
             <Code className="h-3.5 w-3.5" />
@@ -449,33 +449,33 @@ export function DiscussionComposer({
           <button
             type="button"
             onClick={() => wrapSelection("> ")}
-            className="rounded p-1 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+            className="rounded p-1 text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
             title="Quote (> text)"
           >
             <Quote className="h-3.5 w-3.5" />
           </button>
 
-          <div className="h-3 w-px bg-neutral-800 mx-1" />
+          <div className="h-3 w-px bg-neutral-800 dark:bg-neutral-200 mx-1" />
 
           {/* Emoji Trigger */}
           <div className="relative">
             <button
               type="button"
               onClick={() => setShowEmojiPicker((prev) => !prev)}
-              className="rounded p-1 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+              className="rounded p-1 text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
               title="Insert Emoji"
             >
               <Smile className="h-3.5 w-3.5" />
             </button>
 
             {showEmojiPicker && (
-              <div className="absolute left-0 bottom-full mb-2 flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-900 p-2 shadow-2xl z-20">
+              <div className="absolute left-0 bottom-full mb-2 flex items-center gap-1.5 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 p-2 shadow-2xl z-20">
                 {COMMON_EMOJIS.map((emoji) => (
                   <button
                     key={emoji}
                     type="button"
                     onClick={() => insertEmoji(emoji)}
-                    className="rounded-lg p-1 text-sm hover:bg-neutral-800 hover:scale-125 transition"
+                    className="rounded-lg p-1 text-sm hover:bg-neutral-800 dark:hover:bg-neutral-200 hover:scale-125 transition"
                   >
                     {emoji}
                   </button>
@@ -489,7 +489,7 @@ export function DiscussionComposer({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={sending || disabled}
-            className="rounded p-1 text-neutral-400 hover:bg-neutral-900 hover:text-white transition disabled:opacity-40"
+            className="rounded p-1 text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition disabled:opacity-40"
             title="Attach file"
           >
             <Paperclip className="h-3.5 w-3.5" />
@@ -498,19 +498,19 @@ export function DiscussionComposer({
 
         {/* Send Button & Hint */}
         <div className="flex items-center gap-2">
-          <span className="text-[10px] text-neutral-500 hidden sm:inline font-mono">
+          <span className="text-[10px] text-neutral-500 dark:text-neutral-500 hidden sm:inline font-mono">
             Return ↵ to send
           </span>
           <button
             type="button"
             onClick={handleSubmit}
             disabled={(!content.trim() && pendingAttachments.length === 0) || sending || disabled}
-            className="flex h-7 w-7 items-center justify-center rounded-xl bg-white text-black hover:bg-neutral-200 disabled:opacity-30 transition shadow"
+            className="flex h-7 w-7 items-center justify-center rounded-xl bg-white dark:bg-black text-black hover:bg-neutral-200 disabled:opacity-30 transition shadow"
           >
             {sending ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-black" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-black dark:text-white" />
             ) : (
-              <Send className="h-3.5 w-3.5 text-black" />
+              <Send className="h-3.5 w-3.5 text-black dark:text-white" />
             )}
           </button>
         </div>
@@ -519,22 +519,22 @@ export function DiscussionComposer({
       {/* In-Chat Image Lightbox Preview Modal for Composer */}
       {previewImage && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 animate-in fade-in duration-150"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black dark:bg-white/85 backdrop-blur-sm p-4 animate-in fade-in duration-150"
           onClick={() => setPreviewImage(null)}
         >
           <div
-            className="relative max-h-[90vh] max-w-[90vw] overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 p-2 shadow-2xl flex flex-col"
+            className="relative max-h-[90vh] max-w-[90vw] overflow-hidden rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-2 shadow-2xl flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between px-3 py-2 border-b border-neutral-800/80 mb-2">
-              <span className="text-xs font-mono font-medium text-neutral-300 truncate max-w-md">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-neutral-800/80 dark:border-neutral-200/80 mb-2">
+              <span className="text-xs font-mono font-medium text-neutral-300 dark:text-neutral-700 truncate max-w-md">
                 {previewImage.name}
               </span>
               <button
                 type="button"
                 onClick={() => setPreviewImage(null)}
-                className="flex h-7 w-7 items-center justify-center rounded-lg bg-neutral-900 text-neutral-400 hover:bg-neutral-800 hover:text-white transition"
+                className="flex h-7 w-7 items-center justify-center rounded-lg bg-neutral-900 dark:bg-neutral-100 text-neutral-400 hover:bg-neutral-800 dark:hover:bg-neutral-200 hover:text-white dark:text-black transition"
                 title="Close preview"
               >
                 <X className="h-4 w-4" />

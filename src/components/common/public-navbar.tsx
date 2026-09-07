@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ArrowRight, Menu, X } from "lucide-react";
 import { Logo } from "./logo";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 interface PublicNavbarProps {
   theme?: "dark" | "light";
@@ -53,8 +54,8 @@ export function PublicNavbar({ theme = "dark", workspaceUrl }: PublicNavbarProps
     <nav
       className={`sticky top-0 z-50 w-full border-b backdrop-blur-md transition-colors ${
         isDark
-          ? "border-neutral-900 bg-black/95 text-white"
-          : "border-neutral-200 bg-white/95 text-black"
+          ? "border-neutral-900 dark:border-neutral-100 bg-black dark:bg-white/95 text-white"
+          : "border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black/95 text-black"
       }`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
@@ -64,7 +65,7 @@ export function PublicNavbar({ theme = "dark", workspaceUrl }: PublicNavbarProps
             <Logo className="h-7 w-7 shrink-0" />
             <span
               className={`text-base font-bold tracking-tight ${
-                isDark ? "text-white" : "text-black"
+                isDark ? "text-white dark:text-black" : "text-black dark:text-white"
               }`}
             >
               Workflow
@@ -85,11 +86,11 @@ export function PublicNavbar({ theme = "dark", workspaceUrl }: PublicNavbarProps
                   className={`transition ${
                     isActive
                       ? isDark
-                        ? "text-white font-semibold"
-                        : "text-black font-semibold"
+                        ? "text-white dark:text-black font-semibold"
+                        : "text-black dark:text-white font-semibold"
                       : isDark
-                      ? "text-neutral-400 hover:text-white"
-                      : "text-neutral-600 hover:text-black"
+                      ? "text-neutral-400 dark:text-neutral-600 hover:text-white dark:text-black"
+                      : "text-neutral-600 dark:text-neutral-400 hover:text-black dark:text-white"
                   }`}
                 >
                   {link.label}
@@ -101,13 +102,16 @@ export function PublicNavbar({ theme = "dark", workspaceUrl }: PublicNavbarProps
 
         {/* Desktop Right CTA Actions */}
         <div className="hidden sm:flex items-center gap-3">
+          <ThemeToggle />
+        </div>
+        <div className="hidden sm:flex items-center gap-3">
           {session?.user ? (
             <Link
               href="/dashboard"
               className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition shadow-sm ${
                 isDark
-                  ? "bg-white text-black hover:bg-neutral-200"
-                  : "bg-black text-white hover:bg-neutral-800"
+                  ? "bg-white dark:bg-black text-black hover:bg-neutral-200"
+                  : "bg-black dark:bg-white text-white hover:bg-neutral-800"
               }`}
             >
               <span>Dashboard</span>
@@ -119,8 +123,8 @@ export function PublicNavbar({ theme = "dark", workspaceUrl }: PublicNavbarProps
                 href="/login"
                 className={`rounded-full px-4 py-2 text-xs font-medium transition ${
                   isDark
-                    ? "text-neutral-300 hover:text-white hover:bg-neutral-900"
-                    : "text-neutral-700 hover:text-black hover:bg-neutral-100"
+                    ? "text-neutral-300 dark:text-neutral-700 hover:text-white dark:text-black hover:bg-neutral-900"
+                    : "text-neutral-700 dark:text-neutral-300 hover:text-black dark:text-white hover:bg-neutral-100"
                 }`}
               >
                 Sign In
@@ -129,8 +133,8 @@ export function PublicNavbar({ theme = "dark", workspaceUrl }: PublicNavbarProps
                 href="/register"
                 className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition shadow-sm ${
                   isDark
-                    ? "bg-white text-black hover:bg-neutral-200"
-                    : "bg-black text-white hover:bg-neutral-800"
+                    ? "bg-white dark:bg-black text-black hover:bg-neutral-200"
+                    : "bg-black dark:bg-white text-white hover:bg-neutral-800"
                 }`}
               >
                 <span>Get Started</span>
@@ -144,7 +148,7 @@ export function PublicNavbar({ theme = "dark", workspaceUrl }: PublicNavbarProps
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className={`sm:hidden p-2 rounded-lg transition ${
-            isDark ? "text-neutral-400 hover:text-white hover:bg-neutral-900" : "text-neutral-600 hover:text-black hover:bg-neutral-100"
+            isDark ? "text-neutral-400 dark:text-neutral-600 hover:text-white dark:text-black hover:bg-neutral-900" : "text-neutral-600 dark:text-neutral-400 hover:text-black dark:text-white hover:bg-neutral-100"
           }`}
           aria-label="Toggle navigation menu"
         >
@@ -157,8 +161,8 @@ export function PublicNavbar({ theme = "dark", workspaceUrl }: PublicNavbarProps
         <div
           className={`sm:hidden border-t px-6 py-4 space-y-3 ${
             isDark
-              ? "border-neutral-900 bg-black text-white"
-              : "border-neutral-200 bg-white text-black"
+              ? "border-neutral-900 dark:border-neutral-100 bg-black dark:bg-white text-white"
+              : "border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black text-black"
           }`}
         >
           <div className="flex flex-col space-y-2">
@@ -168,7 +172,7 @@ export function PublicNavbar({ theme = "dark", workspaceUrl }: PublicNavbarProps
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
                 className={`py-2 text-sm font-medium transition ${
-                  isDark ? "text-neutral-300 hover:text-white" : "text-neutral-700 hover:text-black"
+                  isDark ? "text-neutral-300 dark:text-neutral-700 hover:text-white dark:text-black" : "text-neutral-700 hover:text-black dark:text-white"
                 }`}
               >
                 {link.label}
@@ -176,13 +180,13 @@ export function PublicNavbar({ theme = "dark", workspaceUrl }: PublicNavbarProps
             ))}
           </div>
 
-          <div className="pt-3 border-t border-neutral-800 flex flex-col gap-2">
+          <div className="pt-3 border-t border-neutral-800 dark:border-neutral-200 flex flex-col gap-2">
             {session?.user ? (
               <Link
                 href="/dashboard"
                 onClick={() => setMobileMenuOpen(false)}
                 className={`w-full text-center py-2 text-xs font-bold rounded-lg ${
-                  isDark ? "bg-white text-black" : "bg-black text-white"
+                  isDark ? "bg-white dark:bg-black text-black" : "bg-black text-white dark:text-black"
                 }`}
               >
                 Go to Dashboard
@@ -193,7 +197,7 @@ export function PublicNavbar({ theme = "dark", workspaceUrl }: PublicNavbarProps
                   href="/login"
                   onClick={() => setMobileMenuOpen(false)}
                   className={`w-full text-center py-2 text-xs font-semibold rounded-lg ${
-                    isDark ? "bg-neutral-900 text-white" : "bg-neutral-100 text-black"
+                    isDark ? "bg-neutral-900 dark:bg-neutral-100 text-white dark:text-black" : "bg-neutral-100 text-black dark:text-white"
                   }`}
                 >
                   Sign In
@@ -202,7 +206,7 @@ export function PublicNavbar({ theme = "dark", workspaceUrl }: PublicNavbarProps
                   href="/register"
                   onClick={() => setMobileMenuOpen(false)}
                   className={`w-full text-center py-2 text-xs font-bold rounded-lg ${
-                    isDark ? "bg-white text-black" : "bg-black text-white"
+                    isDark ? "bg-white dark:bg-black text-black" : "bg-black text-white dark:text-black"
                   }`}
                 >
                   Create Account

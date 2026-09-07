@@ -23,16 +23,16 @@ export function BannerDialog({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-3xl overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-2xl">
-        <div className="flex items-center justify-between pb-4 border-b border-neutral-800">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black dark:bg-white/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+      <div className="relative w-full max-w-3xl overflow-hidden rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-6 shadow-2xl">
+        <div className="flex items-center justify-between pb-4 border-b border-neutral-800 dark:border-neutral-200">
           <div className="flex items-center gap-2">
-            <ImageIcon className="h-5 w-5 text-neutral-300" />
-            <h2 className="text-lg font-bold text-white">Project Banners</h2>
+            <ImageIcon className="h-5 w-5 text-neutral-300 dark:text-neutral-700" />
+            <h2 className="text-lg font-bold text-white dark:text-black">Project Banners</h2>
           </div>
           <button
             onClick={onClose}
-            className="cursor-pointer rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+            className="cursor-pointer rounded-lg p-1.5 text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
           >
             <X className="h-5 w-5" />
           </button>

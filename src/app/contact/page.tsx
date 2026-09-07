@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { AnimatedFooter } from "@/components/layout/animated-footer";
 import { PublicNavbar } from "@/components/common/public-navbar";
 import {
   Send,
@@ -52,7 +51,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
+    <div className="min-h-screen bg-black dark:bg-white text-white dark:text-black selection:bg-white dark:selection:bg-black selection:text-black dark:selection:text-white">
       {/* Unified Public Navbar */}
       <PublicNavbar theme="dark" />
 
@@ -62,56 +61,45 @@ export default function ContactPage() {
           {/* Left Column: Pure Black Value Proposition */}
           <div className="lg:col-span-5 space-y-8">
             <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-950 px-3 py-1 text-xs text-neutral-400 font-mono">
-                <Sparkles className="h-3.5 w-3.5 text-white" />
+              <div className="inline-flex items-center gap-2 rounded-full border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-3 py-1 text-xs text-neutral-400 dark:text-neutral-600 font-mono">
+                <Sparkles className="h-3.5 w-3.5 text-white dark:text-black" />
                 <span>Enterprise & Paid Services</span>
               </div>
-              <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+              <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white dark:text-black leading-tight">
                 Let&apos;s build something great together.
               </h1>
-              <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed">
-                Looking for dedicated self-hosted deployment, custom
-                integrations, enterprise SLA, or professional consulting? Start
-                an enquiry below.
+              <p className="text-xs sm:text-sm text-neutral-400 dark:text-neutral-600 leading-relaxed">
+                Looking for dedicated self-hosted deployment, custom integrations, enterprise SLA, or professional consulting? Start an enquiry below.
               </p>
             </div>
 
             <div className="space-y-4 pt-2">
-              <div className="flex items-start gap-3 rounded-xl border border-neutral-900 bg-neutral-950 p-4">
-                <Server className="h-5 w-5 text-white shrink-0 mt-0.5" />
+              <div className="flex items-start gap-3 rounded-xl border border-neutral-900 dark:border-neutral-100 bg-neutral-950 dark:bg-neutral-50 p-4">
+                <Server className="h-5 w-5 text-white dark:text-black shrink-0 mt-0.5" />
                 <div className="space-y-1">
-                  <h3 className="text-xs font-bold text-white">
-                    Dedicated Private Hosting
-                  </h3>
-                  <p className="text-[11px] text-neutral-400">
-                    Deploy Workflow inside your private AWS/GCP VPC or
-                    on-premise infrastructure.
+                  <h3 className="text-xs font-bold text-white dark:text-black">Dedicated Private Hosting</h3>
+                  <p className="text-[11px] text-neutral-400 dark:text-neutral-600">
+                    Deploy Workflow inside your private AWS/GCP VPC or on-premise infrastructure.
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 rounded-xl border border-neutral-900 bg-neutral-950 p-4">
-                <Shield className="h-5 w-5 text-white shrink-0 mt-0.5" />
+              <div className="flex items-start gap-3 rounded-xl border border-neutral-900 dark:border-neutral-100 bg-neutral-950 dark:bg-neutral-50 p-4">
+                <Shield className="h-5 w-5 text-white dark:text-black shrink-0 mt-0.5" />
                 <div className="space-y-1">
-                  <h3 className="text-xs font-bold text-white">
-                    Custom RBAC & SSO (SAML/Okta)
-                  </h3>
-                  <p className="text-[11px] text-neutral-400">
-                    Custom compliance integrations, SOC2 audit assistance, and
-                    enterprise single sign-on.
+                  <h3 className="text-xs font-bold text-white dark:text-black">Custom RBAC & SSO (SAML/Okta)</h3>
+                  <p className="text-[11px] text-neutral-400 dark:text-neutral-600">
+                    Custom compliance integrations, SOC2 audit assistance, and enterprise single sign-on.
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 rounded-xl border border-neutral-900 bg-neutral-950 p-4">
-                <Zap className="h-5 w-5 text-white shrink-0 mt-0.5" />
+              <div className="flex items-start gap-3 rounded-xl border border-neutral-900 dark:border-neutral-100 bg-neutral-950 dark:bg-neutral-50 p-4">
+                <Zap className="h-5 w-5 text-white dark:text-black shrink-0 mt-0.5" />
                 <div className="space-y-1">
-                  <h3 className="text-xs font-bold text-white">
-                    Priority Engineering SLA
-                  </h3>
-                  <p className="text-[11px] text-neutral-400">
-                    Direct access to core engineering support with guaranteed
-                    response times.
+                  <h3 className="text-xs font-bold text-white dark:text-black">Priority Engineering SLA</h3>
+                  <p className="text-[11px] text-neutral-400 dark:text-neutral-600">
+                    Direct access to core engineering support with guaranteed response times.
                   </p>
                 </div>
               </div>
@@ -119,23 +107,22 @@ export default function ContactPage() {
           </div>
 
           {/* Right Column: Pure White Contact Form Card */}
-          <div className="lg:col-span-7 rounded-3xl border border-neutral-800 bg-white p-6 sm:p-10 text-black shadow-2xl">
+          <div className="lg:col-span-7 rounded-3xl border border-neutral-800 dark:border-neutral-200 bg-white dark:bg-black p-6 sm:p-10 text-black shadow-2xl">
             {submitted ? (
               <div className="text-center py-12 space-y-4">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-black text-white shadow-lg">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-black dark:bg-white text-white shadow-lg">
                   <CheckCircle2 className="h-7 w-7" />
                 </div>
-                <h2 className="text-2xl font-bold tracking-tight text-black">
+                <h2 className="text-2xl font-bold tracking-tight text-black dark:text-white">
                   Enquiry Received!
                 </h2>
-                <p className="text-xs sm:text-sm text-neutral-600 max-w-md mx-auto">
-                  Thank you for reaching out. Our engineering team has received
-                  your details and will get back to you within 24 hours.
+                <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 max-w-md mx-auto">
+                  Thank you for reaching out. Our engineering team has received your details and will get back to you within 24 hours.
                 </p>
                 <div className="pt-4">
                   <Link
                     href="/"
-                    className="inline-flex items-center gap-2 rounded-xl bg-black px-6 py-2.5 text-xs font-bold text-white shadow hover:bg-neutral-800 transition"
+                    className="inline-flex items-center gap-2 rounded-xl bg-black dark:bg-white px-6 py-2.5 text-xs font-bold text-white dark:text-black shadow hover:bg-neutral-800 transition"
                   >
                     <span>Return to Home</span>
                   </Link>
@@ -143,13 +130,12 @@ export default function ContactPage() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="space-y-1 border-b border-neutral-200 pb-4">
-                  <h2 className="text-xl font-bold text-black">
+                <div className="space-y-1 border-b border-neutral-200 dark:border-neutral-800 pb-4">
+                  <h2 className="text-xl font-bold text-black dark:text-white">
                     Start an Enterprise Enquiry
                   </h2>
-                  <p className="text-xs text-neutral-500">
-                    Fill out the details below and we&apos;ll get back to you
-                    shortly.
+                  <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                    Fill out the details below and we&apos;ll get back to you shortly.
                   </p>
                 </div>
 
@@ -163,34 +149,34 @@ export default function ContactPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Name */}
                   <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-700">
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
                       Your Name *
                     </label>
                     <div className="relative mt-1">
-                      <User className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
+                      <User className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400 dark:text-neutral-600" />
                       <input
                         type="text"
                         name="name"
                         required
                         placeholder="Nithin"
-                        className="w-full rounded-lg border border-neutral-300 bg-white py-2 pl-9 pr-3 text-xs text-black placeholder:text-neutral-400 focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                        className="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black py-2 pl-9 pr-3 text-xs text-black dark:text-white placeholder:text-neutral-400 focus:border-black dark:border-white focus:outline-none focus:ring-1 focus:ring-black"
                       />
                     </div>
                   </div>
 
                   {/* Email */}
                   <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-700">
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
                       Work Email *
                     </label>
                     <div className="relative mt-1">
-                      <Mail className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
+                      <Mail className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400 dark:text-neutral-600" />
                       <input
                         type="email"
                         name="email"
                         required
                         placeholder="nithin@company.com"
-                        className="w-full rounded-lg border border-neutral-300 bg-white py-2 pl-9 pr-3 text-xs text-black placeholder:text-neutral-400 focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                        className="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black py-2 pl-9 pr-3 text-xs text-black dark:text-white placeholder:text-neutral-400 focus:border-black dark:border-white focus:outline-none focus:ring-1 focus:ring-black"
                       />
                     </div>
                   </div>
@@ -199,47 +185,39 @@ export default function ContactPage() {
                 {/* Company & Service Type */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-700">
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
                       Company / Organization
                     </label>
                     <div className="relative mt-1">
-                      <Building className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
+                      <Building className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400 dark:text-neutral-600" />
                       <input
                         type="text"
                         name="company"
                         placeholder="Acme Corp"
-                        className="w-full rounded-lg border border-neutral-300 bg-white py-2 pl-9 pr-3 text-xs text-black placeholder:text-neutral-400 focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                        className="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black py-2 pl-9 pr-3 text-xs text-black dark:text-white placeholder:text-neutral-400 focus:border-black dark:border-white focus:outline-none focus:ring-1 focus:ring-black"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-700">
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
                       Service Type
                     </label>
                     <select
                       name="service_type"
-                      className="mt-1 w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-black focus:border-black focus:outline-none"
+                      className="mt-1 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black px-3 py-2 text-xs font-semibold text-black dark:text-white focus:border-black focus:outline-none"
                     >
-                      <option value="Paid Dedicated Hosting">
-                        Dedicated Private Cloud / On-Prem
-                      </option>
-                      <option value="Custom Engineering & Integrations">
-                        Custom Engineering & Integrations
-                      </option>
-                      <option value="Enterprise SLA & Priority Support">
-                        Enterprise SLA & Priority Support
-                      </option>
-                      <option value="General Paid Inquiry">
-                        General Paid Inquiry
-                      </option>
+                      <option value="Paid Dedicated Hosting">Dedicated Private Cloud / On-Prem</option>
+                      <option value="Custom Engineering & Integrations">Custom Engineering & Integrations</option>
+                      <option value="Enterprise SLA & Priority Support">Enterprise SLA & Priority Support</option>
+                      <option value="General Paid Inquiry">General Paid Inquiry</option>
                     </select>
                   </div>
                 </div>
 
                 {/* Message */}
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-700">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
                     Project Requirements / Message *
                   </label>
                   <div className="relative mt-1">
@@ -248,7 +226,7 @@ export default function ContactPage() {
                       required
                       rows={4}
                       placeholder="Tell us about your team size, infrastructure requirements, and timeline..."
-                      className="w-full rounded-lg border border-neutral-300 bg-white p-3 text-xs text-black placeholder:text-neutral-400 focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                      className="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black p-3 text-xs text-black placeholder:text-neutral-400 focus:border-black dark:border-white focus:outline-none focus:ring-1 focus:ring-black"
                     />
                   </div>
                 </div>
@@ -256,14 +234,10 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-black px-6 py-3.5 text-xs font-bold text-white shadow-xl hover:bg-neutral-800 transition disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-black dark:bg-white px-6 py-3.5 text-xs font-bold text-white dark:text-black shadow-xl hover:bg-neutral-800 transition disabled:opacity-50"
                 >
                   <Send className="h-4 w-4" />
-                  <span>
-                    {submitting
-                      ? "Sending Enquiry..."
-                      : "Submit Enterprise Enquiry"}
-                  </span>
+                  <span>{submitting ? "Sending Enquiry..." : "Submit Enterprise Enquiry"}</span>
                 </button>
               </form>
             )}
@@ -272,7 +246,32 @@ export default function ContactPage() {
       </div>
 
       {/* Footer */}
-      <AnimatedFooter />
+      <footer className="border-t border-neutral-900 dark:border-neutral-100 bg-black dark:bg-white px-6 py-12 text-white">
+        <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-white dark:bg-black text-black font-black text-xs">
+              W
+            </div>
+            <span className="text-sm font-bold text-white dark:text-black">Workflow</span>
+            <span className="text-xs text-neutral-500 dark:text-neutral-500">© 2026. Built with Next.js & PostgreSQL.</span>
+          </div>
+
+          <div className="flex items-center gap-6 text-xs text-neutral-400 dark:text-neutral-600 font-medium">
+            <Link href="/" className="hover:text-white dark:text-black transition">
+              Home
+            </Link>
+            <Link href="/how-it-works" className="hover:text-white dark:text-black transition">
+              How It Works
+            </Link>
+            <Link href="/login" className="hover:text-white dark:text-black transition">
+              Sign In
+            </Link>
+            <Link href="/register" className="hover:text-white dark:text-black transition font-bold text-white dark:text-black">
+              Create Account
+            </Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

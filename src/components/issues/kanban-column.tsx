@@ -83,12 +83,12 @@ export function KanbanColumn({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className={`flex h-full min-w-[280px] max-w-[320px] flex-1 flex-col rounded-2xl bg-neutral-950 p-3.5 border transition-all duration-200 select-none ${
+      className={`flex h-full min-w-[280px] max-w-[320px] flex-1 flex-col rounded-2xl bg-neutral-950 dark:bg-neutral-50 p-3.5 border transition-all duration-200 select-none ${
         isColumnDragOver
-          ? "border-blue-500 bg-neutral-900/90 shadow-[0_0_20px_rgba(59,130,246,0.3)] ring-2 ring-blue-500/50"
+          ? "border-blue-500 bg-neutral-900/90 dark:bg-neutral-100/90 shadow-[0_0_20px_rgba(59,130,246,0.3)] ring-2 ring-blue-500/50"
           : isCardOver
-          ? "border-neutral-500 bg-neutral-900/50"
-          : "border-neutral-800 shadow-xl"
+          ? "border-neutral-500 dark:border-neutral-500 bg-neutral-900/50 dark:bg-neutral-100/50"
+          : "border-neutral-800 dark:border-neutral-200 shadow-xl"
       }`}
     >
       {/* Column Header */}
@@ -104,7 +104,7 @@ export function KanbanColumn({
                 onColumnDragStart(e, columnId);
               }}
               title="Drag to reorder column"
-              className="cursor-grab active:cursor-grabbing text-neutral-600 hover:text-neutral-300 p-0.5 rounded transition hover:bg-neutral-900"
+              className="cursor-grab active:cursor-grabbing text-neutral-600 dark:text-neutral-400 hover:text-neutral-300 p-0.5 rounded transition hover:bg-neutral-900 dark:hover:bg-neutral-100"
             >
               <GripVertical className="h-3.5 w-3.5" />
             </div>
@@ -114,10 +114,10 @@ export function KanbanColumn({
             className="h-2.5 w-2.5 rounded-full shrink-0"
             style={{ backgroundColor: color }}
           />
-          <h3 className="text-xs font-bold uppercase tracking-wider text-white truncate max-w-[130px]">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-white dark:text-black truncate max-w-[130px]">
             {label}
           </h3>
-          <span className="rounded-full bg-neutral-900 border border-neutral-800 px-2 py-0.5 text-[10px] font-bold text-neutral-300 font-mono">
+          <span className="rounded-full bg-neutral-900 dark:bg-neutral-100 border border-neutral-800 px-2 py-0.5 text-[10px] font-bold text-neutral-300 dark:text-neutral-700 font-mono">
             {issues.length}
           </span>
         </div>
@@ -127,7 +127,7 @@ export function KanbanColumn({
             <button
               onClick={onEditColumn}
               title="Edit column"
-              className="rounded-lg p-1 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+              className="rounded-lg p-1 text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
             >
               <MoreHorizontal className="h-3.5 w-3.5" />
             </button>
@@ -136,7 +136,7 @@ export function KanbanColumn({
           <button
             onClick={() => onAddIssue(id)}
             title={`Add issue to ${label}`}
-            className="rounded-lg p-1 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+            className="rounded-lg p-1 text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
           >
             <Plus className="h-4 w-4" />
           </button>
@@ -166,7 +166,7 @@ export function KanbanColumn({
         )}
 
         {issues.length === 0 && !isCardOver && (
-          <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-neutral-800 p-4 text-center text-xs text-neutral-500">
+          <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-neutral-800 dark:border-neutral-200 p-4 text-center text-xs text-neutral-500 dark:text-neutral-500">
             No issues in {label}
           </div>
         )}

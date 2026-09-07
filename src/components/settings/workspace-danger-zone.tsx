@@ -98,12 +98,12 @@ export function WorkspaceDangerZone({
     <div className="space-y-6">
       {/* Rename Workspace (Owners & Admins) */}
       {isAdmin && (
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-lg">
-          <h2 className="text-sm font-bold text-white flex items-center gap-2">
-            <Edit3 className="h-4 w-4 text-neutral-400" />
+        <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-6 shadow-lg">
+          <h2 className="text-sm font-bold text-white dark:text-black flex items-center gap-2">
+            <Edit3 className="h-4 w-4 text-neutral-400 dark:text-neutral-600" />
             <span>Rename Workspace</span>
           </h2>
-          <p className="text-xs text-neutral-400 mt-1">
+          <p className="text-xs text-neutral-400 dark:text-neutral-600 mt-1">
             Change the display name of your team workspace.
           </p>
 
@@ -112,12 +112,12 @@ export function WorkspaceDangerZone({
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full sm:w-80 rounded-xl border border-neutral-800 bg-black px-3.5 py-2 text-xs font-semibold text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+              className="w-full sm:w-80 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white px-3.5 py-2 text-xs font-semibold text-white dark:text-black placeholder:text-neutral-500 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none"
             />
             <button
               type="submit"
               disabled={renaming || name === initialWorkspaceName || !name.trim()}
-              className="flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-xs font-bold text-black hover:bg-neutral-200 transition disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-xl bg-white dark:bg-black px-4 py-2 text-xs font-bold text-black dark:text-white hover:bg-neutral-200 transition disabled:opacity-50"
             >
               {renaming ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Save Name"}
             </button>
@@ -126,7 +126,7 @@ export function WorkspaceDangerZone({
       )}
 
       {/* Danger Zone Box */}
-      <div className="rounded-2xl border border-rose-950 bg-neutral-950 p-6 shadow-lg">
+      <div className="rounded-2xl border border-rose-950 bg-neutral-950 dark:bg-neutral-50 p-6 shadow-lg">
         <div className="flex items-center gap-2 text-rose-500">
           <AlertTriangle className="h-4 w-4" />
           <h2 className="text-sm font-bold uppercase tracking-wider font-mono">
@@ -150,15 +150,15 @@ export function WorkspaceDangerZone({
           {/* Leave Workspace */}
           <div className="flex flex-wrap items-center justify-between gap-4 py-4">
             <div>
-              <h3 className="text-xs font-bold text-white">Leave Workspace</h3>
-              <p className="text-[11px] text-neutral-400">
+              <h3 className="text-xs font-bold text-white dark:text-black">Leave Workspace</h3>
+              <p className="text-[11px] text-neutral-400 dark:text-neutral-600">
                 Revoke your access to this workspace and its projects.
               </p>
             </div>
             <button
               onClick={handleLeave}
               disabled={leaving}
-              className="flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-900 px-3.5 py-2 text-xs font-bold text-neutral-300 hover:border-rose-900 hover:bg-rose-950/40 hover:text-rose-400 transition disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-3.5 py-2 text-xs font-bold text-neutral-300 dark:text-neutral-700 hover:border-rose-900 hover:bg-rose-950/40 hover:text-rose-400 transition disabled:opacity-50"
             >
               <LogOut className="h-3.5 w-3.5" />
               <span>{leaving ? "Leaving..." : "Leave Workspace"}</span>
@@ -170,14 +170,14 @@ export function WorkspaceDangerZone({
             <div className="flex flex-wrap items-center justify-between gap-4 pt-4">
               <div>
                 <h3 className="text-xs font-bold text-rose-400">Delete this workspace</h3>
-                <p className="text-[11px] text-neutral-500">
+                <p className="text-[11px] text-neutral-500 dark:text-neutral-500">
                   Permanently remove this workspace, its projects, and all contained issues.
                 </p>
               </div>
               <button
                 onClick={handleDelete}
                 disabled={deleting}
-                className="flex items-center gap-1.5 rounded-xl bg-rose-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-rose-700 transition disabled:opacity-50 shadow-lg shadow-rose-950"
+                className="flex items-center gap-1.5 rounded-xl bg-rose-600 px-3.5 py-2 text-xs font-bold text-white dark:text-black hover:bg-rose-700 transition disabled:opacity-50 shadow-lg shadow-rose-950"
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 <span>{deleting ? "Deleting..." : "Delete Workspace"}</span>

@@ -59,21 +59,21 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex min-h-screen w-full flex-col lg:flex-row bg-white">
+    <div className="flex min-h-screen w-full flex-col lg:flex-row bg-white dark:bg-black">
       {/* Left Column: Pure Black Branding & Showcase */}
-      <div className="flex flex-col justify-between bg-black p-8 sm:p-12 text-white border-b lg:border-b-0 lg:border-r border-neutral-800 lg:w-1/2">
+      <div className="flex flex-col justify-between bg-black dark:bg-white p-8 sm:p-12 text-white border-b lg:border-b-0 lg:border-r border-neutral-800 dark:border-neutral-200 lg:w-1/2">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white text-black font-black text-xs">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white dark:bg-black text-black font-black text-xs">
               W
             </div>
-            <span className="text-base font-bold tracking-tight text-white">Workflow</span>
+            <span className="text-base font-bold tracking-tight text-white dark:text-black">Workflow</span>
           </Link>
 
           {/* Back to Home Button */}
           <Link
             href="/"
-            className="flex items-center gap-1.5 rounded-full border border-neutral-800 bg-neutral-950 px-3.5 py-1.5 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:bg-neutral-900 hover:text-white transition"
+            className="flex items-center gap-1.5 rounded-full border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-3.5 py-1.5 text-xs font-semibold text-neutral-300 dark:text-neutral-700 hover:border-neutral-700 hover:bg-neutral-900 dark:hover:bg-neutral-100 hover:text-white dark:text-black transition"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>Back to Home</span>
@@ -81,43 +81,43 @@ function LoginForm() {
         </div>
 
         <div className="my-10 lg:my-auto space-y-6 max-w-md">
-          <div className="inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-950 px-3 py-1 text-[11px] text-neutral-400 font-mono">
+          <div className="inline-flex items-center gap-2 rounded-full border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-3 py-1 text-[11px] text-neutral-400 dark:text-neutral-600 font-mono">
             <span>Engineering Workspace</span>
           </div>
 
-          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white dark:text-black leading-tight">
             High-velocity project management for engineering teams.
           </h2>
 
-          <div className="space-y-3 text-xs text-neutral-400">
+          <div className="space-y-3 text-xs text-neutral-400 dark:text-neutral-600">
             <div className="flex items-center gap-2.5">
-              <CheckCircle2 className="h-4 w-4 text-white shrink-0" />
+              <CheckCircle2 className="h-4 w-4 text-white dark:text-black shrink-0" />
               <span>Instant drag-and-drop Kanban with fractional indexing</span>
             </div>
             <div className="flex items-center gap-2.5">
-              <CheckCircle2 className="h-4 w-4 text-white shrink-0" />
+              <CheckCircle2 className="h-4 w-4 text-white dark:text-black shrink-0" />
               <span>Keyboard-first Command Palette (⌘K)</span>
             </div>
             <div className="flex items-center gap-2.5">
-              <CheckCircle2 className="h-4 w-4 text-white shrink-0" />
+              <CheckCircle2 className="h-4 w-4 text-white dark:text-black shrink-0" />
               <span>Multi-tenant workspaces & granular RBAC</span>
             </div>
           </div>
         </div>
 
-        <div className="hidden lg:block text-xs text-neutral-500 font-mono">
+        <div className="hidden lg:block text-xs text-neutral-500 dark:text-neutral-500 font-mono">
           © 2026 Workflow. Built with Next.js & PostgreSQL.
         </div>
       </div>
 
       {/* Right Column: Pure White Auth Form */}
-      <div className="flex flex-1 items-center justify-center bg-white p-6 sm:p-12 text-black">
+      <div className="flex flex-1 items-center justify-center bg-white dark:bg-black p-6 sm:p-12 text-black">
         <div className="w-full max-w-md space-y-6">
           <div className="space-y-2">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-black">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-black dark:text-white">
               Sign in to your account
             </h1>
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-neutral-500 dark:text-neutral-500">
               Welcome back. Enter your credentials or continue with OAuth.
             </p>
           </div>
@@ -133,7 +133,7 @@ function LoginForm() {
           <div className="space-y-2.5">
             <button
               onClick={() => handleOAuthLogin("google")}
-              className="flex w-full items-center justify-center gap-3 rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-xs font-semibold text-neutral-800 shadow-sm transition hover:bg-neutral-50 hover:border-neutral-400"
+              className="flex w-full items-center justify-center gap-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black px-4 py-2.5 text-xs font-semibold text-neutral-800 dark:text-neutral-200 shadow-sm transition hover:bg-neutral-50 dark:hover:bg-neutral-950 hover:border-neutral-400"
             >
               <svg className="h-4 w-4" viewBox="0 0 24 24">
                 <path
@@ -158,7 +158,7 @@ function LoginForm() {
 
             <button
               onClick={() => handleOAuthLogin("github")}
-              className="flex w-full items-center justify-center gap-3 rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-xs font-semibold text-neutral-800 shadow-sm transition hover:bg-neutral-50 hover:border-neutral-400"
+              className="flex w-full items-center justify-center gap-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black px-4 py-2.5 text-xs font-semibold text-neutral-800 dark:text-neutral-200 shadow-sm transition hover:bg-neutral-50 dark:hover:bg-neutral-950 hover:border-neutral-400"
             >
               <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                 <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
@@ -168,17 +168,17 @@ function LoginForm() {
           </div>
 
           <div className="relative flex items-center justify-center">
-            <div className="w-full border-t border-neutral-200" />
-            <span className="bg-white px-3 text-[11px] uppercase tracking-wider text-neutral-400 font-medium">
+            <div className="w-full border-t border-neutral-200 dark:border-neutral-800" />
+            <span className="bg-white dark:bg-black px-3 text-[11px] uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-medium">
               or with email
             </span>
-            <div className="w-full border-t border-neutral-200" />
+            <div className="w-full border-t border-neutral-200 dark:border-neutral-800" />
           </div>
 
           {/* Credentials Form */}
           <form onSubmit={handleCredentialsLogin} className="space-y-4">
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-600">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-600 dark:text-neutral-400">
                 Email
               </label>
               <input
@@ -187,12 +187,12 @@ function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@company.com"
-                className="mt-1 w-full rounded-lg border border-neutral-300 bg-white px-3.5 py-2.5 text-xs text-black placeholder:text-neutral-400 focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                className="mt-1 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black px-3.5 py-2.5 text-xs text-black dark:text-white placeholder:text-neutral-400 focus:border-black dark:border-white focus:outline-none focus:ring-1 focus:ring-black"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-600">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-600 dark:text-neutral-400">
                 Password
               </label>
               <input
@@ -201,22 +201,22 @@ function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="mt-1 w-full rounded-lg border border-neutral-300 bg-white px-3.5 py-2.5 text-xs text-black placeholder:text-neutral-400 focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                className="mt-1 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black px-3.5 py-2.5 text-xs text-black dark:text-white placeholder:text-neutral-400 focus:border-black dark:border-white focus:outline-none focus:ring-1 focus:ring-black"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-black px-4 py-2.5 text-xs font-bold text-white transition hover:bg-neutral-800 disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-black dark:bg-white px-4 py-2.5 text-xs font-bold text-white dark:text-black transition hover:bg-neutral-800 disabled:opacity-50"
             >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign in to Workflow"}
             </button>
           </form>
 
-          <p className="text-center text-xs text-neutral-500">
+          <p className="text-center text-xs text-neutral-500 dark:text-neutral-500">
             Don&apos;t have an account?{" "}
-            <Link href="/register" className="font-bold text-black underline underline-offset-4">
+            <Link href="/register" className="font-bold text-black dark:text-white underline underline-offset-4">
               Create an account
             </Link>
           </p>

@@ -100,22 +100,22 @@ export function EditColumnDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-2xl text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black dark:bg-white/80 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-6 shadow-2xl text-white dark:text-black">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-neutral-900 pb-4">
+        <div className="flex items-center justify-between border-b border-neutral-900 dark:border-neutral-100 pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-900 text-white font-bold border border-neutral-800">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-900 dark:bg-neutral-100 text-white dark:text-black font-bold border border-neutral-800 dark:border-neutral-200">
               <Settings className="h-4 w-4" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white">Edit Column</h3>
-              <p className="text-xs text-neutral-400 font-mono">{column.key}</p>
+              <h3 className="text-base font-bold text-white dark:text-black">Edit Column</h3>
+              <p className="text-xs text-neutral-400 dark:text-neutral-600 font-mono">{column.key}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="cursor-pointer rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+            className="cursor-pointer rounded-lg p-1.5 text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
           >
             <X className="h-4 w-4" />
           </button>
@@ -129,7 +129,7 @@ export function EditColumnDialog({
 
         <form onSubmit={handleUpdate} className="mt-4 space-y-4">
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono mb-1.5">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono mb-1.5">
               Column Title
             </label>
             <input
@@ -138,12 +138,12 @@ export function EditColumnDialog({
               maxLength={30}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl border border-neutral-800 bg-black px-3.5 py-2.5 text-sm font-medium text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+              className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white px-3.5 py-2.5 text-sm font-medium text-white dark:text-black placeholder:text-neutral-500 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono mb-2">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono mb-2">
               Color Tag
             </label>
             <div className="flex items-center gap-2.5">
@@ -153,7 +153,7 @@ export function EditColumnDialog({
                   type="button"
                   onClick={() => setColor(c)}
                   className={`cursor-pointer h-7 w-7 rounded-full border-2 transition transform active:scale-95 ${
-                    color === c ? "border-white scale-110 shadow-md" : "border-transparent opacity-70 hover:opacity-100"
+                    color === c ? "border-white dark:border-black scale-110 shadow-md" : "border-transparent opacity-70 hover:opacity-100"
                   }`}
                   style={{ backgroundColor: c }}
                 />
@@ -161,7 +161,7 @@ export function EditColumnDialog({
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-4 border-t border-neutral-900">
+          <div className="flex items-center justify-between pt-4 border-t border-neutral-900 dark:border-neutral-100">
             <button
               type="button"
               onClick={handleDelete}
@@ -176,14 +176,14 @@ export function EditColumnDialog({
               <button
                 type="button"
                 onClick={onClose}
-                className="cursor-pointer rounded-xl px-4 py-2 text-xs font-semibold text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+                className="cursor-pointer rounded-xl px-4 py-2 text-xs font-semibold text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading || deleting || !name.trim()}
-                className="cursor-pointer flex items-center gap-2 rounded-xl bg-white px-5 py-2 text-xs font-bold text-black shadow-lg hover:bg-neutral-200 transition disabled:opacity-50"
+                className="cursor-pointer flex items-center gap-2 rounded-xl bg-white dark:bg-black px-5 py-2 text-xs font-bold text-black dark:text-white shadow-lg hover:bg-neutral-200 transition disabled:opacity-50"
               >
                 {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Save Changes"}
               </button>

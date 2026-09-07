@@ -58,7 +58,7 @@ export function BannerCarousel({ banners, canEdit = false, workspaceId, projectI
 
   return (
     <div
-      className="group relative overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 shadow-lg"
+      className="group relative overflow-hidden rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 shadow-lg"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
@@ -79,7 +79,7 @@ export function BannerCarousel({ banners, canEdit = false, workspaceId, projectI
                 onClick={() => handleDelete(b.id)}
                 disabled={busy === b.id}
                 title="Remove banner image"
-                className="absolute right-2 top-12 flex h-7 w-7 items-center justify-center rounded-lg bg-black/70 text-white hover:bg-rose-600 transition"
+                className="absolute right-2 top-12 flex h-7 w-7 items-center justify-center rounded-lg bg-black dark:bg-white/70 text-white hover:bg-rose-600 transition"
               >
                 {busy === b.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
               </button>
@@ -94,14 +94,14 @@ export function BannerCarousel({ banners, canEdit = false, workspaceId, projectI
           <button
             onClick={() => setIndex((i) => (i - 1 + banners.length) % banners.length)}
             title="Previous"
-            className="absolute left-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white opacity-0 transition group-hover:opacity-100 hover:bg-black/80"
+            className="absolute left-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black dark:bg-white/50 text-white opacity-0 transition group-hover:opacity-100 hover:bg-black dark:bg-white/80"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
           <button
             onClick={() => setIndex((i) => (i + 1) % banners.length)}
             title="Next"
-            className="absolute right-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white opacity-0 transition group-hover:opacity-100 hover:bg-black/80"
+            className="absolute right-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black dark:bg-white/50 text-white opacity-0 transition group-hover:opacity-100 hover:bg-black dark:bg-white/80"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -111,7 +111,7 @@ export function BannerCarousel({ banners, canEdit = false, workspaceId, projectI
                 key={b.id}
                 onClick={() => setIndex(i)}
                 className={`h-1.5 rounded-full transition-all ${
-                  i === current ? "w-4 bg-white" : "w-1.5 bg-white/40 hover:bg-white/70"
+                  i === current ? "w-4 bg-white dark:bg-black" : "w-1.5 bg-white dark:bg-black/40 hover:bg-white dark:bg-black/70"
                 }`}
               />
             ))}
@@ -126,7 +126,7 @@ export function BannerCarousel({ banners, canEdit = false, workspaceId, projectI
             <button
               onClick={() => setEditing(true)}
               title="Manage banner images"
-              className="flex h-7 w-7 items-center justify-center rounded-lg bg-black/70 text-white hover:bg-black/90 transition"
+              className="flex h-7 w-7 items-center justify-center rounded-lg bg-black dark:bg-white/70 text-white hover:bg-black dark:bg-white/90 transition"
             >
               <Pencil className="h-3.5 w-3.5" />
             </button>
@@ -135,7 +135,7 @@ export function BannerCarousel({ banners, canEdit = false, workspaceId, projectI
               <button
                 onClick={() => setAdding((a) => !a)}
                 title="Add image by URL"
-                className="flex items-center gap-1 rounded-lg bg-black/70 px-2 text-[11px] font-bold text-white hover:bg-black/90 transition"
+                className="flex items-center gap-1 rounded-lg bg-black dark:bg-white/70 px-2 text-[11px] font-bold text-white dark:text-black hover:bg-black dark:bg-white/90 transition"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Add
@@ -143,7 +143,7 @@ export function BannerCarousel({ banners, canEdit = false, workspaceId, projectI
               <button
                 onClick={() => setEditing(false)}
                 title="Done"
-                className="flex h-7 items-center rounded-lg bg-white px-2 text-[11px] font-bold text-black hover:bg-neutral-200 transition"
+                className="flex h-7 items-center rounded-lg bg-white dark:bg-black px-2 text-[11px] font-bold text-black dark:text-white hover:bg-neutral-200 transition"
               >
                 Done
               </button>
@@ -153,18 +153,18 @@ export function BannerCarousel({ banners, canEdit = false, workspaceId, projectI
       )}
 
       {editing && adding && (
-        <div className="absolute inset-x-0 bottom-0 flex gap-2 border-t border-neutral-800 bg-black/80 p-2 backdrop-blur-sm">
+        <div className="absolute inset-x-0 bottom-0 flex gap-2 border-t border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white/80 p-2 backdrop-blur-sm">
           <input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAdd()}
             placeholder="https://... image URL"
-            className="flex-1 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-500 focus:outline-none"
+            className="flex-1 rounded-lg border border-neutral-700 dark:border-neutral-300 bg-neutral-900 dark:bg-neutral-100 px-3 py-1.5 text-xs text-white dark:text-black placeholder:text-neutral-500 focus:border-neutral-500 dark:focus:border-neutral-500 focus:outline-none"
           />
           <button
             onClick={handleAdd}
             disabled={busy === "add"}
-            className="flex items-center gap-1 rounded-lg bg-white px-3 text-xs font-bold text-black hover:bg-neutral-200 transition"
+            className="flex items-center gap-1 rounded-lg bg-white dark:bg-black px-3 text-xs font-bold text-black dark:text-white hover:bg-neutral-200 transition"
           >
             {busy === "add" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
             Add

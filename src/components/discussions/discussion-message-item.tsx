@@ -138,15 +138,15 @@ export function DiscussionMessageItem({
 
   return (
     <div
-      className={`group relative flex gap-3 px-4 py-2.5 hover:bg-neutral-900/40 rounded-xl transition-colors ${
-        showEmojiPicker ? "z-30 bg-neutral-900/40" : "z-0"
+      className={`group relative flex gap-3 px-4 py-2.5 hover:bg-neutral-900/40 dark:hover:bg-neutral-100/40 rounded-xl transition-colors ${
+        showEmojiPicker ? "z-30 bg-neutral-900/40 dark:bg-neutral-100/40" : "z-0"
       }`}
     >
       {/* Floating Action Bar */}
       <div
         className={`absolute right-4 top-2 ${
           showEmojiPicker ? "inline-flex opacity-100" : "hidden group-hover:inline-flex"
-        } flex-row flex-nowrap items-center gap-1 rounded-xl border border-neutral-800 bg-neutral-950 px-1.5 py-1 shadow-2xl z-30 transition-opacity duration-150 whitespace-nowrap`}
+        } flex-row flex-nowrap items-center gap-1 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-1.5 py-1 shadow-2xl z-30 transition-opacity duration-150 whitespace-nowrap`}
       >
         {/* Quick Reaction Bar */}
         <div className="relative inline-flex">
@@ -157,7 +157,7 @@ export function DiscussionMessageItem({
               setShowEmojiPicker((prev) => !prev);
             }}
             className={`flex h-7 w-7 items-center justify-center rounded-lg transition shrink-0 ${
-              showEmojiPicker ? "bg-neutral-800 text-white" : "text-neutral-400 hover:bg-neutral-800 hover:text-white"
+              showEmojiPicker ? "bg-neutral-800 dark:bg-neutral-200 text-white dark:text-black" : "text-neutral-400 hover:bg-neutral-800 dark:hover:bg-neutral-200 hover:text-white dark:text-black"
             }`}
             title="Add reaction"
           >
@@ -175,7 +175,7 @@ export function DiscussionMessageItem({
                 }}
               />
               <div
-                className="absolute right-0 top-full mt-1 flex flex-row items-center gap-1 rounded-xl border border-neutral-800 bg-neutral-900 p-1.5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-100"
+                className="absolute right-0 top-full mt-1 flex flex-row items-center gap-1 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 p-1.5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-100"
                 onClick={(e) => e.stopPropagation()}
               >
                 {COMMON_EMOJIS.map((emoji) => (
@@ -186,7 +186,7 @@ export function DiscussionMessageItem({
                       e.stopPropagation();
                       handleToggleReaction(emoji);
                     }}
-                    className="rounded-lg p-1.5 text-base hover:bg-neutral-800 hover:scale-125 transition cursor-pointer shrink-0"
+                    className="rounded-lg p-1.5 text-base hover:bg-neutral-800 dark:hover:bg-neutral-200 hover:scale-125 transition cursor-pointer shrink-0"
                   >
                     {emoji}
                   </button>
@@ -201,7 +201,7 @@ export function DiscussionMessageItem({
           <button
             type="button"
             onClick={() => onOpenThread(message.id)}
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-neutral-400 hover:bg-neutral-800 hover:text-white transition shrink-0"
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-neutral-400 dark:text-neutral-600 hover:bg-neutral-800 hover:text-white dark:text-black transition shrink-0"
             title="Reply in thread"
           >
             <MessageSquare className="h-3.5 w-3.5" />
@@ -213,7 +213,7 @@ export function DiscussionMessageItem({
           <button
             type="button"
             onClick={() => onCreateIssue(message)}
-            className="inline-flex items-center gap-1.5 rounded-lg px-2 h-7 text-xs font-semibold text-neutral-300 hover:bg-neutral-800 hover:text-white transition shrink-0 whitespace-nowrap"
+            className="inline-flex items-center gap-1.5 rounded-lg px-2 h-7 text-xs font-semibold text-neutral-300 dark:text-neutral-700 hover:bg-neutral-800 hover:text-white dark:text-black transition shrink-0 whitespace-nowrap"
             title="Create tracked Issue from this message"
           >
             <Sparkles className="h-3 w-3 text-amber-400 shrink-0" />
@@ -228,10 +228,10 @@ export function DiscussionMessageItem({
           <img
             src={message.author.image}
             alt={message.author.name || "User"}
-            className="h-8 w-8 rounded-xl object-cover border border-neutral-800"
+            className="h-8 w-8 rounded-xl object-cover border border-neutral-800 dark:border-neutral-200"
           />
         ) : (
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-neutral-800 border border-neutral-700/60 font-bold font-mono text-xs text-white">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-neutral-800 dark:bg-neutral-200 border border-neutral-700/60 font-bold font-mono text-xs text-white dark:text-black">
             {authorInitial}
           </div>
         )}
@@ -240,14 +240,14 @@ export function DiscussionMessageItem({
       {/* Message Body & Metadata */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-white truncate">
+          <span className="text-xs font-bold text-white dark:text-black truncate">
             {message.author.name || message.author.email?.split("@")[0] || "Anonymous"}
           </span>
-          <span className="text-[10px] text-neutral-500 font-mono">{formattedDate}</span>
+          <span className="text-[10px] text-neutral-500 dark:text-neutral-500 font-mono">{formattedDate}</span>
         </div>
 
         {/* Content */}
-        <div className="mt-1 text-neutral-200">
+        <div className="mt-1 text-neutral-200 dark:text-neutral-800">
           <Markdown content={message.content} onSelectIssue={onSelectIssue} />
         </div>
 
@@ -264,7 +264,7 @@ export function DiscussionMessageItem({
                       key={att.id || idx}
                       type="button"
                       onClick={() => setPreviewImage({ url: att.fileUrl, name: att.fileName })}
-                      className="group/img relative block overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 transition hover:border-neutral-600 max-h-72 max-w-sm cursor-zoom-in text-left"
+                      className="group/img relative block overflow-hidden rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 transition hover:border-neutral-600 dark:hover:border-neutral-400 max-h-72 max-w-sm cursor-zoom-in text-left"
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
@@ -274,8 +274,8 @@ export function DiscussionMessageItem({
                         loading="lazy"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover/img:opacity-100 transition flex items-end justify-between p-2">
-                        <span className="text-[10px] text-white font-mono truncate">{att.fileName}</span>
-                        <span className="text-[9px] text-neutral-300 font-mono bg-black/60 px-1.5 py-0.5 rounded">Preview</span>
+                        <span className="text-[10px] text-white dark:text-black font-mono truncate">{att.fileName}</span>
+                        <span className="text-[9px] text-neutral-300 dark:text-neutral-700 font-mono bg-black dark:bg-white/60 px-1.5 py-0.5 rounded">Preview</span>
                       </div>
                     </button>
                   ))}
@@ -293,14 +293,14 @@ export function DiscussionMessageItem({
                       href={att.fileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 rounded-xl border border-neutral-800 bg-neutral-900/80 px-3 py-1.5 text-xs text-neutral-300 hover:border-neutral-700 hover:text-white transition"
+                      className="flex items-center gap-2 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900/80 dark:bg-neutral-100/80 px-3 py-1.5 text-xs text-neutral-300 dark:text-neutral-700 hover:border-neutral-700 hover:text-white dark:text-black transition"
                     >
-                      <Paperclip className="h-3.5 w-3.5 text-neutral-400" />
+                      <Paperclip className="h-3.5 w-3.5 text-neutral-400 dark:text-neutral-600" />
                       <span className="truncate max-w-[200px]">{att.fileName}</span>
-                      <span className="text-[10px] text-neutral-500 font-mono">
+                      <span className="text-[10px] text-neutral-500 dark:text-neutral-500 font-mono">
                         ({Math.round(att.fileSize / 1024)} KB)
                       </span>
-                      <ExternalLink className="h-3 w-3 text-neutral-500" />
+                      <ExternalLink className="h-3 w-3 text-neutral-500 dark:text-neutral-500" />
                     </a>
                   ))}
               </div>
@@ -319,7 +319,7 @@ export function DiscussionMessageItem({
                   key={link.id}
                   type="button"
                   onClick={() => onSelectIssue && onSelectIssue(issue.id)}
-                  className="group/card relative flex items-center gap-2 rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-xs shadow-sm hover:border-neutral-600 hover:bg-neutral-900 transition text-left cursor-pointer"
+                  className="group/card relative flex items-center gap-2 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-3 py-1.5 text-xs shadow-sm hover:border-neutral-600 dark:hover:border-neutral-400 hover:bg-neutral-900 dark:hover:bg-neutral-100 transition text-left cursor-pointer"
                   title={`Click to view issue: ${issue.projectKey}-${issue.issueNumber} - ${issue.title}`}
                 >
                   <div className="flex items-center gap-1.5 text-amber-400 font-mono font-bold text-[11px]">
@@ -328,7 +328,7 @@ export function DiscussionMessageItem({
                       {issue.projectKey}-{issue.issueNumber}
                     </span>
                   </div>
-                  <span className="text-white font-medium truncate max-w-[220px]">
+                  <span className="text-white dark:text-black font-medium truncate max-w-[220px]">
                     {issue.title}
                   </span>
                   <span
@@ -340,7 +340,7 @@ export function DiscussionMessageItem({
                   >
                     {issue.status.replace("_", " ")}
                   </span>
-                  <ExternalLink className="h-3 w-3 text-neutral-500 group-hover/card:text-white transition shrink-0 ml-0.5" />
+                  <ExternalLink className="h-3 w-3 text-neutral-500 dark:text-neutral-500 group-hover/card:text-white dark:text-black transition shrink-0 ml-0.5" />
                 </button>
               );
             })}
@@ -356,8 +356,8 @@ export function DiscussionMessageItem({
                 onClick={() => handleToggleReaction(rg.emoji)}
                 className={`flex items-center gap-1.5 rounded-lg border px-2 py-0.5 text-xs transition ${
                   rg.hasReacted
-                    ? "border-neutral-600 bg-neutral-800 text-white font-semibold"
-                    : "border-neutral-800/80 bg-neutral-900/60 text-neutral-400 hover:border-neutral-700"
+                    ? "border-neutral-600 dark:border-neutral-400 bg-neutral-800 dark:bg-neutral-200 text-white dark:text-black font-semibold"
+                    : "border-neutral-800/80 dark:border-neutral-200/80 bg-neutral-900/60 dark:bg-neutral-100/60 text-neutral-400 hover:border-neutral-700 dark:hover:border-neutral-300"
                 }`}
                 title={rg.userNames.length > 0 ? rg.userNames.join(", ") : undefined}
               >
@@ -373,7 +373,7 @@ export function DiscussionMessageItem({
                   e.stopPropagation();
                   setShowEmojiPicker((prev) => !prev);
                 }}
-                className="flex h-6 w-6 items-center justify-center rounded-lg border border-dashed border-neutral-800 text-neutral-500 hover:border-neutral-700 hover:text-neutral-300 transition"
+                className="flex h-6 w-6 items-center justify-center rounded-lg border border-dashed border-neutral-800 dark:border-neutral-200 text-neutral-500 dark:text-neutral-500 hover:border-neutral-700 hover:text-neutral-300 dark:hover:text-neutral-700 transition"
                 title="Add reaction"
               >
                 <Plus className="h-3 w-3" />
@@ -386,13 +386,13 @@ export function DiscussionMessageItem({
         {!isThreadView && message.replyCount && message.replyCount > 0 && onOpenThread ? (
           <button
             onClick={() => onOpenThread(message.id)}
-            className="mt-2 flex items-center gap-2 rounded-xl bg-neutral-900/80 border border-neutral-800/60 px-3 py-1 text-xs text-neutral-300 hover:bg-neutral-800 hover:text-white transition group/reply"
+            className="mt-2 flex items-center gap-2 rounded-xl bg-neutral-900/80 dark:bg-neutral-100/80 border border-neutral-800/60 px-3 py-1 text-xs text-neutral-300 dark:text-neutral-700 hover:bg-neutral-800 hover:text-white dark:text-black transition group/reply"
           >
-            <MessageSquare className="h-3.5 w-3.5 text-neutral-400 group-hover/reply:text-white" />
-            <span className="font-semibold text-white">{message.replyCount}</span>
+            <MessageSquare className="h-3.5 w-3.5 text-neutral-400 dark:text-neutral-600 group-hover/reply:text-white dark:text-black" />
+            <span className="font-semibold text-white dark:text-black">{message.replyCount}</span>
             <span>{message.replyCount === 1 ? "reply" : "replies"}</span>
             {message.lastReplyAt && (
-              <span className="text-[10px] text-neutral-500 font-mono">
+              <span className="text-[10px] text-neutral-500 dark:text-neutral-500 font-mono">
                 • last reply {new Date(message.lastReplyAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
               </span>
             )}
@@ -403,23 +403,23 @@ export function DiscussionMessageItem({
       {/* In-Chat Image Lightbox Modal */}
       {previewImage && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 animate-in fade-in duration-150"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black dark:bg-white/85 backdrop-blur-sm p-4 animate-in fade-in duration-150"
           onClick={() => setPreviewImage(null)}
         >
           <div
-            className="relative max-h-[90vh] max-w-[90vw] overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 p-2 shadow-2xl flex flex-col"
+            className="relative max-h-[90vh] max-w-[90vw] overflow-hidden rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-2 shadow-2xl flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between px-3 py-2 border-b border-neutral-800/80 mb-2">
-              <span className="text-xs font-mono font-medium text-neutral-300 truncate max-w-md">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-neutral-800/80 dark:border-neutral-200/80 mb-2">
+              <span className="text-xs font-mono font-medium text-neutral-300 dark:text-neutral-700 truncate max-w-md">
                 {previewImage.name}
               </span>
               <div className="flex items-center gap-2">
                 <a
                   href={previewImage.url}
                   download={previewImage.name}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg bg-neutral-900 text-neutral-400 hover:bg-neutral-800 hover:text-white transition"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg bg-neutral-900 dark:bg-neutral-100 text-neutral-400 hover:bg-neutral-800 dark:hover:bg-neutral-200 hover:text-white dark:text-black transition"
                   title="Download image"
                 >
                   <Download className="h-3.5 w-3.5" />
@@ -427,7 +427,7 @@ export function DiscussionMessageItem({
                 <button
                   type="button"
                   onClick={() => setPreviewImage(null)}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg bg-neutral-900 text-neutral-400 hover:bg-neutral-800 hover:text-white transition"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg bg-neutral-900 dark:bg-neutral-100 text-neutral-400 hover:bg-neutral-800 dark:hover:bg-neutral-200 hover:text-white dark:text-black transition"
                   title="Close preview"
                 >
                   <X className="h-4 w-4" />

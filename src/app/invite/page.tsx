@@ -42,26 +42,26 @@ export default async function InvitePage({ searchParams }: InvitePageProps) {
   const currentEmail = user?.email ?? null;
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-white p-6 text-black">
-      <div className="w-full max-w-md rounded-2xl border border-neutral-200 bg-white p-8 shadow-sm">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-white dark:bg-black p-6 text-black">
+      <div className="w-full max-w-md rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black p-8 shadow-sm">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-black text-white text-xs font-black">W</div>
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-black dark:bg-white text-white text-xs font-black">W</div>
           <span className="text-sm font-bold tracking-tight">Workflow</span>
         </div>
 
-        <h1 className="mt-6 text-xl font-bold text-black">
-          {inviterName} invited you to <span className="text-black">{invite.workspace.name}</span>
+        <h1 className="mt-6 text-xl font-bold text-black dark:text-white">
+          {inviterName} invited you to <span className="text-black dark:text-white">{invite.workspace.name}</span>
         </h1>
-        <p className="mt-2 text-sm text-neutral-500">
-          Join as a <span className="font-bold text-neutral-800">{roleLabel(invite.role)}</span> and
+        <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
+          Join as a <span className="font-bold text-neutral-800 dark:text-neutral-200">{roleLabel(invite.role)}</span> and
           start collaborating on boards, issues, and sprints.
         </p>
 
-        <div className="mt-5 rounded-xl border border-neutral-200 bg-neutral-50 p-4 text-sm">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono">
+        <div className="mt-5 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 p-4 text-sm">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono">
             Invited email
           </div>
-          <div className="mt-0.5 font-semibold text-black">{invite.email}</div>
+          <div className="mt-0.5 font-semibold text-black dark:text-white">{invite.email}</div>
         </div>
 
         <InviteActions
@@ -76,7 +76,7 @@ export default async function InvitePage({ searchParams }: InvitePageProps) {
           base={base}
         />
 
-        <p className="mt-6 text-center text-[11px] text-neutral-400">
+        <p className="mt-6 text-center text-[11px] text-neutral-400 dark:text-neutral-600">
           Invitation expires {invite.expiresAt.toDateString()} · Sent by {inviterName}
         </p>
       </div>
@@ -86,10 +86,10 @@ export default async function InvitePage({ searchParams }: InvitePageProps) {
 
 function State({ title, message }: { title: string; message: string }) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-white p-6 text-black">
-      <div className="w-full max-w-md rounded-2xl border border-neutral-200 bg-white p-8 text-center shadow-sm">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-white dark:bg-black p-6 text-black">
+      <div className="w-full max-w-md rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black p-8 text-center shadow-sm">
         <h1 className="text-lg font-bold">{title}</h1>
-        <p className="mt-2 text-sm text-neutral-500">{message}</p>
+        <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">{message}</p>
       </div>
     </div>
   );

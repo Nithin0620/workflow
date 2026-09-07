@@ -48,7 +48,7 @@ export function AttachmentGrid({
     <div className={`grid gap-2 ${compact ? "grid-cols-4 sm:grid-cols-6" : "grid-cols-2 sm:grid-cols-3"}`}>
       {attachments.map((att) =>
         isImage(att) ? (
-          <div key={att.id} className={`group relative overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900 ${compact ? "h-14 w-14" : "h-24"}`}>
+          <div key={att.id} className={`group relative overflow-hidden rounded-lg border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 ${compact ? "h-14 w-14" : "h-24"}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={att.fileUrl}
@@ -59,7 +59,7 @@ export function AttachmentGrid({
             <button
               onClick={() => onDelete(att.id)}
               title="Delete attachment"
-              className="absolute inset-0 flex items-center justify-center bg-black/70 opacity-0 transition group-hover:opacity-100"
+              className="absolute inset-0 flex items-center justify-center bg-black dark:bg-white/70 opacity-0 transition group-hover:opacity-100"
             >
               <Trash2 className="h-4 w-4 text-rose-400" />
             </button>
@@ -67,32 +67,32 @@ export function AttachmentGrid({
         ) : (
           <div
             key={att.id}
-            className={`group relative flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900 py-2 pl-2 pr-1 ${compact ? "h-14 w-14 !p-0" : ""}`}
+            className={`group relative flex items-center gap-2 rounded-lg border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 py-2 pl-2 pr-1 ${compact ? "h-14 w-14 !p-0" : ""}`}
           >
             {compact ? (
               <div className="flex h-full w-full items-center justify-center">
-                <span className="text-[9px] font-bold uppercase text-neutral-400">{att.fileType.split("/")[1] || "FILE"}</span>
+                <span className="text-[9px] font-bold uppercase text-neutral-400 dark:text-neutral-600">{att.fileType.split("/")[1] || "FILE"}</span>
                 <button
                   onClick={() => onDelete(att.id)}
                   title="Delete attachment"
-                  className="absolute inset-0 flex items-center justify-center bg-black/70 opacity-0 transition group-hover:opacity-100"
+                  className="absolute inset-0 flex items-center justify-center bg-black dark:bg-white/70 opacity-0 transition group-hover:opacity-100"
                 >
                   <Trash2 className="h-4 w-4 text-rose-400" />
                 </button>
               </div>
             ) : (
               <>
-                <Paperclip className="h-4 w-4 shrink-0 text-neutral-400" />
+                <Paperclip className="h-4 w-4 shrink-0 text-neutral-400 dark:text-neutral-600" />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-xs font-semibold text-neutral-200" title={att.fileName}>
+                  <p className="truncate text-xs font-semibold text-neutral-200 dark:text-neutral-800" title={att.fileName}>
                     {att.fileName}
                   </p>
-                  <p className="text-[11px] text-neutral-500">{formatFileSize(att.fileSize)}</p>
+                  <p className="text-[11px] text-neutral-500 dark:text-neutral-500">{formatFileSize(att.fileSize)}</p>
                 </div>
                 <button
                   onClick={() => onDelete(att.id)}
                   title="Delete attachment"
-                  className="rounded p-1 text-neutral-500 transition hover:bg-neutral-800 hover:text-rose-400"
+                  className="rounded p-1 text-neutral-500 dark:text-neutral-500 transition hover:bg-neutral-800 dark:hover:bg-neutral-200 hover:text-rose-400"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
@@ -146,7 +146,7 @@ export function AttachmentSection({ issueId, attachments, onAdded, onDeleted, co
 
   return (
     <div className="space-y-2">
-      <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono">
+      <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono">
         {title}
       </label>
 
@@ -166,8 +166,8 @@ export function AttachmentSection({ issueId, attachments, onAdded, onDeleted, co
         onClick={() => inputRef.current?.click()}
         className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed px-3 py-2.5 text-xs font-semibold transition ${
           dragging
-            ? "border-white bg-neutral-800 text-white"
-            : "border-neutral-800 bg-neutral-900/40 text-neutral-400 hover:border-neutral-600 hover:text-neutral-200"
+            ? "border-white dark:border-black bg-neutral-800 text-white dark:text-black"
+            : "border-neutral-800 dark:border-neutral-200 bg-neutral-900/40 dark:bg-neutral-100/40 text-neutral-400 hover:border-neutral-600 dark:hover:border-neutral-400 hover:text-neutral-200 dark:hover:text-neutral-800"
         }`}
       >
         {uploading ? (

@@ -38,13 +38,13 @@ export default async function ProjectsPage({ params }: ProjectsPageProps) {
   if (!workspace) return null;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 text-white">
-      <div className="flex items-center justify-between border-b border-neutral-900 pb-4">
+    <div className="max-w-6xl mx-auto space-y-6 text-white dark:text-black">
+      <div className="flex items-center justify-between border-b border-neutral-900 dark:border-neutral-100 pb-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-white">
+          <h1 className="text-xl font-bold tracking-tight text-white dark:text-black">
             Projects
           </h1>
-          <p className="text-xs text-neutral-400 mt-0.5">
+          <p className="text-xs text-neutral-400 dark:text-neutral-600 mt-0.5">
             Manage codebases, roadmaps, and teams in {workspace.name}
           </p>
         </div>
@@ -55,36 +55,36 @@ export default async function ProjectsPage({ params }: ProjectsPageProps) {
           <Link
             key={p.id}
             href={`/${orgSlug}/${workspaceSlug}/projects/${p.key}/board`}
-            className="group flex flex-col justify-between rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-lg transition hover:border-neutral-600 hover:bg-neutral-900"
+            className="group flex flex-col justify-between rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-6 shadow-lg transition hover:border-neutral-600 dark:hover:border-neutral-400 hover:bg-neutral-900 dark:hover:bg-neutral-100"
           >
             <div>
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <div
-                    className="flex h-9 w-9 items-center justify-center rounded-xl font-black text-black bg-white text-xs shadow"
+                    className="flex h-9 w-9 items-center justify-center rounded-xl font-black text-black dark:text-white bg-white dark:bg-black text-xs shadow"
                   >
                     {p.key.slice(0, 2)}
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-white group-hover:text-neutral-200 transition-colors">
+                    <h3 className="text-sm font-bold text-white dark:text-black group-hover:text-neutral-200 transition-colors">
                       {p.name}
                     </h3>
-                    <span className="font-mono text-xs text-neutral-500">{p.key}</span>
+                    <span className="font-mono text-xs text-neutral-500 dark:text-neutral-500">{p.key}</span>
                   </div>
                 </div>
-                <ArrowUpRight className="h-4 w-4 text-neutral-500 group-hover:text-white transition" />
+                <ArrowUpRight className="h-4 w-4 text-neutral-500 dark:text-neutral-500 group-hover:text-white dark:text-black transition" />
               </div>
 
-              <p className="mt-4 text-xs text-neutral-400 line-clamp-2 leading-relaxed">
+              <p className="mt-4 text-xs text-neutral-400 dark:text-neutral-600 line-clamp-2 leading-relaxed">
                 {p.description || "No description provided."}
               </p>
 
               <BannerStrip imageUrls={p.banners.map((b) => b.imageUrl)} className="mt-4" />
             </div>
 
-            <div className="mt-6 flex items-center justify-between border-t border-neutral-900 pt-3 text-xs text-neutral-400">
+            <div className="mt-6 flex items-center justify-between border-t border-neutral-900 dark:border-neutral-100 pt-3 text-xs text-neutral-400 dark:text-neutral-600">
               <span>{p._count.issues} active issues</span>
-              <span className="text-white font-semibold group-hover:underline">Kanban Board →</span>
+              <span className="text-white dark:text-black font-semibold group-hover:underline">Kanban Board →</span>
             </div>
           </Link>
         ))}

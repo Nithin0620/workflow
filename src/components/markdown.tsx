@@ -29,9 +29,9 @@ export function renderInline(
     if (m.index > last) nodes.push(<Fragment key={key++}>{esc(src.slice(last, m.index))}</Fragment>);
     const [full, code, b1, b2, i1, i2, linkText, linkUrl, issueTag] = m;
     if (code) {
-      nodes.push(<code key={key++} className="rounded bg-neutral-800 px-1 py-0.5 font-mono text-[0.9em] text-emerald-300">{esc(code)}</code>);
+      nodes.push(<code key={key++} className="rounded bg-neutral-800 dark:bg-neutral-200 px-1 py-0.5 font-mono text-[0.9em] text-emerald-300">{esc(code)}</code>);
     } else if (b1 || b2) {
-      nodes.push(<strong key={key++} className="font-bold text-white">{esc(b1 || b2)}</strong>);
+      nodes.push(<strong key={key++} className="font-bold text-white dark:text-black">{esc(b1 || b2)}</strong>);
     } else if (i1 || i2) {
       nodes.push(<em key={key++}>{esc(i1 || i2)}</em>);
     } else if (linkText && linkUrl) {
@@ -127,8 +127,8 @@ export function Markdown({ content, className = "", onSelectIssue }: MarkdownPro
       const code = lines.slice(i + 1, endIdx).join("\n");
       if (code) {
         blocks.push(
-          <pre key={nextKey()} className="overflow-x-auto rounded-lg border border-neutral-800 bg-neutral-950 p-3 font-mono text-[0.85em] leading-relaxed">
-            <code className="text-neutral-200">{esc(code)}</code>
+          <pre key={nextKey()} className="overflow-x-auto rounded-lg border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-3 font-mono text-[0.85em] leading-relaxed">
+            <code className="text-neutral-200 dark:text-neutral-800">{esc(code)}</code>
           </pre>
         );
       }
@@ -141,11 +141,11 @@ export function Markdown({ content, className = "", onSelectIssue }: MarkdownPro
     if (h) {
       flushBlock();
       const level = Math.min(h[1].length, 6);
-      const cls = "mt-3 font-bold text-white text-base first:mt-0";
+      const cls = "mt-3 font-bold text-white dark:text-black text-base first:mt-0";
       if (level === 1) blocks.push(<h1 key={nextKey()} className={cls + " text-xl"}>{renderInline(h[2], onSelectIssue)}</h1>);
       else if (level === 2) blocks.push(<h2 key={nextKey()} className={cls + " text-lg"}>{renderInline(h[2], onSelectIssue)}</h2>);
       else if (level === 3) blocks.push(<h3 key={nextKey()} className={cls}>{renderInline(h[2], onSelectIssue)}</h3>);
-      else blocks.push(<h4 key={nextKey()} className="mt-2 font-bold text-white text-sm">{renderInline(h[2], onSelectIssue)}</h4>);
+      else blocks.push(<h4 key={nextKey()} className="mt-2 font-bold text-white dark:text-black text-sm">{renderInline(h[2], onSelectIssue)}</h4>);
       continue;
     }
 

@@ -23,15 +23,15 @@ export function AnimatedSaasObjects() {
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="absolute top-[15%] left-[5%] sm:left-[10%] rounded-xl border border-neutral-800 bg-neutral-900/60 p-3 shadow-xl backdrop-blur-md w-40"
+          className="absolute top-[15%] left-[5%] sm:left-[10%] rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900/60 dark:bg-neutral-100/60 p-3 shadow-xl backdrop-blur-md w-40"
         >
           <div className="flex items-center gap-2 mb-2">
             <Kanban className="w-3 h-3 text-blue-400" />
-            <span className="text-[10px] font-mono text-neutral-400 font-semibold">T-101</span>
+            <span className="text-[10px] font-mono text-neutral-400 dark:text-neutral-600 font-semibold">T-101</span>
           </div>
-          <div className="h-2 w-full bg-neutral-700 rounded-full mb-1"></div>
-          <motion.div animate={{ width: ["0%", "66%", "66%", "0%"] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="h-2 bg-neutral-700 rounded-full mb-2" />
-          <div className="flex justify-between items-center mt-2 border-t border-neutral-800 pt-2">
+          <div className="h-2 w-full bg-neutral-700 dark:bg-neutral-300 rounded-full mb-1"></div>
+          <motion.div animate={{ width: ["0%", "66%", "66%", "0%"] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="h-2 bg-neutral-700 dark:bg-neutral-300 rounded-full mb-2" />
+          <div className="flex justify-between items-center mt-2 border-t border-neutral-800 dark:border-neutral-200 pt-2">
             <div className="h-4 w-4 rounded-full bg-blue-500/20 flex items-center justify-center">
               <div className="h-2 w-2 rounded-full bg-blue-500"></div>
             </div>
@@ -53,10 +53,10 @@ export function AnimatedSaasObjects() {
             ease: "easeInOut",
             delay: 1,
           }}
-          className="absolute top-[20%] right-[5%] sm:right-[15%] rounded-xl border border-neutral-800 bg-neutral-900/60 p-3 shadow-xl backdrop-blur-md w-36"
+          className="absolute top-[20%] right-[5%] sm:right-[15%] rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900/60 dark:bg-neutral-100/60 p-3 shadow-xl backdrop-blur-md w-36"
         >
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-bold text-neutral-300">Velocity</span>
+            <span className="text-[10px] font-bold text-neutral-300 dark:text-neutral-700">Velocity</span>
             <BarChart3 className="w-3 h-3 text-purple-400" />
           </div>
           <div className="flex items-end gap-1.5 h-10">
@@ -82,17 +82,17 @@ export function AnimatedSaasObjects() {
             ease: "easeInOut",
             delay: 2,
           }}
-          className="absolute bottom-[20%] left-[2%] sm:left-[15%] rounded-lg border border-neutral-800 bg-black p-3 shadow-2xl w-48"
+          className="absolute bottom-[20%] left-[2%] sm:left-[15%] rounded-lg border border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white p-3 shadow-2xl w-48"
         >
-          <div className="flex items-center gap-1.5 mb-2 border-b border-neutral-800 pb-2">
+          <div className="flex items-center gap-1.5 mb-2 border-b border-neutral-800 dark:border-neutral-200 pb-2">
             <div className="h-2 w-2 rounded-full bg-red-500"></div>
             <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
             <div className="h-2 w-2 rounded-full bg-green-500"></div>
-            <Terminal className="w-3 h-3 text-neutral-500 ml-auto" />
+            <Terminal className="w-3 h-3 text-neutral-500 dark:text-neutral-500 ml-auto" />
           </div>
           <div className="space-y-1">
-            <motion.div animate={{ opacity: [0, 1, 1, 1], display: ["none", "block", "block", "none"] }} transition={{ duration: 4, repeat: Infinity, times: [0, 0.1, 0.9, 1] }} className="text-[10px] font-mono text-pink-400">const<span className="text-neutral-300"> sprint = </span><span className="text-blue-300">useSprint();</span></motion.div>
-            <motion.div animate={{ opacity: [0, 1, 1, 1], display: ["none", "none", "block", "none"] }} transition={{ duration: 4, repeat: Infinity, times: [0, 0.4, 0.5, 1] }} className="text-[10px] font-mono text-neutral-300">await sprint.ship();</motion.div>
+            <motion.div animate={{ opacity: [0, 1, 1, 1], display: ["none", "block", "block", "none"] }} transition={{ duration: 4, repeat: Infinity, times: [0, 0.1, 0.9, 1] }} className="text-[10px] font-mono text-pink-400">const<span className="text-neutral-300 dark:text-neutral-700"> sprint = </span><span className="text-blue-300">useSprint();</span></motion.div>
+            <motion.div animate={{ opacity: [0, 1, 1, 1], display: ["none", "none", "block", "none"] }} transition={{ duration: 4, repeat: Infinity, times: [0, 0.4, 0.5, 1] }} className="text-[10px] font-mono text-neutral-300 dark:text-neutral-700">await sprint.ship();</motion.div>
             <motion.div animate={{ opacity: [0, 1, 1, 1], display: ["none", "none", "block", "none"] }} transition={{ duration: 4, repeat: Infinity, times: [0, 0.7, 0.8, 1] }} className="text-[10px] font-mono text-emerald-400">&gt; Deployed successfully 🚀</motion.div>
           </div>
         </motion.div>
@@ -112,7 +112,7 @@ export function AnimatedSaasObjects() {
           }}
           className="absolute bottom-[25%] right-[8%] sm:right-[20%] flex flex-col items-center gap-1"
         >
-          <div className="rounded-full border border-neutral-700 bg-neutral-900/80 p-2 shadow-lg backdrop-blur-md">
+          <div className="rounded-full border border-neutral-700 dark:border-neutral-300 bg-neutral-900/80 dark:bg-neutral-100/80 p-2 shadow-lg backdrop-blur-md">
             <Database className="w-5 h-5 text-emerald-500" />
           </div>
           <div className="rounded-full bg-emerald-500/20 px-2 py-0.5 border border-emerald-500/30">
@@ -137,10 +137,10 @@ export function AnimatedSaasObjects() {
             ease: "easeInOut",
             delay: 3,
           }}
-          className="absolute top-[35%] left-[25%] rounded-full border border-neutral-700 bg-neutral-800/80 px-3 py-1.5 shadow-lg backdrop-blur-md flex items-center gap-2"
+          className="absolute top-[35%] left-[25%] rounded-full border border-neutral-700 dark:border-neutral-300 bg-neutral-800/80 dark:bg-neutral-200/80 px-3 py-1.5 shadow-lg backdrop-blur-md flex items-center gap-2"
         >
-          <MessageSquare className="w-3 h-3 text-neutral-300" />
-          <span className="text-[10px] font-medium text-white">@jules assigned you a task</span>
+          <MessageSquare className="w-3 h-3 text-neutral-300 dark:text-neutral-700" />
+          <span className="text-[10px] font-medium text-white dark:text-black">@jules assigned you a task</span>
         </motion.div>
 
       </div>
