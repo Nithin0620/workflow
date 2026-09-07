@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { DiscussionMessageItem } from "@/components/discussions/discussion-message-item";
 import { DiscussionComposer } from "@/components/discussions/discussion-composer";
 
@@ -73,9 +73,11 @@ describe("Discussions UI Components", () => {
     expect((textarea as HTMLTextAreaElement).value).toBe("Hello team!");
 
     fireEvent.keyDown(textarea, { key: "Enter", shiftKey: false });
-    expect(handleSend).toHaveBeenCalledWith({
-      content: "Hello team!",
-      attachments: undefined,
+    await waitFor(() => {
+      expect(handleSend).toHaveBeenCalledWith({
+        content: "Hello team!",
+        attachments: undefined,
+      });
     });
   });
 });
