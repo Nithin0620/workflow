@@ -5,7 +5,6 @@ import { getActiveDiscussionsOverview } from "@/actions/discussions";
 import { prisma } from "@/lib/db/prisma";
 import { DashboardView } from "@/components/dashboard/dashboard-view";
 import { OnboardingTour } from "@/components/onboarding/onboarding-tour";
-import { AnimatedFooter } from "@/components/layout/animated-footer";
 
 export const metadata = {
   title: "Dashboard & Workspaces — Workflow",
@@ -62,7 +61,6 @@ export default async function DashboardPage() {
         activeDiscussions={discussionsData.channels}
       />
       <OnboardingTour tourId="dashboard" />
-      <AnimatedFooter />
     </>
   );
 }

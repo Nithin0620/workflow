@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { SessionProvider } from "@/components/common/session-provider";
 import { SmoothScrollProvider } from "@/components/common/smooth-scroll-provider";
 import { ThemeProvider } from "@/components/theme/theme-provider";
-import { ThemeProvider } from "@/components/theme/theme-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -20,9 +19,7 @@ export default function RootLayout({
       <body className="h-full antialiased bg-white dark:bg-black text-neutral-900 dark:text-neutral-100">
         <SessionProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
             <SmoothScrollProvider>{children}</SmoothScrollProvider>
-          </ThemeProvider>
           </ThemeProvider>
         </SessionProvider>
       </body>

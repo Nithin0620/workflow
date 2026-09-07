@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { CommandPalette } from "./command-palette";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { NotificationCenter } from "../notifications/notification-center";
 import { Search, LogOut } from "lucide-react";
 
@@ -56,6 +57,9 @@ export function Header({
         <NotificationCenter />
 
         <div className="mr-2 border-r border-neutral-800 dark:border-neutral-200 pr-2">
+            <ThemeToggle />
+          </div>
+          <div className="mr-2 border-r border-neutral-800 dark:border-neutral-200 pr-2">
             <ThemeToggle />
           </div>
           <div className="mr-2 border-r border-neutral-800 dark:border-neutral-200 pr-2">
