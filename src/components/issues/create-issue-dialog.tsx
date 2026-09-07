@@ -116,23 +116,23 @@ export function CreateIssueDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md">
-      <div className="w-full max-w-xl rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-2xl text-white">
-        <div className="flex items-center justify-between border-b border-neutral-900 pb-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black dark:bg-white/75 p-4 backdrop-blur-md">
+      <div className="w-full max-w-xl rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-6 shadow-2xl text-white dark:text-black">
+        <div className="flex items-center justify-between border-b border-neutral-900 dark:border-neutral-100 pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-black font-bold">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white dark:bg-black text-black font-bold">
               <PlusCircle className="h-4 w-4" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white">
+              <h3 className="text-base font-bold text-white dark:text-black">
                 New Issue
               </h3>
-              <span className="text-xs text-neutral-400 font-mono">in {projectKey}</span>
+              <span className="text-xs text-neutral-400 dark:text-neutral-600 font-mono">in {projectKey}</span>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="cursor-pointer rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+            className="cursor-pointer rounded-lg p-1.5 text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
           >
             <X className="h-4 w-4" />
           </button>
@@ -153,7 +153,7 @@ export function CreateIssueDialog({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Issue title (e.g. Add Razorpay payment gateway)"
-              className="w-full rounded-xl border border-neutral-800 bg-black px-3.5 py-2.5 text-sm font-medium text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+              className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white px-3.5 py-2.5 text-sm font-medium text-white dark:text-black placeholder:text-neutral-500 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none"
             />
           </div>
 
@@ -163,23 +163,23 @@ export function CreateIssueDialog({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add a description, acceptance criteria, or context (Markdown supported)..."
-              className="w-full rounded-xl border border-neutral-800 bg-black p-3 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+              className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white p-3 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {/* Status Picker */}
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono mb-1">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono mb-1">
                 List / Column
               </label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-full rounded-xl border border-neutral-800 bg-black px-3 py-2 text-xs text-white focus:border-neutral-600 focus:outline-none"
+                className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white px-3 py-2 text-xs text-white dark:text-black focus:border-neutral-600 focus:outline-none"
               >
                 {statusOptions.map((s) => (
-                  <option key={s.id} value={s.id} className="bg-black text-white">
+                  <option key={s.id} value={s.id} className="bg-black dark:bg-white text-white">
                     {s.label}
                   </option>
                 ))}
@@ -188,16 +188,16 @@ export function CreateIssueDialog({
 
             {/* Priority Picker */}
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono mb-1">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono mb-1">
                 Priority
               </label>
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as typeof priority)}
-                className="w-full rounded-xl border border-neutral-800 bg-black px-3 py-2 text-xs text-white focus:border-neutral-600 focus:outline-none"
+                className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white px-3 py-2 text-xs text-white dark:text-black focus:border-neutral-600 focus:outline-none"
               >
                 {ISSUE_PRIORITIES.map((p) => (
-                  <option key={p.id} value={p.id} className="bg-black text-white">
+                  <option key={p.id} value={p.id} className="bg-black dark:bg-white text-white">
                     {p.label}
                   </option>
                 ))}
@@ -206,7 +206,7 @@ export function CreateIssueDialog({
 
             {/* Story Points / Estimate */}
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono mb-1">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono mb-1">
                 Story Points
               </label>
               <input
@@ -216,7 +216,7 @@ export function CreateIssueDialog({
                 value={estimate}
                 onChange={(e) => setEstimate(e.target.value === "" ? "" : Number(e.target.value))}
                 placeholder="Pts (e.g. 5)"
-                className="w-full rounded-xl border border-neutral-800 bg-black px-3 py-2 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none font-mono"
+                className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white px-3 py-2 text-xs text-white dark:text-black placeholder:text-neutral-500 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none font-mono"
               />
             </div>
           </div>
@@ -232,12 +232,12 @@ export function CreateIssueDialog({
                       <img
                         src={meta.fileUrl}
                         alt={meta.fileName}
-                        className="h-12 w-12 rounded-lg border border-neutral-800 object-cover"
+                        className="h-12 w-12 rounded-lg border border-neutral-800 dark:border-neutral-200 object-cover"
                       />
                       <button
                         type="button"
                         onClick={() => setPendingUploads((prev) => prev.filter((_, i) => i !== idx))}
-                        className="cursor-pointer absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-700 text-white hover:bg-rose-600"
+                        className="cursor-pointer absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-700 dark:bg-neutral-300 text-white dark:text-black hover:bg-rose-600"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -245,14 +245,14 @@ export function CreateIssueDialog({
                   ) : (
                     <span
                       key={idx}
-                      className="flex items-center gap-1.5 rounded-lg border border-neutral-800 bg-neutral-900 px-2 py-1 text-[11px] text-neutral-300"
+                      className="flex items-center gap-1.5 rounded-lg border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-2 py-1 text-[11px] text-neutral-300 dark:text-neutral-700"
                     >
-                      <Paperclip className="h-3 w-3 text-neutral-400" />
+                      <Paperclip className="h-3 w-3 text-neutral-400 dark:text-neutral-600" />
                       <span className="max-w-[120px] truncate">{meta.fileName}</span>
                       <button
                         type="button"
                         onClick={() => setPendingUploads((prev) => prev.filter((_, i) => i !== idx))}
-                        className="cursor-pointer text-neutral-500 hover:text-rose-400"
+                        className="cursor-pointer text-neutral-500 dark:text-neutral-500 hover:text-rose-400"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -276,8 +276,8 @@ export function CreateIssueDialog({
               onClick={() => inputRef.current?.click()}
               className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed px-3 py-2.5 text-xs font-semibold transition ${
                 dragging
-                  ? "border-white bg-neutral-800 text-white"
-                  : "border-neutral-800 bg-neutral-900/40 text-neutral-400 hover:border-neutral-600 hover:text-neutral-200"
+                  ? "border-white dark:border-black bg-neutral-800 text-white dark:text-black"
+                  : "border-neutral-800 dark:border-neutral-200 bg-neutral-900/40 dark:bg-neutral-100/40 text-neutral-400 hover:border-neutral-600 dark:hover:border-neutral-400 hover:text-neutral-200 dark:hover:text-neutral-800"
               }`}
             >
               {uploading ? (
@@ -301,18 +301,18 @@ export function CreateIssueDialog({
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-neutral-900">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-neutral-900 dark:border-neutral-100">
             <button
               type="button"
               onClick={onClose}
-              className="cursor-pointer rounded-xl px-4 py-2 text-xs font-semibold text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+              className="cursor-pointer rounded-xl px-4 py-2 text-xs font-semibold text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="cursor-pointer flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-xs font-bold text-black shadow-lg hover:bg-neutral-200 transition disabled:opacity-50"
+              className="cursor-pointer flex items-center gap-2 rounded-xl bg-white dark:bg-black px-5 py-2.5 text-xs font-bold text-black dark:text-white shadow-lg hover:bg-neutral-200 transition disabled:opacity-50"
             >
               {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Create Issue"}
             </button>

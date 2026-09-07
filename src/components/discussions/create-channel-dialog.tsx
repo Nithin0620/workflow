@@ -82,21 +82,21 @@ export function CreateChannelDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between pb-4 border-b border-neutral-800/60">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black dark:bg-white/80 backdrop-blur-sm p-4">
+      <div className="w-full max-w-md rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between pb-4 border-b border-neutral-800/60 dark:border-neutral-200/60">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-900 border border-neutral-800 text-white">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-900 dark:bg-neutral-100 border border-neutral-800 text-white dark:text-black">
               <Hash className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white tracking-tight">Create Discussion Channel</h2>
-              <p className="text-xs text-neutral-400">Add a chat channel to collaborate in real-time</p>
+              <h2 className="text-base font-bold text-white dark:text-black tracking-tight">Create Discussion Channel</h2>
+              <p className="text-xs text-neutral-400 dark:text-neutral-600">Add a chat channel to collaborate in real-time</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+            className="rounded-lg p-1.5 text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
           >
             <X className="h-4 w-4" />
           </button>
@@ -111,13 +111,13 @@ export function CreateChannelDialog({
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           {/* Scope Selector */}
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono mb-1.5">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono mb-1.5">
               Channel Scope & Category
             </label>
             <select
               value={selectedProjectId}
               onChange={(e) => setSelectedProjectId(e.target.value)}
-              className="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs text-white focus:border-white focus:outline-none focus:ring-1 focus:ring-white transition"
+              className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-3 py-2 text-xs text-white dark:text-black focus:border-white focus:outline-none focus:ring-1 focus:ring-white transition"
             >
               <option value="WORKSPACE">🌐 General / Workspace Channel</option>
               {projects.map((p) => (
@@ -126,7 +126,7 @@ export function CreateChannelDialog({
                 </option>
               ))}
             </select>
-            <p className="mt-1 text-[11px] text-neutral-500">
+            <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-500">
               {selectedProjectId === "WORKSPACE"
                 ? "Visible to the entire workspace across all projects."
                 : "Organized under the selected project for focused engineering discussions."}
@@ -135,25 +135,25 @@ export function CreateChannelDialog({
 
           {/* Channel Name */}
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono mb-1.5">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono mb-1.5">
               Channel Name
             </label>
             <div className="relative">
-              <span className="absolute left-3.5 top-2.5 text-neutral-500 font-mono text-xs">#</span>
+              <span className="absolute left-3.5 top-2.5 text-neutral-500 dark:text-neutral-500 font-mono text-xs">#</span>
               <input
                 type="text"
                 placeholder="e.g. backend, ui-redesign, triage"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full rounded-xl border border-neutral-800 bg-neutral-900 pl-8 pr-3 py-2 text-xs text-white placeholder-neutral-500 focus:border-white focus:outline-none focus:ring-1 focus:ring-white transition font-mono"
+                className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 pl-8 pr-3 py-2 text-xs text-white dark:text-black placeholder-neutral-500 focus:border-white dark:border-black focus:outline-none focus:ring-1 focus:ring-white transition font-mono"
               />
             </div>
           </div>
 
           {/* Topic */}
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono mb-1.5">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono mb-1.5">
               Topic / Purpose (Optional)
             </label>
             <input
@@ -162,13 +162,13 @@ export function CreateChannelDialog({
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               maxLength={300}
-              className="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs text-white placeholder-neutral-500 focus:border-white focus:outline-none focus:ring-1 focus:ring-white transition"
+              className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-3 py-2 text-xs text-white dark:text-black placeholder-neutral-500 focus:border-white dark:border-black focus:outline-none focus:ring-1 focus:ring-white transition"
             />
           </div>
 
           {/* Channel Type */}
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono mb-1.5">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono mb-1.5">
               Channel Type
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -177,14 +177,14 @@ export function CreateChannelDialog({
                 onClick={() => setType("TEXT")}
                 className={`flex items-center gap-2 rounded-xl border p-2.5 text-left text-xs transition ${
                   type === "TEXT"
-                    ? "border-white bg-neutral-900 text-white font-semibold"
-                    : "border-neutral-800 bg-neutral-950 text-neutral-400 hover:border-neutral-700"
+                    ? "border-white dark:border-black bg-neutral-900 text-white dark:text-black font-semibold"
+                    : "border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 text-neutral-400 hover:border-neutral-700 dark:hover:border-neutral-300"
                 }`}
               >
-                <Hash className="h-4 w-4 shrink-0 text-neutral-300" />
+                <Hash className="h-4 w-4 shrink-0 text-neutral-300 dark:text-neutral-700" />
                 <div>
-                  <div className="text-white">Text Chat</div>
-                  <div className="text-[10px] text-neutral-500 font-normal">All members can post</div>
+                  <div className="text-white dark:text-black">Text Chat</div>
+                  <div className="text-[10px] text-neutral-500 dark:text-neutral-500 font-normal">All members can post</div>
                 </div>
               </button>
 
@@ -193,31 +193,31 @@ export function CreateChannelDialog({
                 onClick={() => setType("ANNOUNCEMENT")}
                 className={`flex items-center gap-2 rounded-xl border p-2.5 text-left text-xs transition ${
                   type === "ANNOUNCEMENT"
-                    ? "border-white bg-neutral-900 text-white font-semibold"
-                    : "border-neutral-800 bg-neutral-950 text-neutral-400 hover:border-neutral-700"
+                    ? "border-white dark:border-black bg-neutral-900 text-white dark:text-black font-semibold"
+                    : "border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 text-neutral-400 hover:border-neutral-700 dark:hover:border-neutral-300"
                 }`}
               >
                 <Megaphone className="h-4 w-4 shrink-0 text-amber-400" />
                 <div>
-                  <div className="text-white">Announcements</div>
-                  <div className="text-[10px] text-neutral-500 font-normal">Only Admins post</div>
+                  <div className="text-white dark:text-black">Announcements</div>
+                  <div className="text-[10px] text-neutral-500 dark:text-neutral-500 font-normal">Only Admins post</div>
                 </div>
               </button>
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-neutral-800/60">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-neutral-800/60 dark:border-neutral-200/60">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl px-4 py-2 text-xs font-medium text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+              className="rounded-xl px-4 py-2 text-xs font-medium text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading || !name.trim()}
-              className="flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-xs font-bold text-black hover:bg-neutral-200 disabled:opacity-50 transition shadow"
+              className="flex items-center gap-2 rounded-xl bg-white dark:bg-black px-4 py-2 text-xs font-bold text-black dark:text-white hover:bg-neutral-200 disabled:opacity-50 transition shadow"
             >
               {loading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
               Create Channel

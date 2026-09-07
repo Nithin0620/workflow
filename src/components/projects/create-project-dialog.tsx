@@ -88,20 +88,20 @@ export function CreateProjectDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md">
-      <div className="w-full max-w-lg rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-2xl text-white">
-        <div className="flex items-center justify-between border-b border-neutral-900 pb-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black dark:bg-white/75 p-4 backdrop-blur-md">
+      <div className="w-full max-w-lg rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-6 shadow-2xl text-white dark:text-black">
+        <div className="flex items-center justify-between border-b border-neutral-900 dark:border-neutral-100 pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-black font-bold">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white dark:bg-black text-black font-bold">
               <FolderPlus className="h-4 w-4" />
             </div>
-            <h3 className="text-base font-bold text-white">
+            <h3 className="text-base font-bold text-white dark:text-black">
               Create New Project
             </h3>
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+            className="rounded-lg p-1.5 text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
           >
             <X className="h-4 w-4" />
           </button>
@@ -115,7 +115,7 @@ export function CreateProjectDialog({
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono">
               Project Name *
             </label>
             <input
@@ -124,12 +124,12 @@ export function CreateProjectDialog({
               value={name}
               onChange={(e) => handleNameChange(e.target.value)}
               placeholder="e.g. TripTally or Mobile App"
-              className="mt-1 w-full rounded-xl border border-neutral-800 bg-black px-3.5 py-2.5 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white px-3.5 py-2.5 text-xs text-white dark:text-black placeholder:text-neutral-500 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono">
               Project Key * (Prefix e.g. TRIP)
             </label>
             <input
@@ -139,12 +139,12 @@ export function CreateProjectDialog({
               value={key}
               onChange={(e) => setKey(e.target.value.toUpperCase())}
               placeholder="e.g. TRIP"
-              className="mt-1 w-full uppercase font-mono rounded-xl border border-neutral-800 bg-black px-3.5 py-2.5 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+              className="mt-1 w-full uppercase font-mono rounded-xl border border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white px-3.5 py-2.5 text-xs text-white dark:text-black placeholder:text-neutral-500 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono">
               Description (Optional)
             </label>
             <textarea
@@ -152,22 +152,22 @@ export function CreateProjectDialog({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="What is this codebase or project focused on?"
-              className="mt-1 w-full rounded-xl border border-neutral-800 bg-black p-3 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white p-3 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none"
             />
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-neutral-900">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-neutral-900 dark:border-neutral-100">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl px-4 py-2 text-xs font-semibold text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+              className="rounded-xl px-4 py-2 text-xs font-semibold text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-xs font-bold text-black shadow-lg hover:bg-neutral-200 transition disabled:opacity-50"
+              className="flex items-center gap-2 rounded-xl bg-white dark:bg-black px-5 py-2.5 text-xs font-bold text-black dark:text-white shadow-lg hover:bg-neutral-200 transition disabled:opacity-50"
             >
               {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Create Project"}
             </button>

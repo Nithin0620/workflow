@@ -193,22 +193,22 @@ export function CommandPalette({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-start justify-center pt-20 bg-black/80 p-4 backdrop-blur-md"
+      className="fixed inset-0 z-50 flex items-start justify-center pt-20 bg-black dark:bg-white/80 p-4 backdrop-blur-md"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-xl rounded-2xl border border-neutral-800 bg-neutral-950 shadow-2xl overflow-hidden"
+        className="w-full max-w-xl rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 shadow-2xl overflow-hidden"
       >
         {/* Search Input Bar */}
-        <div className="flex items-center gap-3 border-b border-neutral-900 px-4 py-3.5 bg-black">
-          <Search className="h-4 w-4 text-neutral-400 shrink-0" />
+        <div className="flex items-center gap-3 border-b border-neutral-900 dark:border-neutral-100 px-4 py-3.5 bg-black dark:bg-white">
+          <Search className="h-4 w-4 text-neutral-400 dark:text-neutral-600 shrink-0" />
           <input
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDownInput}
             placeholder="Type a command, project, or issue key..."
-            className="w-full bg-transparent text-sm text-white placeholder:text-neutral-500 focus:outline-none"
+            className="w-full bg-transparent text-sm text-white dark:text-black placeholder:text-neutral-500 focus:outline-none"
           />
           {/* AI processing indicator */}
           {isNLPending && (
@@ -219,25 +219,25 @@ export function CommandPalette({
           )}
           {/* Keyword search spinner */}
           {isKeywordPending && !isNLPending && (
-            <Loader2 className="h-3.5 w-3.5 animate-spin text-neutral-400 shrink-0" />
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-neutral-400 dark:text-neutral-600 shrink-0" />
           )}
-          <kbd className="rounded border border-neutral-800 bg-neutral-900 px-1.5 py-0.5 text-[10px] font-bold text-neutral-400 font-mono shrink-0">
+          <kbd className="rounded border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-1.5 py-0.5 text-[10px] font-bold text-neutral-400 dark:text-neutral-600 font-mono shrink-0">
             ESC
           </kbd>
         </div>
 
         {/* Filter Summary Bar */}
         {nlResponse?.filterSummary && (
-          <div className="flex items-center justify-between gap-2 border-b border-neutral-900 px-4 py-2 bg-black/50">
+          <div className="flex items-center justify-between gap-2 border-b border-neutral-900 dark:border-neutral-100 px-4 py-2 bg-black dark:bg-white/50">
             <div className="flex items-center gap-2 min-w-0">
               <Sparkles className="h-3 w-3 text-violet-400 shrink-0" />
-              <span className="text-[11px] text-neutral-300 truncate">
+              <span className="text-[11px] text-neutral-300 dark:text-neutral-700 truncate">
                 {nlResponse.filterSummary}
               </span>
             </div>
             <button
               onClick={clearFilter}
-              className="flex items-center gap-1 text-[10px] text-neutral-500 hover:text-white transition shrink-0"
+              className="flex items-center gap-1 text-[10px] text-neutral-500 dark:text-neutral-500 hover:text-white dark:text-black transition shrink-0"
               aria-label="Clear filters"
             >
               <X className="h-3 w-3" />
@@ -248,16 +248,16 @@ export function CommandPalette({
 
         {/* Fallback / notice message */}
         {nlResponse?.fallbackMessage && (
-          <div className="px-4 py-2 bg-black/30 border-b border-neutral-900">
+          <div className="px-4 py-2 bg-black dark:bg-white/30 border-b border-neutral-900">
             <p className="text-[11px] text-amber-400/80">{nlResponse.fallbackMessage}</p>
           </div>
         )}
 
         {/* Search Results & Jump List */}
-        <div className="p-2 space-y-1 bg-neutral-950 max-h-80 overflow-y-auto">
+        <div className="p-2 space-y-1 bg-neutral-950 dark:bg-neutral-50 max-h-80 overflow-y-auto">
           {query.trim() && results.length > 0 ? (
             <div>
-              <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-neutral-500 font-mono flex items-center gap-1.5">
+              <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-500 font-mono flex items-center gap-1.5">
                 {isSmartSearch && (
                   <Sparkles className="h-3 w-3 text-violet-400" />
                 )}
@@ -270,8 +270,8 @@ export function CommandPalette({
                     onClick={() => navigateTo(res.href)}
                     className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs transition ${
                       selectedIndex === idx
-                        ? "bg-white text-black font-bold shadow-md"
-                        : "text-neutral-300 hover:bg-neutral-900 hover:text-white"
+                        ? "bg-white dark:bg-black text-black font-bold shadow-md"
+                        : "text-neutral-300 dark:text-neutral-700 hover:bg-neutral-900 hover:text-white dark:text-black"
                     }`}
                   >
                     <div className="flex items-center gap-2.5 truncate">
@@ -284,7 +284,7 @@ export function CommandPalette({
                     </div>
                     <span
                       className={`font-mono text-[10px] ${
-                        selectedIndex === idx ? "text-neutral-600" : "text-neutral-500"
+                        selectedIndex === idx ? "text-neutral-600 dark:text-neutral-400" : "text-neutral-500"
                       }`}
                     >
                       {res.subtitle}
@@ -295,12 +295,12 @@ export function CommandPalette({
             </div>
           ) : query.trim() && results.length === 0 && !isNLPending && !isKeywordPending ? (
             <div className="p-6 text-center space-y-1">
-              <p className="text-xs text-neutral-500">
+              <p className="text-xs text-neutral-500 dark:text-neutral-500">
                 No{isSmartSearch ? " matching issues for these filters" : " matching projects or issues found for"}{" "}
                 {!isSmartSearch && <>&quot;{query}&quot;</>}.
               </p>
               {nlResponse?.filterSummary && (
-                <p className="text-[11px] text-neutral-600">
+                <p className="text-[11px] text-neutral-600 dark:text-neutral-400">
                   Filters: {nlResponse.filterSummary}
                 </p>
               )}
@@ -308,7 +308,7 @@ export function CommandPalette({
           ) : (
             !query.trim() && (
               <div>
-                <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-neutral-500 font-mono">
+                <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-500 font-mono">
                   Quick Navigation
                 </span>
                 <div className="mt-1 space-y-1">
@@ -320,8 +320,8 @@ export function CommandPalette({
                         onClick={() => navigateTo(action.path)}
                         className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs transition ${
                           selectedIndex === idx
-                            ? "bg-white text-black font-bold shadow-md"
-                            : "text-neutral-300 hover:bg-neutral-900 hover:text-white"
+                            ? "bg-white dark:bg-black text-black font-bold shadow-md"
+                            : "text-neutral-300 dark:text-neutral-700 hover:bg-neutral-900 hover:text-white dark:text-black"
                         }`}
                       >
                         <div className="flex items-center gap-2.5">
@@ -339,22 +339,22 @@ export function CommandPalette({
         </div>
 
         {/* Footer info */}
-        <div className="flex items-center justify-between border-t border-neutral-900 px-4 py-2 bg-black text-[11px] text-neutral-500">
+        <div className="flex items-center justify-between border-t border-neutral-900 dark:border-neutral-100 px-4 py-2 bg-black dark:bg-white text-[11px] text-neutral-500">
           <span>
             Navigate with{" "}
-            <kbd className="font-mono text-neutral-400">↑</kbd>{" "}
-            <kbd className="font-mono text-neutral-400">↓</kbd>
+            <kbd className="font-mono text-neutral-400 dark:text-neutral-600">↑</kbd>{" "}
+            <kbd className="font-mono text-neutral-400 dark:text-neutral-600">↓</kbd>
           </span>
           <span className="flex items-center gap-1.5">
             {isSmartSearch && (
               <>
                 <Sparkles className="h-3 w-3 text-violet-400" />
                 <span className="text-violet-400">AI Search</span>
-                <span className="text-neutral-700">·</span>
+                <span className="text-neutral-700 dark:text-neutral-300">·</span>
               </>
             )}
             Open with{" "}
-            <kbd className="font-mono text-neutral-400">↵ Enter</kbd>
+            <kbd className="font-mono text-neutral-400 dark:text-neutral-600">↵ Enter</kbd>
           </span>
         </div>
       </div>

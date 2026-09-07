@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { AnimatedFooter } from "@/components/layout/animated-footer";
 import { getCurrentUser } from "@/lib/auth/session";
 import { PublicNavbar } from "@/components/common/public-navbar";
 import { AnimatedSaasObjects } from "@/components/home/animated-saas-objects";
@@ -7,6 +6,7 @@ import { MacKanbanMockup } from "@/components/home/mac-kanban-mockup";
 import { LiveKanbanDemo } from "@/components/home/live-kanban-demo";
 import { PlannedJourneysShowcase } from "@/components/home/planned-journeys-showcase";
 import { HeroContent } from "@/components/home/hero-content";
+
 
 import {
   Kanban,
@@ -27,97 +27,89 @@ import {
 export default async function LandingPage() {
   const user = await getCurrentUser();
 
-  const userWorkspaceUrl = user?.workspaceMembers[0]?.workspace?.organization
-    ? `/${user.workspaceMembers[0].workspace.organization.slug}/${user.workspaceMembers[0].workspace.slug}`
-    : null;
+  const userWorkspaceUrl =
+    user?.workspaceMembers[0]?.workspace?.organization
+      ? `/${user.workspaceMembers[0].workspace.organization.slug}/${user.workspaceMembers[0].workspace.slug}`
+      : null;
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
+    <div className="min-h-screen bg-black dark:bg-white text-white dark:text-black selection:bg-white dark:selection:bg-black selection:text-black dark:selection:text-white">
       {/* 1. TOP NAV - PURE BLACK */}
       <PublicNavbar theme="dark" workspaceUrl={userWorkspaceUrl} />
 
       {/* 2. HERO SECTION - PURE BLACK */}
-      <section className="relative overflow-hidden bg-black px-6 pt-20 pb-16 md:pt-28 md:pb-24">
+      <section className="relative overflow-hidden bg-black dark:bg-white px-6 pt-20 pb-16 md:pt-28 md:pb-24">
         <AnimatedSaasObjects />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[350px] w-[600px] rounded-full bg-white/5 blur-[120px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[350px] w-[600px] rounded-full bg-white dark:bg-black/5 blur-[120px] pointer-events-none" />
 
         <HeroContent user={user} />
 
-        {/* Keyboard Hint */}
-        <div className="mx-auto max-w-4xl text-center relative z-10 pt-2 flex items-center justify-center gap-2 text-xs text-neutral-500 font-mono">
-          <span>Press</span>
-          <kbd className="rounded border border-neutral-800 bg-neutral-900 px-2 py-0.5 text-neutral-300 font-semibold">
-            ⌘K
-          </kbd>
-          <span>anywhere for instant Command Palette</span>
-        </div>
+          {/* Keyboard Hint */}
+          <div className="mx-auto max-w-4xl text-center relative z-10 pt-2 flex items-center justify-center gap-2 text-xs text-neutral-500 dark:text-neutral-500 font-mono">
+            <span>Press</span>
+            <kbd className="rounded border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-2 py-0.5 text-neutral-300 dark:text-neutral-700 font-semibold">
+              ⌘K
+            </kbd>
+            <span>anywhere for instant Command Palette</span>
+          </div>
       </section>
 
       {/* 3. INTERACTIVE MOCKUP - PURE BLACK */}
       <MacKanbanMockup />
 
       {/* 4. DOMAIN HIERARCHY - PURE WHITE SECTION */}
-      <section
-        id="hierarchy"
-        className="bg-white text-black px-6 py-24 border-t border-neutral-200"
-      >
+      <section id="hierarchy" className="bg-white dark:bg-black text-black px-6 py-24 border-t border-neutral-200 dark:border-neutral-800">
         <div className="mx-auto max-w-5xl space-y-12">
           <div className="text-center space-y-3">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-500 font-mono">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500 font-mono">
               DOMAIN HIERARCHY
             </h2>
-            <p className="text-3xl sm:text-5xl font-extrabold text-black tracking-tight">
+            <p className="text-3xl sm:text-5xl font-extrabold text-black dark:text-white tracking-tight">
               Built for engineering teams that scale.
             </p>
-            <p className="text-sm text-neutral-600 max-w-xl mx-auto">
-              Clean separation of concerns from top-level companies to
-              individual ticket discussions.
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 max-w-xl mx-auto">
+              Clean separation of concerns from top-level companies to individual ticket discussions.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="rounded-2xl border border-neutral-200 bg-[#fbfbfb] p-6 space-y-3 hover:border-black hover:bg-white transition hover:shadow-lg">
-              <div className="h-8 w-8 rounded-lg bg-black text-white flex items-center justify-center font-bold text-xs">
+            <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-[#fbfbfb] dark:bg-neutral-900 p-6 space-y-3 hover:border-black dark:border-white hover:bg-white dark:bg-black transition hover:shadow-lg">
+              <div className="h-8 w-8 rounded-lg bg-black dark:bg-white text-white flex items-center justify-center font-bold text-xs">
                 1
               </div>
-              <h3 className="text-base font-bold text-black">Organization</h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                Top-level governance and billing boundary for your entire
-                company (e.g. Acme Corp).
+              <h3 className="text-base font-bold text-black dark:text-white">Organization</h3>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                Top-level governance and billing boundary for your entire company (e.g. Acme Corp).
               </p>
             </div>
 
-            <div className="rounded-2xl border border-neutral-200 bg-[#fbfbfb] p-6 space-y-3 hover:border-black hover:bg-white transition hover:shadow-lg">
-              <div className="h-8 w-8 rounded-lg bg-black text-white flex items-center justify-center font-bold text-xs">
+            <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-[#fbfbfb] dark:bg-neutral-900 p-6 space-y-3 hover:border-black dark:border-white hover:bg-white dark:bg-black transition hover:shadow-lg">
+              <div className="h-8 w-8 rounded-lg bg-black dark:bg-white text-white flex items-center justify-center font-bold text-xs">
                 2
               </div>
-              <h3 className="text-base font-bold text-black">Workspace</h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                Dedicated team spaces (e.g. Engineering, Mobile, DevOps) with
-                custom members and RBAC.
+              <h3 className="text-base font-bold text-black dark:text-white">Workspace</h3>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                Dedicated team spaces (e.g. Engineering, Mobile, DevOps) with custom members and RBAC.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-neutral-200 bg-[#fbfbfb] p-6 space-y-3 hover:border-black hover:bg-white transition hover:shadow-lg">
-              <div className="h-8 w-8 rounded-lg bg-black text-white flex items-center justify-center font-bold text-xs">
+            <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-[#fbfbfb] dark:bg-neutral-900 p-6 space-y-3 hover:border-black dark:border-white hover:bg-white dark:bg-black transition hover:shadow-lg">
+              <div className="h-8 w-8 rounded-lg bg-black dark:bg-white text-white flex items-center justify-center font-bold text-xs">
                 3
               </div>
-              <h3 className="text-base font-bold text-black">Project</h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                Codebases or initiatives with unique keys (e.g.{" "}
-                <span className="font-mono font-bold text-black">TRIP</span>,{" "}
-                <span className="font-mono font-bold text-black">DEV</span>).
+              <h3 className="text-base font-bold text-black dark:text-white">Project</h3>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                Codebases or initiatives with unique keys (e.g. <span className="font-mono font-bold text-black dark:text-white">TRIP</span>, <span className="font-mono font-bold text-black dark:text-white">DEV</span>).
               </p>
             </div>
 
-            <div className="rounded-2xl border border-neutral-200 bg-[#fbfbfb] p-6 space-y-3 hover:border-black hover:bg-white transition hover:shadow-lg">
-              <div className="h-8 w-8 rounded-lg bg-black text-white flex items-center justify-center font-bold text-xs">
+            <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-[#fbfbfb] dark:bg-neutral-900 p-6 space-y-3 hover:border-black dark:border-white hover:bg-white dark:bg-black transition hover:shadow-lg">
+              <div className="h-8 w-8 rounded-lg bg-black dark:bg-white text-white flex items-center justify-center font-bold text-xs">
                 4
               </div>
-              <h3 className="text-base font-bold text-black">Issue & Tasks</h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                Atomic tasks with Markdown discussions, @mentions, story points,
-                and activity logs.
+              <h3 className="text-base font-bold text-black dark:text-white">Issue & Tasks</h3>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                Atomic tasks with Markdown discussions, @mentions, story points, and activity logs.
               </p>
             </div>
           </div>
@@ -128,96 +120,75 @@ export default async function LandingPage() {
       <LiveKanbanDemo />
 
       {/* 5. FEATURES GRID - PURE WHITE SECTION */}
-      <section
-        id="features"
-        className="bg-[#f7f7f7] text-black px-6 py-24 border-t border-neutral-200"
-      >
+      <section id="features" className="bg-[#f7f7f7] dark:bg-neutral-800 text-black dark:text-white px-6 py-24 border-t border-neutral-200 dark:border-neutral-800">
         <div className="mx-auto max-w-6xl space-y-12">
           <div className="text-center space-y-3">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-500 font-mono">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500 font-mono">
               FEATURES
             </h2>
-            <p className="text-3xl sm:text-5xl font-extrabold text-black tracking-tight">
+            <p className="text-3xl sm:text-5xl font-extrabold text-black dark:text-white tracking-tight">
               Crafted for velocity & clarity.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="rounded-2xl border border-neutral-200 bg-white p-6 space-y-3 hover:border-black transition hover:shadow-md">
-              <div className="h-10 w-10 rounded-xl bg-black text-white flex items-center justify-center">
+            <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black p-6 space-y-3 hover:border-black dark:border-white transition hover:shadow-md">
+              <div className="h-10 w-10 rounded-xl bg-black dark:bg-white text-white flex items-center justify-center">
                 <Kanban className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-bold text-black">
-                Fractional Kanban Engine
-              </h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                Instant drag-and-drop powered by fractional float indexing. Only
-                1 row updates in PostgreSQL on card drag.
+              <h3 className="text-base font-bold text-black dark:text-white">Fractional Kanban Engine</h3>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                Instant drag-and-drop powered by fractional float indexing. Only 1 row updates in PostgreSQL on card drag.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-neutral-200 bg-white p-6 space-y-3 hover:border-black transition hover:shadow-md">
-              <div className="h-10 w-10 rounded-xl bg-black text-white flex items-center justify-center">
+            <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black p-6 space-y-3 hover:border-black dark:border-white transition hover:shadow-md">
+              <div className="h-10 w-10 rounded-xl bg-black dark:bg-white text-white flex items-center justify-center">
                 <Command className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-bold text-black">
-                Command Palette (⌘K)
-              </h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                Navigate anywhere, jump to projects, and run actions instantly
-                without ever leaving your keyboard.
+              <h3 className="text-base font-bold text-black dark:text-white">Command Palette (⌘K)</h3>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                Navigate anywhere, jump to projects, and run actions instantly without ever leaving your keyboard.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-neutral-200 bg-white p-6 space-y-3 hover:border-black transition hover:shadow-md">
-              <div className="h-10 w-10 rounded-xl bg-black text-white flex items-center justify-center">
+            <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black p-6 space-y-3 hover:border-black dark:border-white transition hover:shadow-md">
+              <div className="h-10 w-10 rounded-xl bg-black dark:bg-white text-white flex items-center justify-center">
                 <ShieldCheck className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-bold text-black">
-                Granular RBAC Security
-              </h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                Owner, Admin, Member, and Viewer roles with strict server-side
-                boundary validation on every mutation.
+              <h3 className="text-base font-bold text-black dark:text-white">Granular RBAC Security</h3>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                Owner, Admin, Member, and Viewer roles with strict server-side boundary validation on every mutation.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-neutral-200 bg-white p-6 space-y-3 hover:border-black transition hover:shadow-md">
-              <div className="h-10 w-10 rounded-xl bg-black text-white flex items-center justify-center">
+            <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black p-6 space-y-3 hover:border-black dark:border-white transition hover:shadow-md">
+              <div className="h-10 w-10 rounded-xl bg-black dark:bg-white text-white flex items-center justify-center">
                 <Zap className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-bold text-black">
-                Multi-Provider Auth
-              </h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                Sign in with Google, GitHub, or secure Email + Password salted
-                with 12 rounds of bcrypt.
+              <h3 className="text-base font-bold text-black dark:text-white">Multi-Provider Auth</h3>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                Sign in with Google, GitHub, or secure Email + Password salted with 12 rounds of bcrypt.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-neutral-200 bg-white p-6 space-y-3 hover:border-black transition hover:shadow-md">
-              <div className="h-10 w-10 rounded-xl bg-black text-white flex items-center justify-center">
+            <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black p-6 space-y-3 hover:border-black dark:border-white transition hover:shadow-md">
+              <div className="h-10 w-10 rounded-xl bg-black dark:bg-white text-white flex items-center justify-center">
                 <BarChart3 className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-bold text-black">
-                Velocity & Analytics
-              </h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                Live metrics on sprint throughput, completion rates, bottleneck
-                alerts, and active team workload.
+              <h3 className="text-base font-bold text-black dark:text-white">Velocity & Analytics</h3>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                Live metrics on sprint throughput, completion rates, bottleneck alerts, and active team workload.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-neutral-200 bg-white p-6 space-y-3 hover:border-black transition hover:shadow-md">
-              <div className="h-10 w-10 rounded-xl bg-black text-white flex items-center justify-center">
+            <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black p-6 space-y-3 hover:border-black dark:border-white transition hover:shadow-md">
+              <div className="h-10 w-10 rounded-xl bg-black dark:bg-white text-white flex items-center justify-center">
                 <FolderKanban className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-bold text-black">
-                Multi-Project Management
-              </h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                Spin up codebases with custom issue sequence counters, color
-                accents, and dedicated lead assignments.
+              <h3 className="text-base font-bold text-black dark:text-white">Multi-Project Management</h3>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                Spin up codebases with custom issue sequence counters, color accents, and dedicated lead assignments.
               </p>
             </div>
           </div>
@@ -227,38 +198,25 @@ export default async function LandingPage() {
       {/* 5b. PLANNED JOURNEYS SHOWCASE */}
       <PlannedJourneysShowcase />
 
-
       {/* 6. PAID SERVICES & ENTERPRISE ENQUIRY BANNER */}
-      <section className="relative overflow-hidden bg-black text-white px-6 py-20 border-t border-neutral-900">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 h-full w-full object-cover opacity-40 pointer-events-none"
-        >
-          <source src="/tech-bg-2.mp4" type="video/mp4" />
-        </video>
-        <div className="relative mx-auto max-w-5xl rounded-3xl border border-neutral-800 bg-neutral-950/80 backdrop-blur-sm p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden">
-
+      <section className="bg-black dark:bg-white text-white px-6 py-20 border-t border-neutral-900 dark:border-neutral-100">
+        <div className="mx-auto max-w-5xl rounded-3xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden">
           <div className="space-y-4 max-w-xl text-left">
-            <div className="inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900 px-3 py-1 text-xs font-mono text-neutral-300">
+            <div className="inline-flex items-center gap-2 rounded-full border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-3 py-1 text-xs font-mono text-neutral-300 dark:text-neutral-700">
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>PAID SERVICE & CONSULTING</span>
             </div>
-            <h3 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+            <h3 className="text-2xl sm:text-4xl font-extrabold text-white dark:text-black tracking-tight">
               Need custom private hosting or dedicated enterprise setup?
             </h3>
-            <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed">
-              We provide tailored on-premise deployments, SSO SAML integration,
-              custom Jira/Linear migrations, and dedicated SLA engineering
-              support.
+            <p className="text-xs sm:text-sm text-neutral-400 dark:text-neutral-600 leading-relaxed">
+              We provide tailored on-premise deployments, SSO SAML integration, custom Jira/Linear migrations, and dedicated SLA engineering support.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto shrink-0">
             <Link
               href="/contact"
-              className="flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-xs sm:text-sm font-bold text-black shadow-xl hover:bg-neutral-200 transition"
+              className="flex items-center justify-center gap-2 rounded-xl bg-white dark:bg-black px-6 py-3.5 text-xs sm:text-sm font-bold text-black dark:text-white shadow-xl hover:bg-neutral-200 transition"
             >
               <span>Start Enquiry</span>
               <ArrowRight className="h-4 w-4" />
@@ -268,26 +226,25 @@ export default async function LandingPage() {
       </section>
 
       {/* 7. CALL TO ACTION - PURE WHITE */}
-      <section className="bg-white text-black px-6 py-20 border-t border-neutral-200 text-center">
+      <section className="bg-white dark:bg-black text-black px-6 py-20 border-t border-neutral-200 dark:border-neutral-800 text-center">
         <div className="max-w-2xl mx-auto space-y-6">
-          <h3 className="text-3xl sm:text-4xl font-extrabold text-black tracking-tight">
+          <h3 className="text-3xl sm:text-4xl font-extrabold text-black dark:text-white tracking-tight">
             Build and ship software with Workflow.
           </h3>
-          <p className="text-xs sm:text-sm text-neutral-600">
-            Join modern product engineering teams using fast, keyboard-first
-            issue management.
+          <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">
+            Join modern product engineering teams using fast, keyboard-first issue management.
           </p>
           <div className="flex items-center justify-center gap-4">
             <Link
               href="/register"
-              className="flex items-center gap-2 rounded-xl bg-black px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-xl hover:bg-neutral-800 transition"
+              className="flex items-center gap-2 rounded-xl bg-black dark:bg-white px-6 py-3.5 text-xs sm:text-sm font-bold text-white dark:text-black shadow-xl hover:bg-neutral-800 transition"
             >
               <span>Get Started for Free</span>
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/contact"
-              className="rounded-xl border border-neutral-300 bg-white px-6 py-3.5 text-xs sm:text-sm font-bold text-black hover:border-black transition"
+              className="rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black px-6 py-3.5 text-xs sm:text-sm font-bold text-black dark:text-white hover:border-black transition"
             >
               <span>Contact Sales</span>
             </Link>
@@ -295,39 +252,28 @@ export default async function LandingPage() {
         </div>
       </section>
 
-
       {/* 8. FOOTER - PURE BLACK */}
-      <footer className="relative overflow-hidden border-t border-neutral-900 bg-black px-6 py-16 text-white">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 h-full w-full object-cover opacity-10 pointer-events-none"
-        >
-          <source src="/tech-bg-2.mp4" type="video/mp4" />
-        </video>
-        <div className="relative mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-6">
-
+      <footer className="border-t border-neutral-900 dark:border-neutral-100 bg-black dark:bg-white px-6 py-16 text-white">
+        <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-white text-black font-black text-xs">
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-white dark:bg-black text-black font-black text-xs">
               W
             </div>
-            <span className="text-sm font-bold text-white">Workflow</span>
-            <span className="text-xs text-neutral-500">© 2026. Built with Next.js & PostgreSQL.</span>
+            <span className="text-sm font-bold text-white dark:text-black">Workflow</span>
+            <span className="text-xs text-neutral-500 dark:text-neutral-500">© 2026. Built with Next.js & PostgreSQL.</span>
           </div>
 
-          <div className="flex items-center gap-6 text-xs text-neutral-400">
-            <Link href="/how-it-works" className="hover:text-white transition">
+          <div className="flex items-center gap-6 text-xs text-neutral-400 dark:text-neutral-600">
+            <Link href="/how-it-works" className="hover:text-white dark:text-black transition">
               How It Works
             </Link>
-            <Link href="/contact" className="hover:text-white transition">
+            <Link href="/contact" className="hover:text-white dark:text-black transition">
               Contact & Enquiry
             </Link>
-            <Link href="/login" className="hover:text-white transition">
+            <Link href="/login" className="hover:text-white dark:text-black transition">
               Sign In
             </Link>
-            <Link href="/register" className="hover:text-white transition font-bold text-white">
+            <Link href="/register" className="hover:text-white dark:text-black transition font-bold text-white dark:text-black">
               Create Account
             </Link>
           </div>

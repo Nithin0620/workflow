@@ -109,11 +109,11 @@ export function NotificationCenter() {
       <button
         onClick={handleToggle}
         aria-label="Notifications"
-        className="relative flex h-8 w-8 items-center justify-center rounded-xl border border-neutral-800 bg-neutral-950 text-neutral-400 hover:border-neutral-700 hover:text-white transition"
+        className="relative flex h-8 w-8 items-center justify-center rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 text-neutral-400 hover:border-neutral-700 dark:hover:border-neutral-300 hover:text-white dark:text-black transition"
       >
         <Bell className="h-4 w-4" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-bold text-white shadow-[0_0_8px_rgba(244,63,94,0.8)]">
+          <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-bold text-white dark:text-black shadow-[0_0_8px_rgba(244,63,94,0.8)]">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -121,13 +121,13 @@ export function NotificationCenter() {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl border border-neutral-800 bg-neutral-950 shadow-2xl z-50 overflow-hidden text-white">
+        <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 shadow-2xl z-50 overflow-hidden text-white dark:text-black">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-neutral-900 px-4 py-3 bg-black">
+          <div className="flex items-center justify-between border-b border-neutral-900 dark:border-neutral-100 px-4 py-3 bg-black dark:bg-white">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-white">Notifications</span>
+              <span className="text-xs font-bold text-white dark:text-black">Notifications</span>
               {unreadCount > 0 && (
-                <span className="rounded-md bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 text-[10px] font-mono font-bold text-neutral-300">
+                <span className="rounded-md bg-neutral-900 dark:bg-neutral-100 border border-neutral-800 px-1.5 py-0.5 text-[10px] font-mono font-bold text-neutral-300 dark:text-neutral-700">
                   {unreadCount} new
                 </span>
               )}
@@ -136,7 +136,7 @@ export function NotificationCenter() {
             {unreadCount > 0 && (
               <button
                 onClick={handleMarkAllRead}
-                className="flex items-center gap-1 text-[11px] font-semibold text-neutral-400 hover:text-white transition"
+                className="flex items-center gap-1 text-[11px] font-semibold text-neutral-400 dark:text-neutral-600 hover:text-white dark:text-black transition"
               >
                 <CheckCheck className="h-3.5 w-3.5" />
                 <span>Mark all read</span>
@@ -148,37 +148,37 @@ export function NotificationCenter() {
           <div className="max-h-80 overflow-y-auto divide-y divide-neutral-900">
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-neutral-500 mb-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 dark:bg-neutral-100 text-neutral-500 mb-2">
                   <Inbox className="h-5 w-5" />
                 </div>
-                <p className="text-xs font-semibold text-neutral-300">All caught up</p>
-                <p className="text-[11px] text-neutral-500 mt-0.5">No unread notifications at this time.</p>
+                <p className="text-xs font-semibold text-neutral-300 dark:text-neutral-700">All caught up</p>
+                <p className="text-[11px] text-neutral-500 dark:text-neutral-500 mt-0.5">No unread notifications at this time.</p>
               </div>
             ) : (
               notifications.map((n) => (
                 <div
                   key={n.id}
                   onClick={() => handleMarkAsRead(n.id, n.link)}
-                  className={`flex cursor-pointer items-start gap-3 p-3.5 transition hover:bg-neutral-900/60 ${
-                    !n.isRead ? "bg-neutral-900/30" : "opacity-80"
+                  className={`flex cursor-pointer items-start gap-3 p-3.5 transition hover:bg-neutral-900/60 dark:hover:bg-neutral-100/60 ${
+                    !n.isRead ? "bg-neutral-900/30 dark:bg-neutral-100/30" : "opacity-80"
                   }`}
                 >
                   <div className="mt-1 flex h-2 w-2 shrink-0 items-center justify-center">
                     {!n.isRead ? (
                       <span className="h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_6px_rgba(59,130,246,0.8)]" />
                     ) : (
-                      <span className="h-1.5 w-1.5 rounded-full bg-neutral-700" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-neutral-700 dark:bg-neutral-300" />
                     )}
                   </div>
 
                   <div className="flex-1 space-y-0.5">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-bold text-white">{n.title}</span>
-                      <span className="font-mono text-[10px] text-neutral-500 shrink-0">
+                      <span className="text-xs font-bold text-white dark:text-black">{n.title}</span>
+                      <span className="font-mono text-[10px] text-neutral-500 dark:text-neutral-500 shrink-0">
                         {timeAgo(n.createdAt)}
                       </span>
                     </div>
-                    <p className="text-[11px] text-neutral-400 leading-relaxed line-clamp-2">
+                    <p className="text-[11px] text-neutral-400 dark:text-neutral-600 leading-relaxed line-clamp-2">
                       {n.message}
                     </p>
                   </div>

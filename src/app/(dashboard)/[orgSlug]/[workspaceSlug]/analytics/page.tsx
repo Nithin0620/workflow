@@ -42,13 +42,13 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
   const completionRate = totalIssues > 0 ? Math.round((doneIssues / totalIssues) * 100) : 0;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 text-white">
+    <div className="max-w-6xl mx-auto space-y-6 text-white dark:text-black">
       <div className="flex items-start justify-between gap-4" data-tour="analytics-header">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-white">
+          <h1 className="text-xl font-bold tracking-tight text-white dark:text-black">
             Analytics & Velocity
           </h1>
-          <p className="text-xs text-neutral-400 mt-0.5">
+          <p className="text-xs text-neutral-400 dark:text-neutral-600 mt-0.5">
             Engineering throughput and delivery metrics across {workspace.name}
           </p>
         </div>
@@ -56,36 +56,36 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" data-tour="analytics-cards">
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-lg">
-          <div className="flex items-center justify-between text-neutral-400 text-xs font-bold uppercase font-mono">
+        <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-6 shadow-lg">
+          <div className="flex items-center justify-between text-neutral-400 dark:text-neutral-600 text-xs font-bold uppercase font-mono">
             <span>Completion Rate</span>
             <TrendingUp className="h-4 w-4 text-emerald-400" />
           </div>
-          <div className="mt-3 text-3xl font-extrabold text-white">{completionRate}%</div>
+          <div className="mt-3 text-3xl font-extrabold text-white dark:text-black">{completionRate}%</div>
         </div>
 
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-lg">
-          <div className="flex items-center justify-between text-neutral-400 text-xs font-bold uppercase font-mono">
+        <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-6 shadow-lg">
+          <div className="flex items-center justify-between text-neutral-400 dark:text-neutral-600 text-xs font-bold uppercase font-mono">
             <span>Resolved Tickets</span>
-            <CheckCircle2 className="h-4 w-4 text-white" />
+            <CheckCircle2 className="h-4 w-4 text-white dark:text-black" />
           </div>
-          <div className="mt-3 text-3xl font-extrabold text-white">{doneIssues}</div>
+          <div className="mt-3 text-3xl font-extrabold text-white dark:text-black">{doneIssues}</div>
         </div>
 
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-lg">
-          <div className="flex items-center justify-between text-neutral-400 text-xs font-bold uppercase font-mono">
+        <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-6 shadow-lg">
+          <div className="flex items-center justify-between text-neutral-400 dark:text-neutral-600 text-xs font-bold uppercase font-mono">
             <span>Active Sprint Load</span>
-            <Clock className="h-4 w-4 text-white" />
+            <Clock className="h-4 w-4 text-white dark:text-black" />
           </div>
-          <div className="mt-3 text-3xl font-extrabold text-white">{inProgressIssues}</div>
+          <div className="mt-3 text-3xl font-extrabold text-white dark:text-black">{inProgressIssues}</div>
         </div>
 
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-lg">
-          <div className="flex items-center justify-between text-neutral-400 text-xs font-bold uppercase font-mono">
+        <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-6 shadow-lg">
+          <div className="flex items-center justify-between text-neutral-400 dark:text-neutral-600 text-xs font-bold uppercase font-mono">
             <span>Urgent Items</span>
             <AlertTriangle className="h-4 w-4 text-rose-400" />
           </div>
-          <div className="mt-3 text-3xl font-extrabold text-white">{urgentIssues}</div>
+          <div className="mt-3 text-3xl font-extrabold text-white dark:text-black">{urgentIssues}</div>
         </div>
       </div>
 

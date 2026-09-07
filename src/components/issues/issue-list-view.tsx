@@ -29,7 +29,7 @@ const PRIORITY_CONFIG: Record<
   IssuePriority,
   { label: string; icon: any; color: string }
 > = {
-  NO_PRIORITY: { label: "No Priority", icon: Minus, color: "text-neutral-500" },
+  NO_PRIORITY: { label: "No Priority", icon: Minus, color: "text-neutral-500 dark:text-neutral-500" },
   LOW: { label: "Low", icon: ArrowDown, color: "text-blue-400" },
   MEDIUM: { label: "Medium", icon: Equal, color: "text-amber-400" },
   HIGH: { label: "High", icon: ArrowUp, color: "text-orange-400" },
@@ -76,23 +76,23 @@ export function IssueListView({
 
   if (issues.length === 0) {
     return (
-      <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-neutral-800 bg-neutral-950 p-8 text-center">
-        <p className="text-sm font-semibold text-neutral-400">No issues found matching your filters</p>
-        <p className="text-xs text-neutral-600 mt-1">Try resetting filters or create a new issue.</p>
+      <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-8 text-center">
+        <p className="text-sm font-semibold text-neutral-400 dark:text-neutral-600">No issues found matching your filters</p>
+        <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">Try resetting filters or create a new issue.</p>
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 shadow-xl">
+    <div className="overflow-hidden rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 shadow-xl">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           {/* Table Header */}
-          <thead className="border-b border-neutral-800 bg-black text-neutral-400">
+          <thead className="border-b border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white text-neutral-400">
             <tr>
               <th
                 onClick={() => handleSort("key")}
-                className="cursor-pointer py-3.5 pl-4 pr-3 font-mono font-bold uppercase tracking-wider hover:text-white"
+                className="cursor-pointer py-3.5 pl-4 pr-3 font-mono font-bold uppercase tracking-wider hover:text-white dark:text-black"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Key</span>
@@ -101,7 +101,7 @@ export function IssueListView({
               </th>
               <th
                 onClick={() => handleSort("title")}
-                className="cursor-pointer px-3 py-3.5 font-bold uppercase tracking-wider hover:text-white"
+                className="cursor-pointer px-3 py-3.5 font-bold uppercase tracking-wider hover:text-white dark:text-black"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Title</span>
@@ -110,7 +110,7 @@ export function IssueListView({
               </th>
               <th
                 onClick={() => handleSort("status")}
-                className="cursor-pointer px-3 py-3.5 font-bold uppercase tracking-wider hover:text-white"
+                className="cursor-pointer px-3 py-3.5 font-bold uppercase tracking-wider hover:text-white dark:text-black"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Status</span>
@@ -119,7 +119,7 @@ export function IssueListView({
               </th>
               <th
                 onClick={() => handleSort("priority")}
-                className="cursor-pointer px-3 py-3.5 font-bold uppercase tracking-wider hover:text-white"
+                className="cursor-pointer px-3 py-3.5 font-bold uppercase tracking-wider hover:text-white dark:text-black"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Priority</span>
@@ -132,7 +132,7 @@ export function IssueListView({
           </thead>
 
           {/* Table Body */}
-          <tbody className="divide-y divide-neutral-900 bg-neutral-950">
+          <tbody className="divide-y divide-neutral-900 bg-neutral-950 dark:bg-neutral-50">
             {sortedIssues.map((issue) => {
               const priority = PRIORITY_CONFIG[issue.priority] || PRIORITY_CONFIG.NO_PRIORITY;
               const PriorityIcon = priority.icon;
@@ -142,16 +142,16 @@ export function IssueListView({
                 <tr
                   key={issue.id}
                   onClick={() => onSelectIssue(issue)}
-                  className="group cursor-pointer transition hover:bg-neutral-900/60"
+                  className="group cursor-pointer transition hover:bg-neutral-900/60 dark:hover:bg-neutral-100/60"
                 >
                   {/* Issue Key */}
-                  <td className="whitespace-nowrap py-3.5 pl-4 pr-3 font-mono font-bold text-neutral-400 group-hover:text-white">
+                  <td className="whitespace-nowrap py-3.5 pl-4 pr-3 font-mono font-bold text-neutral-400 dark:text-neutral-600 group-hover:text-white dark:text-black">
                     {formatIssueKey(issue.projectKey, issue.issueNumber)}
                   </td>
 
                   {/* Title */}
                   <td className="px-3 py-3.5">
-                    <span className="font-semibold text-white group-hover:underline">
+                    <span className="font-semibold text-white dark:text-black group-hover:underline">
                       {issue.title}
                     </span>
                   </td>
@@ -163,7 +163,7 @@ export function IssueListView({
                         className="h-2 w-2 rounded-full"
                         style={{ backgroundColor: statusMeta?.color?.replace("bg-", "#") || "#737373" }}
                       />
-                      <span className="font-medium text-neutral-300">
+                      <span className="font-medium text-neutral-300 dark:text-neutral-700">
                         {statusMeta?.label || issue.status}
                       </span>
                     </div>
@@ -181,23 +181,23 @@ export function IssueListView({
                   <td className="whitespace-nowrap px-3 py-3.5">
                     {issue.assignee ? (
                       <div className="flex items-center gap-2">
-                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-800 border border-neutral-700 text-[10px] font-bold text-white">
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-800 dark:bg-neutral-200 border border-neutral-700 text-[10px] font-bold text-white dark:text-black">
                           {(issue.assignee.name || "U").charAt(0).toUpperCase()}
                         </div>
-                        <span className="text-neutral-300 font-medium truncate max-w-[120px]">
+                        <span className="text-neutral-300 dark:text-neutral-700 font-medium truncate max-w-[120px]">
                           {issue.assignee.name || "Assigned"}
                         </span>
                       </div>
                     ) : (
-                      <span className="text-neutral-600 italic">Unassigned</span>
+                      <span className="text-neutral-600 dark:text-neutral-400 italic">Unassigned</span>
                     )}
                   </td>
 
                   {/* Points & Counts */}
                   <td className="whitespace-nowrap px-3 py-3.5 text-right pr-4">
-                    <div className="flex items-center justify-end gap-3 text-neutral-500">
+                    <div className="flex items-center justify-end gap-3 text-neutral-500 dark:text-neutral-500">
                       {issue.estimate !== undefined && issue.estimate !== null && (
-                        <span className="rounded bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 font-mono text-[10px] font-bold text-neutral-400">
+                        <span className="rounded bg-neutral-900 dark:bg-neutral-100 border border-neutral-800 px-1.5 py-0.5 font-mono text-[10px] font-bold text-neutral-400 dark:text-neutral-600">
                           {issue.estimate} pts
                         </span>
                       )}

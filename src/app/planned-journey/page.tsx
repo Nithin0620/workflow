@@ -17,7 +17,7 @@ export default async function PlannedJourneyPage() {
       : null;
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black dark:bg-white text-white">
       <PublicNavbar theme="dark" workspaceUrl={userWorkspaceUrl} />
       <PlannedJourneys />
       <JourneyFooter />

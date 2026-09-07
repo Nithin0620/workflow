@@ -63,14 +63,14 @@ export function InviteActions({
         <button
           onClick={handleAccept}
           disabled={pending}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-black px-4 py-3 text-sm font-bold text-white transition hover:bg-neutral-800 disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-black dark:bg-white px-4 py-3 text-sm font-bold text-white dark:text-black transition hover:bg-neutral-800 disabled:opacity-50"
         >
           {pending && <Loader2 className="h-4 w-4 animate-spin" />}
           Accept invitation & open {workspaceName}
         </button>
         <button
           onClick={openLink}
-          className="w-full rounded-xl border border-neutral-300 px-4 py-3 text-sm font-semibold text-neutral-700 transition hover:bg-neutral-50"
+          className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 px-4 py-3 text-sm font-semibold text-neutral-700 dark:text-neutral-300 transition hover:bg-neutral-50 dark:hover:bg-neutral-950"
         >
           Not now — go to Workflow
         </button>
@@ -87,7 +87,7 @@ export function InviteActions({
         </div>
         <button
           onClick={handleSwitchAccount}
-          className="w-full rounded-xl bg-black px-4 py-3 text-sm font-bold text-white transition hover:bg-neutral-800"
+          className="w-full rounded-xl bg-black dark:bg-white px-4 py-3 text-sm font-bold text-white dark:text-black transition hover:bg-neutral-800"
         >
           Switch account & sign in
         </button>
@@ -97,7 +97,7 @@ export function InviteActions({
 
   return (
     <div className="mt-6 space-y-3">
-      <p className="text-xs text-neutral-500">
+      <p className="text-xs text-neutral-500 dark:text-neutral-500">
         {hasAccount
           ? `You have an account with ${invitedEmail}. Sign in to accept this invitation.`
           : `No account with ${invitedEmail} yet? Create one in a minute, then accept — we'll take you straight back here.`}
@@ -105,21 +105,21 @@ export function InviteActions({
       {hasAccount ? (
         <a
           href={loginUrl}
-          className="block w-full rounded-xl bg-black px-4 py-3 text-center text-sm font-bold text-white transition hover:bg-neutral-800"
+          className="block w-full rounded-xl bg-black dark:bg-white px-4 py-3 text-center text-sm font-bold text-white dark:text-black transition hover:bg-neutral-800"
         >
           Sign in to accept
         </a>
       ) : (
         <a
           href={registerUrl}
-          className="block w-full rounded-xl bg-black px-4 py-3 text-center text-sm font-bold text-white transition hover:bg-neutral-800"
+          className="block w-full rounded-xl bg-black dark:bg-white px-4 py-3 text-center text-sm font-bold text-white dark:text-black transition hover:bg-neutral-800"
         >
           Create account with {invitedEmail}
         </a>
       )}
       <a
         href={loginUrl}
-        className="block w-full rounded-xl border border-neutral-300 px-4 py-3 text-center text-sm font-semibold text-neutral-700 transition hover:bg-neutral-50"
+        className="block w-full rounded-xl border border-neutral-300 dark:border-neutral-700 px-4 py-3 text-center text-sm font-semibold text-neutral-700 dark:text-neutral-300 transition hover:bg-neutral-50 dark:hover:bg-neutral-950"
       >
         I already have an account
       </a>
