@@ -9,8 +9,8 @@ import { Mail, Lock, User, AlertCircle, Loader2, ArrowLeft, CheckCircle2 } from 
 
 function safeCallbackUrl(raw: string | null): string {
   if (!raw) return "/dashboard";
-  // Only internal, same-origin paths (blocks open redirects like "//evil.com")
-  return raw.startsWith("/") && !raw.startsWith("//") ? raw : "/dashboard";
+  // Only internal, same-origin paths (blocks open redirects like "//evil.com" and "/\evil.com")
+  return raw.startsWith("/") && !raw.startsWith("//") && !raw.startsWith("/\\") ? raw : "/dashboard";
 }
 
 export default function RegisterPage() {
