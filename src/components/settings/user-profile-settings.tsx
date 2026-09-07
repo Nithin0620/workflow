@@ -69,12 +69,12 @@ export function UserProfileSettings({ currentUser }: UserProfileSettingsProps) {
   return (
     <div className="space-y-6">
       {/* Profile Details */}
-      <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-lg">
+      <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-6 shadow-lg">
         <div className="flex items-center gap-2">
-          <User className="h-4 w-4 text-neutral-400" />
-          <h2 className="text-sm font-bold text-white">Your Profile</h2>
+          <User className="h-4 w-4 text-neutral-400 dark:text-neutral-600" />
+          <h2 className="text-sm font-bold text-white dark:text-black">Your Profile</h2>
         </div>
-        <p className="text-xs text-neutral-400 mt-1">
+        <p className="text-xs text-neutral-400 dark:text-neutral-600 mt-1">
           Manage your personal account name and credentials.
         </p>
 
@@ -93,25 +93,25 @@ export function UserProfileSettings({ currentUser }: UserProfileSettingsProps) {
         <form onSubmit={handleUpdateName} className="mt-4 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] font-bold text-neutral-400 uppercase tracking-wider font-mono mb-1.5">
+              <label className="block text-[11px] font-bold text-neutral-400 dark:text-neutral-600 uppercase tracking-wider font-mono mb-1.5">
                 Display Name
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full rounded-xl border border-neutral-800 bg-black px-3.5 py-2 text-xs font-semibold text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+                className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white px-3.5 py-2 text-xs font-semibold text-white dark:text-black placeholder:text-neutral-500 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-[11px] font-bold text-neutral-400 uppercase tracking-wider font-mono mb-1.5">
+              <label className="block text-[11px] font-bold text-neutral-400 dark:text-neutral-600 uppercase tracking-wider font-mono mb-1.5">
                 Email Address
               </label>
               <input
                 type="email"
                 disabled
                 value={currentUser.email || ""}
-                className="w-full rounded-xl border border-neutral-900 bg-neutral-900/50 px-3.5 py-2 text-xs font-semibold text-neutral-400 cursor-not-allowed"
+                className="w-full rounded-xl border border-neutral-900 dark:border-neutral-100 bg-neutral-900/50 dark:bg-neutral-100/50 px-3.5 py-2 text-xs font-semibold text-neutral-400 dark:text-neutral-600 cursor-not-allowed"
               />
             </div>
           </div>
@@ -120,7 +120,7 @@ export function UserProfileSettings({ currentUser }: UserProfileSettingsProps) {
             <button
               type="submit"
               disabled={savingName || name === currentUser.name || !name.trim()}
-              className="flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-xs font-bold text-black hover:bg-neutral-200 transition disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-xl bg-white dark:bg-black px-4 py-2 text-xs font-bold text-black dark:text-white hover:bg-neutral-200 transition disabled:opacity-50"
             >
               {savingName ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Save Profile"}
             </button>
@@ -129,12 +129,12 @@ export function UserProfileSettings({ currentUser }: UserProfileSettingsProps) {
       </div>
 
       {/* Password Management */}
-      <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-lg">
+      <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-6 shadow-lg">
         <div className="flex items-center gap-2">
-          <KeyRound className="h-4 w-4 text-neutral-400" />
-          <h2 className="text-sm font-bold text-white">Security & Password</h2>
+          <KeyRound className="h-4 w-4 text-neutral-400 dark:text-neutral-600" />
+          <h2 className="text-sm font-bold text-white dark:text-black">Security & Password</h2>
         </div>
-        <p className="text-xs text-neutral-400 mt-1">
+        <p className="text-xs text-neutral-400 dark:text-neutral-600 mt-1">
           Update your login password to keep your workspace safe.
         </p>
 
@@ -153,7 +153,7 @@ export function UserProfileSettings({ currentUser }: UserProfileSettingsProps) {
         <form onSubmit={handleChangePassword} className="mt-4 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] font-bold text-neutral-400 uppercase tracking-wider font-mono mb-1.5">
+              <label className="block text-[11px] font-bold text-neutral-400 dark:text-neutral-600 uppercase tracking-wider font-mono mb-1.5">
                 Current Password
               </label>
               <input
@@ -162,11 +162,11 @@ export function UserProfileSettings({ currentUser }: UserProfileSettingsProps) {
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded-xl border border-neutral-800 bg-black px-3.5 py-2 text-xs font-semibold text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+                className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white px-3.5 py-2 text-xs font-semibold text-white dark:text-black placeholder:text-neutral-500 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-[11px] font-bold text-neutral-400 uppercase tracking-wider font-mono mb-1.5">
+              <label className="block text-[11px] font-bold text-neutral-400 dark:text-neutral-600 uppercase tracking-wider font-mono mb-1.5">
                 New Password
               </label>
               <input
@@ -176,7 +176,7 @@ export function UserProfileSettings({ currentUser }: UserProfileSettingsProps) {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Min 6 characters"
-                className="w-full rounded-xl border border-neutral-800 bg-black px-3.5 py-2 text-xs font-semibold text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+                className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white px-3.5 py-2 text-xs font-semibold text-white dark:text-black placeholder:text-neutral-500 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none"
               />
             </div>
           </div>
@@ -185,7 +185,7 @@ export function UserProfileSettings({ currentUser }: UserProfileSettingsProps) {
             <button
               type="submit"
               disabled={changingPassword || !currentPassword || !newPassword}
-              className="flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-xs font-bold text-black hover:bg-neutral-200 transition disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-xl bg-white dark:bg-black px-4 py-2 text-xs font-bold text-black dark:text-white hover:bg-neutral-200 transition disabled:opacity-50"
             >
               {changingPassword ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Update Password"}
             </button>

@@ -100,7 +100,7 @@ function JourneyCard({ j, i }: { j: Journey; i: number }) {
       transition={{ duration: 0.5, delay: (i % 4) * 0.08 }}
       animate={{ y: [0, -10, 0] }}
       whileHover={{ y: 0, scale: 1.04, transition: { duration: 0.3 } }}
-      className="group relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.02] p-5 backdrop-blur-sm overflow-hidden transition-colors duration-300 hover:border-transparent"
+      className="group relative rounded-2xl border border-white dark:border-black/10 bg-gradient-to-b from-white/[0.06] to-white/[0.02] p-5 backdrop-blur-sm overflow-hidden transition-colors duration-300 hover:border-transparent"
       style={{ boxShadow: `0 0 0 1px hsl(${j.hue} 80% 60% / 0) inset` }}
     >
       {/* colored border glow on hover */}
@@ -136,8 +136,8 @@ function JourneyCard({ j, i }: { j: Journey; i: number }) {
         </span>
       </div>
 
-      <h3 className="relative mt-4 text-[15px] font-bold text-white">{j.name}</h3>
-      <p className="relative mt-1.5 text-xs text-neutral-400 leading-relaxed">{j.desc}</p>
+      <h3 className="relative mt-4 text-[15px] font-bold text-white dark:text-black">{j.name}</h3>
+      <p className="relative mt-1.5 text-xs text-neutral-400 dark:text-neutral-600 leading-relaxed">{j.desc}</p>
 
       {/* shimmer bar on hover */}
       <div
@@ -151,7 +151,7 @@ function JourneyCard({ j, i }: { j: Journey; i: number }) {
 
 export function PlannedJourneys() {
   return (
-    <section id="planned-journeys" className="relative overflow-hidden bg-black text-white">
+    <section id="planned-journeys" className="relative overflow-hidden bg-black dark:bg-white text-white">
       <video
         autoPlay
         loop
@@ -170,14 +170,14 @@ export function PlannedJourneys() {
           transition={{ duration: 0.7 }}
           className="text-center space-y-5"
         >
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-4 py-1.5 text-[11px] font-mono uppercase tracking-widest text-neutral-300">
-            <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+          <span className="inline-flex items-center gap-2 rounded-full border border-white dark:border-black/15 bg-white dark:bg-black/[0.04] px-4 py-1.5 text-[11px] font-mono uppercase tracking-widest text-neutral-300 dark:text-neutral-700">
+            <span className="h-1.5 w-1.5 rounded-full bg-white dark:bg-black animate-pulse" />
             The Road Ahead
           </span>
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] bg-gradient-to-b from-white via-white to-neutral-600 bg-clip-text text-transparent">
             Planned Journeys
           </h1>
-          <p className="mx-auto max-w-2xl text-sm sm:text-lg text-neutral-400 leading-relaxed">
+          <p className="mx-auto max-w-2xl text-sm sm:text-lg text-neutral-400 dark:text-neutral-600 leading-relaxed">
             Every capability we&apos;re engineering next — the full roadmap of what&apos;s coming
             to Workflow. Hover a card to explore.
           </p>
@@ -185,18 +185,18 @@ export function PlannedJourneys() {
           {/* stats */}
           <div className="flex items-center justify-center gap-8 pt-2 text-center">
             <div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-white">{total}</div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-neutral-500">Capabilities</div>
+              <div className="text-2xl sm:text-3xl font-extrabold text-white dark:text-black">{total}</div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-neutral-500 dark:text-neutral-500">Capabilities</div>
             </div>
-            <div className="h-10 w-px bg-white/10" />
+            <div className="h-10 w-px bg-white dark:bg-black/10" />
             <div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-white">{categories.length}</div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-neutral-500">Categories</div>
+              <div className="text-2xl sm:text-3xl font-extrabold text-white dark:text-black">{categories.length}</div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-neutral-500 dark:text-neutral-500">Categories</div>
             </div>
-            <div className="h-10 w-px bg-white/10" />
+            <div className="h-10 w-px bg-white dark:bg-black/10" />
             <div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-white">0</div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-neutral-500">Shipped</div>
+              <div className="text-2xl sm:text-3xl font-extrabold text-white dark:text-black">0</div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-neutral-500 dark:text-neutral-500">Shipped</div>
             </div>
           </div>
         </motion.div>
@@ -213,9 +213,9 @@ export function PlannedJourneys() {
               transition={{ duration: 0.5 }}
               className="flex items-center gap-4"
             >
-              <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-200">{cat.name}</h2>
+              <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-200 dark:text-neutral-800">{cat.name}</h2>
               <div className="h-px flex-1 bg-gradient-to-r from-white/20 to-transparent" />
-              <span className="text-[11px] font-mono text-neutral-500">{cat.blurb}</span>
+              <span className="text-[11px] font-mono text-neutral-500 dark:text-neutral-500">{cat.blurb}</span>
             </motion.div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">

@@ -40,8 +40,8 @@ export default async function DiscussionsPage({ params }: DiscussionsPageProps) 
 
   return (
     <div className="flex h-full flex-col items-center justify-center text-center p-8">
-      <h2 className="text-lg font-bold text-white">No discussion channels found</h2>
-      <p className="mt-1 text-xs text-neutral-400">
+      <h2 className="text-lg font-bold text-white dark:text-black">No discussion channels found</h2>
+      <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-600">
         Create a channel in the sidebar to start collaborating.
       </p>
     </div>

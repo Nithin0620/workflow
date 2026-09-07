@@ -214,29 +214,29 @@ export function RepositorySettingsDialog({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black dark:bg-white/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+      <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-6 shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
+        <div className="flex items-center justify-between border-b border-neutral-800 dark:border-neutral-200 pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-900 border border-neutral-800 text-white">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-900 dark:bg-neutral-100 border border-neutral-800 text-white dark:text-black">
               <Bot className="h-5 w-5 text-emerald-400" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-bold text-white">Repository & AI Agent Authorization</h2>
-                <span className="rounded-md border border-neutral-800 bg-neutral-900 px-1.5 py-0.5 font-mono text-[11px] font-bold text-neutral-300">
+                <h2 className="text-lg font-bold text-white dark:text-black">Repository & AI Agent Authorization</h2>
+                <span className="rounded-md border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-1.5 py-0.5 font-mono text-[11px] font-bold text-neutral-300 dark:text-neutral-700">
                   {projectKey}
                 </span>
               </div>
-              <p className="text-xs text-neutral-400">
+              <p className="text-xs text-neutral-400 dark:text-neutral-600">
                 Link your GitHub repository to enable autonomous code scanning and AI issue fix suggestions.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="cursor-pointer rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+            className="cursor-pointer rounded-lg p-1.5 text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
           >
             <X className="h-5 w-5" />
           </button>
@@ -246,7 +246,7 @@ export function RepositorySettingsDialog({
         <div className="mt-4 max-h-[75vh] overflow-y-auto pr-1">
           {loading ? (
             <div className="flex h-48 items-center justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-neutral-500" />
+              <Loader2 className="h-6 w-6 animate-spin text-neutral-500 dark:text-neutral-500" />
             </div>
           ) : (
             <div className="space-y-5">
@@ -271,11 +271,11 @@ export function RepositorySettingsDialog({
               {/* Connected Repository View */}
               {repo ? (
                 <div className="space-y-4">
-                  <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4">
+                  <div className="rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900/50 dark:bg-neutral-100/50 p-4">
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-white text-sm">
+                          <span className="font-semibold text-white dark:text-black text-sm">
                             {repo.repoOwner}/{repo.repoName}
                           </span>
                           <span
@@ -293,7 +293,7 @@ export function RepositorySettingsDialog({
                           href={repo.repoUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs text-neutral-400 hover:text-white transition"
+                          className="inline-flex items-center gap-1 text-xs text-neutral-400 dark:text-neutral-600 hover:text-white dark:text-black transition"
                         >
                           <span>{repo.repoUrl}</span>
                           <ExternalLink className="h-3 w-3" />
@@ -318,7 +318,7 @@ export function RepositorySettingsDialog({
                           onClick={handleTestConnection}
                           disabled={testing}
                           title="Verify live GitHub connection"
-                          className="cursor-pointer flex items-center gap-1 rounded-lg border border-neutral-800 bg-neutral-900 px-2.5 py-1.5 text-xs text-neutral-300 hover:bg-neutral-800 hover:text-white transition"
+                          className="cursor-pointer flex items-center gap-1 rounded-lg border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-2.5 py-1.5 text-xs text-neutral-300 dark:text-neutral-700 hover:bg-neutral-800 hover:text-white dark:text-black transition"
                         >
                           <RefreshCw className={`h-3.5 w-3.5 ${testing ? "animate-spin" : ""}`} />
                           <span>Test Sync</span>
@@ -328,7 +328,7 @@ export function RepositorySettingsDialog({
                             onClick={handleDisconnect}
                             disabled={submitting}
                             title="Disconnect repository"
-                            className="cursor-pointer flex items-center gap-1 rounded-lg border border-rose-500/30 bg-rose-500/10 px-2.5 py-1.5 text-xs text-rose-400 hover:bg-rose-500 hover:text-white transition"
+                            className="cursor-pointer flex items-center gap-1 rounded-lg border border-rose-500/30 bg-rose-500/10 px-2.5 py-1.5 text-xs text-rose-400 hover:bg-rose-500 hover:text-white dark:text-black transition"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                             <span>Unlink</span>
@@ -338,18 +338,18 @@ export function RepositorySettingsDialog({
                     </div>
 
                     {/* Meta Stats */}
-                    <div className="mt-3 flex flex-wrap gap-4 border-t border-neutral-800/80 pt-3 text-xs text-neutral-400">
+                    <div className="mt-3 flex flex-wrap gap-4 border-t border-neutral-800/80 dark:border-neutral-200/80 pt-3 text-xs text-neutral-400 dark:text-neutral-600">
                       <div className="flex items-center gap-1.5">
-                        <GitBranch className="h-3.5 w-3.5 text-neutral-400" />
-                        <span>Branch: <strong className="text-neutral-200">{repo.defaultBranch}</strong></span>
+                        <GitBranch className="h-3.5 w-3.5 text-neutral-400 dark:text-neutral-600" />
+                        <span>Branch: <strong className="text-neutral-200 dark:text-neutral-800">{repo.defaultBranch}</strong></span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <Key className="h-3.5 w-3.5 text-neutral-400" />
-                        <span>Token: <strong className="text-neutral-200">{repo.hasToken ? repo.maskedToken : "Public Only"}</strong></span>
+                        <Key className="h-3.5 w-3.5 text-neutral-400 dark:text-neutral-600" />
+                        <span>Token: <strong className="text-neutral-200 dark:text-neutral-800">{repo.hasToken ? repo.maskedToken : "Public Only"}</strong></span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <Clock className="h-3.5 w-3.5 text-neutral-400" />
-                        <span>Scheduled Scan: <strong className="text-neutral-200">Daily 12:00 PM</strong></span>
+                        <Clock className="h-3.5 w-3.5 text-neutral-400 dark:text-neutral-600" />
+                        <span>Scheduled Scan: <strong className="text-neutral-200 dark:text-neutral-800">Daily 12:00 PM</strong></span>
                       </div>
                     </div>
                   </div>
@@ -358,13 +358,13 @@ export function RepositorySettingsDialog({
                   {canManage && (
                     <div className="space-y-4">
                       {/* AI Scan Toggle */}
-                      <div className="flex items-center justify-between rounded-xl border border-neutral-800 bg-neutral-900/60 p-3.5">
+                      <div className="flex items-center justify-between rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900/60 dark:bg-neutral-100/60 p-3.5">
                         <div className="space-y-0.5">
                           <div className="flex items-center gap-1.5">
                             <Sparkles className="h-4 w-4 text-emerald-400" />
-                            <span className="text-xs font-bold text-white">AI Autonomous Codebase Fixes & Triage</span>
+                            <span className="text-xs font-bold text-white dark:text-black">AI Autonomous Codebase Fixes & Triage</span>
                           </div>
-                          <p className="text-[11px] text-neutral-400">
+                          <p className="text-[11px] text-neutral-400 dark:text-neutral-600">
                             Allow AI to scan repository files and recommend code solutions when issues are opened.
                           </p>
                         </div>
@@ -372,32 +372,32 @@ export function RepositorySettingsDialog({
                           type="checkbox"
                           checked={aiScanEnabled}
                           onChange={(e) => setAiScanEnabled(e.target.checked)}
-                          className="h-4 w-4 rounded border-neutral-800 bg-neutral-950 text-white accent-white cursor-pointer"
+                          className="h-4 w-4 rounded border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 text-white dark:text-black accent-white cursor-pointer"
                         />
                       </div>
 
                       {/* Scheduled Cron Job Configuration */}
-                      <div className="rounded-xl border border-neutral-800 bg-neutral-900/60 p-3.5 space-y-2.5">
+                      <div className="rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900/60 dark:bg-neutral-100/60 p-3.5 space-y-2.5">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1.5">
                             <Clock className="h-4 w-4 text-emerald-400" />
-                            <span className="text-xs font-bold text-white">Autonomous Scheduled Bug Hunter</span>
+                            <span className="text-xs font-bold text-white dark:text-black">Autonomous Scheduled Bug Hunter</span>
                           </div>
                           <span className="rounded bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 font-mono text-[10px] font-bold text-emerald-400">
                             ACTIVE
                           </span>
                         </div>
-                        <p className="text-[11px] text-neutral-400">
+                        <p className="text-[11px] text-neutral-400 dark:text-neutral-600">
                           Automatically audits repository code, detects vulnerabilities & bugs, and creates tracked issues on this board.
                         </p>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                           <div className="space-y-1">
-                            <label className="text-[11px] font-medium text-neutral-300">Run Schedule</label>
+                            <label className="text-[11px] font-medium text-neutral-300 dark:text-neutral-700">Run Schedule</label>
                             <select
                               value={cronSchedule}
                               onChange={(e) => setCronSchedule(e.target.value)}
-                              className="w-full rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 text-xs text-white focus:border-neutral-600 focus:outline-none"
+                              className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-3 py-2 text-xs text-white dark:text-black focus:border-neutral-600 focus:outline-none"
                             >
                               <option value="0 12 * * *">Every Day at 12:00 PM (Default)</option>
                               <option value="0 0 * * *">Every Day at Midnight (12:00 AM)</option>
@@ -408,53 +408,53 @@ export function RepositorySettingsDialog({
                           </div>
 
                           <div className="space-y-1">
-                            <label className="text-[11px] font-medium text-neutral-300">Cron Webhook Endpoint</label>
-                            <div className="flex items-center justify-between rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 text-[11px] font-mono text-neutral-400">
+                            <label className="text-[11px] font-medium text-neutral-300 dark:text-neutral-700">Cron Webhook Endpoint</label>
+                            <div className="flex items-center justify-between rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-3 py-2 text-[11px] font-mono text-neutral-400 dark:text-neutral-600">
                               <span className="truncate">/api/cron/bug-hunt</span>
-                              <span className="text-[10px] text-neutral-500 shrink-0">GET/POST</span>
+                              <span className="text-[10px] text-neutral-500 dark:text-neutral-500 shrink-0">GET/POST</span>
                             </div>
                           </div>
                         </div>
                       </div>
 
                       {/* Collapsible Branch & PAT Token Preferences */}
-                      <div className="rounded-xl border border-neutral-800/80 bg-neutral-950 overflow-hidden shadow-sm transition">
+                      <div className="rounded-xl border border-neutral-800/80 dark:border-neutral-200/80 bg-neutral-950 dark:bg-neutral-50 overflow-hidden shadow-sm transition">
                         <button
                           type="button"
                           onClick={() => setIsPreferencesOpen((prev) => !prev)}
-                          className="w-full flex items-center justify-between p-3.5 bg-neutral-900/40 hover:bg-neutral-900/70 transition cursor-pointer text-left"
+                          className="w-full flex items-center justify-between p-3.5 bg-neutral-900/40 dark:bg-neutral-100/40 hover:bg-neutral-900/70 transition cursor-pointer text-left"
                         >
                           <div className="space-y-0.5">
                             <div className="flex items-center gap-2">
-                              <span className="text-xs font-bold text-white">Target Scanning Branch & PAT Token</span>
-                              <span className="rounded bg-neutral-800 px-1.5 py-0.5 font-mono text-[10px] text-neutral-400">
+                              <span className="text-xs font-bold text-white dark:text-black">Target Scanning Branch & PAT Token</span>
+                              <span className="rounded bg-neutral-800 dark:bg-neutral-200 px-1.5 py-0.5 font-mono text-[10px] text-neutral-400 dark:text-neutral-600">
                                 {repo.defaultBranch}
                               </span>
                             </div>
-                            <p className="text-[11px] text-neutral-400">
+                            <p className="text-[11px] text-neutral-400 dark:text-neutral-600">
                               Customize default branch selection and update personal access credentials.
                             </p>
                           </div>
-                          <div className="flex items-center gap-1.5 text-xs text-neutral-400">
+                          <div className="flex items-center gap-1.5 text-xs text-neutral-400 dark:text-neutral-600">
                             <span className="text-[11px]">{isPreferencesOpen ? "Hide" : "Expand"}</span>
                             {isPreferencesOpen ? (
-                              <ChevronUp className="h-4 w-4 text-neutral-400" />
+                              <ChevronUp className="h-4 w-4 text-neutral-400 dark:text-neutral-600" />
                             ) : (
-                              <ChevronDown className="h-4 w-4 text-neutral-400" />
+                              <ChevronDown className="h-4 w-4 text-neutral-400 dark:text-neutral-600" />
                             )}
                           </div>
                         </button>
 
                         {isPreferencesOpen && (
-                          <div className="p-4 border-t border-neutral-800/80 space-y-4">
+                          <div className="p-4 border-t border-neutral-800/80 dark:border-neutral-200/80 space-y-4">
                             {/* Default Branch */}
                             <div className="space-y-1.5">
-                              <label className="text-xs font-medium text-neutral-300">Target Scanning Branch</label>
+                              <label className="text-xs font-medium text-neutral-300 dark:text-neutral-700">Target Scanning Branch</label>
                               {branches.length > 0 ? (
                                 <select
                                   value={defaultBranch}
                                   onChange={(e) => setDefaultBranch(e.target.value)}
-                                  className="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs text-white focus:border-neutral-600 focus:outline-none"
+                                  className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-3 py-2 text-xs text-white dark:text-black focus:border-neutral-600 focus:outline-none"
                                 >
                                   {branches.map((b) => (
                                     <option key={b.name} value={b.name}>
@@ -468,14 +468,14 @@ export function RepositorySettingsDialog({
                                   value={defaultBranch}
                                   onChange={(e) => setDefaultBranch(e.target.value)}
                                   placeholder="main"
-                                  className="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs text-white focus:border-neutral-600 focus:outline-none"
+                                  className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-3 py-2 text-xs text-white dark:text-black focus:border-neutral-600 focus:outline-none"
                                 />
                               )}
                             </div>
 
                             {/* Access Token Update */}
                             <div className="space-y-1.5">
-                              <label className="text-xs font-medium text-neutral-300">
+                              <label className="text-xs font-medium text-neutral-300 dark:text-neutral-700">
                                 Update Personal Access Token (PAT)
                               </label>
                               <input
@@ -483,7 +483,7 @@ export function RepositorySettingsDialog({
                                 value={accessToken}
                                 onChange={(e) => setAccessToken(e.target.value)}
                                 placeholder="Leave empty to keep current token, or paste new ghp_..."
-                                className="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs text-white placeholder:text-neutral-600 focus:border-neutral-600 focus:outline-none"
+                                className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-3 py-2 text-xs text-white dark:text-black placeholder:text-neutral-600 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none"
                               />
                             </div>
                           </div>
@@ -493,7 +493,7 @@ export function RepositorySettingsDialog({
                       <button
                         onClick={handleUpdate}
                         disabled={submitting}
-                        className="cursor-pointer flex items-center justify-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-black hover:bg-neutral-200 transition disabled:opacity-50 w-full"
+                        className="cursor-pointer flex items-center justify-center gap-1.5 rounded-xl bg-white dark:bg-black px-4 py-2.5 text-xs font-bold text-black dark:text-white hover:bg-neutral-200 transition disabled:opacity-50 w-full"
                       >
                         {submitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                         <span>Save Settings & Schedule</span>
@@ -505,7 +505,7 @@ export function RepositorySettingsDialog({
                 /* Connect New Repository Form */
                 <form onSubmit={handleConnect} className="space-y-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-neutral-300">
+                    <label className="text-xs font-medium text-neutral-300 dark:text-neutral-700">
                       GitHub Repository URL or Shorthand <span className="text-rose-400">*</span>
                     </label>
                     <input
@@ -514,24 +514,24 @@ export function RepositorySettingsDialog({
                       onChange={(e) => setRepoUrl(e.target.value)}
                       placeholder="e.g. facebook/react or https://github.com/vercel/next.js"
                       required
-                      className="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-3.5 py-2.5 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+                      className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-3.5 py-2.5 text-xs text-white dark:text-black placeholder:text-neutral-500 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-neutral-300">Default Branch</label>
+                      <label className="text-xs font-medium text-neutral-300 dark:text-neutral-700">Default Branch</label>
                       <input
                         type="text"
                         value={defaultBranch}
                         onChange={(e) => setDefaultBranch(e.target.value)}
                         placeholder="main"
-                        className="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-3.5 py-2.5 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+                        className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-3.5 py-2.5 text-xs text-white dark:text-black placeholder:text-neutral-500 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-neutral-300">
+                      <label className="text-xs font-medium text-neutral-300 dark:text-neutral-700">
                         Personal Access Token (PAT)
                       </label>
                       <input
@@ -539,20 +539,20 @@ export function RepositorySettingsDialog({
                         value={accessToken}
                         onChange={(e) => setAccessToken(e.target.value)}
                         placeholder="ghp_... (required for private repos)"
-                        className="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-3.5 py-2.5 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+                        className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-3.5 py-2.5 text-xs text-white dark:text-black placeholder:text-neutral-500 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none"
                       />
                     </div>
                   </div>
 
                   {/* AI Toggles & Schedule */}
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between rounded-xl border border-neutral-800 bg-neutral-900/60 p-3.5">
+                    <div className="flex items-center justify-between rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900/60 dark:bg-neutral-100/60 p-3.5">
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-1.5">
                           <Sparkles className="h-4 w-4 text-emerald-400" />
-                          <span className="text-xs font-bold text-white">Enable AI Code Scanner & Auto-Triage</span>
+                          <span className="text-xs font-bold text-white dark:text-black">Enable AI Code Scanner & Auto-Triage</span>
                         </div>
-                        <p className="text-[11px] text-neutral-400">
+                        <p className="text-[11px] text-neutral-400 dark:text-neutral-600">
                           Allows AI agent to read repository code structure, triage incoming bugs, and suggest diffs.
                         </p>
                       </div>
@@ -560,19 +560,19 @@ export function RepositorySettingsDialog({
                         type="checkbox"
                         checked={aiScanEnabled}
                         onChange={(e) => setAiScanEnabled(e.target.checked)}
-                        className="h-4 w-4 rounded border-neutral-800 bg-neutral-950 text-white accent-white cursor-pointer"
+                        className="h-4 w-4 rounded border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 text-white dark:text-black accent-white cursor-pointer"
                       />
                     </div>
 
-                    <div className="rounded-xl border border-neutral-800 bg-neutral-900/60 p-3.5 space-y-2">
+                    <div className="rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900/60 dark:bg-neutral-100/60 p-3.5 space-y-2">
                       <div className="flex items-center gap-1.5">
                         <Clock className="h-4 w-4 text-emerald-400" />
-                        <span className="text-xs font-bold text-white">Scheduled Daily Bug Hunter (Cron)</span>
+                        <span className="text-xs font-bold text-white dark:text-black">Scheduled Daily Bug Hunter (Cron)</span>
                       </div>
                       <select
                         value={cronSchedule}
                         onChange={(e) => setCronSchedule(e.target.value)}
-                        className="w-full rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 text-xs text-white focus:border-neutral-600 focus:outline-none"
+                        className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-3 py-2 text-xs text-white dark:text-black focus:border-neutral-600 focus:outline-none"
                       >
                         <option value="0 12 * * *">Every Day at 12:00 PM (Default)</option>
                         <option value="0 0 * * *">Every Day at Midnight (12:00 AM)</option>
@@ -586,14 +586,14 @@ export function RepositorySettingsDialog({
                     <button
                       type="button"
                       onClick={onClose}
-                      className="cursor-pointer rounded-xl border border-neutral-800 px-4 py-2 text-xs font-semibold text-neutral-300 hover:bg-neutral-900 hover:text-white transition"
+                      className="cursor-pointer rounded-xl border border-neutral-800 dark:border-neutral-200 px-4 py-2 text-xs font-semibold text-neutral-300 dark:text-neutral-700 hover:bg-neutral-900 hover:text-white dark:text-black transition"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={submitting || !repoUrl.trim()}
-                      className="cursor-pointer flex items-center gap-1.5 rounded-xl bg-white px-5 py-2 text-xs font-bold text-black hover:bg-neutral-200 transition disabled:opacity-50"
+                      className="cursor-pointer flex items-center gap-1.5 rounded-xl bg-white dark:bg-black px-5 py-2 text-xs font-bold text-black dark:text-white hover:bg-neutral-200 transition disabled:opacity-50"
                     >
                       {submitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                       <span>Authorize & Link Repository</span>

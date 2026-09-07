@@ -101,34 +101,34 @@ export default async function HowItWorksPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
+    <div className="min-h-screen bg-black dark:bg-white text-white dark:text-black selection:bg-white dark:selection:bg-black selection:text-black dark:selection:text-white">
       {/* 1. TOP NAVIGATION - PURE BLACK */}
       <PublicNavbar theme="dark" workspaceUrl={userWorkspaceUrl} />
 
       {/* 2. HERO HEADER - PURE BLACK */}
-      <section className="border-b border-neutral-900 bg-black px-6 pt-20 pb-16 text-center space-y-6">
+      <section className="border-b border-neutral-900 dark:border-neutral-100 bg-black dark:bg-white px-6 pt-20 pb-16 text-center space-y-6">
         <div className="mx-auto max-w-4xl space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900 px-3.5 py-1 text-xs text-neutral-300 font-mono">
-            <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-3.5 py-1 text-xs text-neutral-300 dark:text-neutral-700 font-mono">
+            <span className="h-2 w-2 rounded-full bg-white dark:bg-black animate-pulse" />
             <span>DOCUMENTATION & ARCHITECTURE GUIDE</span>
           </div>
-          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white">
+          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white dark:text-black">
             How Workflow Powers Modern Engineering Teams
           </h1>
-          <p className="text-sm sm:text-base text-neutral-400 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base text-neutral-400 dark:text-neutral-600 max-w-2xl mx-auto leading-relaxed">
             A comprehensive overview of our 4-tier multi-tenant hierarchy, zero-latency fractional indexing, and keyboard-first productivity engine.
           </p>
         </div>
       </section>
 
       {/* 3. STEP BY STEP GUIDE - ALTERNATING BLACK & WHITE CARDS */}
-      <section className="bg-neutral-950 px-6 py-20 border-b border-neutral-900">
+      <section className="bg-neutral-950 dark:bg-neutral-50 px-6 py-20 border-b border-neutral-900 dark:border-neutral-100">
         <div className="max-w-5xl mx-auto space-y-6">
           <div className="text-center pb-8 space-y-2">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-400 font-mono">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-600 font-mono">
               LIFECYCLE WALKTHROUGH
             </h2>
-            <p className="text-2xl sm:text-3xl font-extrabold text-white">
+            <p className="text-2xl sm:text-3xl font-extrabold text-white dark:text-black">
               6 Simple Steps From Setup to Sprint Completion
             </p>
           </div>
@@ -143,8 +143,8 @@ export default async function HowItWorksPage() {
                   key={step.number}
                   className={`rounded-2xl p-7 space-y-5 transition duration-200 border ${
                     isEven
-                      ? "bg-white text-black border-neutral-200 hover:shadow-xl"
-                      : "bg-neutral-900 text-white border-neutral-800 hover:border-neutral-600 hover:bg-neutral-900/90"
+                      ? "bg-white dark:bg-black text-black border-neutral-200 hover:shadow-xl"
+                      : "bg-neutral-900 dark:bg-neutral-100 text-white dark:text-black border-neutral-800 hover:border-neutral-600 dark:hover:border-neutral-400 hover:bg-neutral-900/90 dark:hover:bg-neutral-100/90"
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -152,8 +152,8 @@ export default async function HowItWorksPage() {
                       <div
                         className={`h-10 w-10 rounded-xl flex items-center justify-center font-bold text-sm ${
                           isEven
-                            ? "bg-black text-white"
-                            : "bg-white text-black"
+                            ? "bg-black dark:bg-white text-white"
+                            : "bg-white dark:bg-black text-black"
                         }`}
                       >
                         <Icon className="h-5 w-5" />
@@ -161,7 +161,7 @@ export default async function HowItWorksPage() {
                       <div>
                         <span
                           className={`font-mono text-[11px] font-bold ${
-                            isEven ? "text-neutral-500" : "text-neutral-400"
+                            isEven ? "text-neutral-500 dark:text-neutral-500" : "text-neutral-400"
                           }`}
                         >
                           STEP {step.number}
@@ -173,7 +173,7 @@ export default async function HowItWorksPage() {
 
                   <p
                     className={`text-xs leading-relaxed ${
-                      isEven ? "text-neutral-700" : "text-neutral-300"
+                      isEven ? "text-neutral-700 dark:text-neutral-300" : "text-neutral-300"
                     }`}
                   >
                     {step.description}
@@ -182,15 +182,15 @@ export default async function HowItWorksPage() {
                   <div
                     className={`pt-4 border-t space-y-2 text-xs ${
                       isEven
-                        ? "border-neutral-200 text-neutral-600"
-                        : "border-neutral-800 text-neutral-400"
+                        ? "border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400"
+                        : "border-neutral-800 dark:border-neutral-200 text-neutral-400 dark:text-neutral-600"
                     }`}
                   >
                     {step.details.map((detail, dIdx) => (
                       <div key={dIdx} className="flex items-center gap-2">
                         <CheckCircle2
                           className={`h-3.5 w-3.5 shrink-0 ${
-                            isEven ? "text-black" : "text-white"
+                            isEven ? "text-black dark:text-white" : "text-white"
                           }`}
                         />
                         <span>{detail}</span>
@@ -205,47 +205,47 @@ export default async function HowItWorksPage() {
       </section>
 
       {/* 4. UNDER THE HOOD - PURE BLACK TECHNICAL DEEP DIVE */}
-      <section className="bg-black text-white px-6 py-24 border-b border-neutral-900">
+      <section className="bg-black dark:bg-white text-white px-6 py-24 border-b border-neutral-900 dark:border-neutral-100">
         <div className="max-w-5xl mx-auto space-y-12">
           <div className="text-center space-y-3">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-500 font-mono">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500 font-mono">
               UNDER THE HOOD
             </h2>
-            <p className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+            <p className="text-3xl sm:text-5xl font-extrabold text-white dark:text-black tracking-tight">
               High Performance Architecture
             </p>
-            <p className="text-xs sm:text-sm text-neutral-400 max-w-xl mx-auto">
+            <p className="text-xs sm:text-sm text-neutral-400 dark:text-neutral-600 max-w-xl mx-auto">
               Engineered with PostgreSQL transactions, Next.js Turbopack, and NextAuth session guards.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="rounded-2xl border border-neutral-800 bg-neutral-900/50 p-6 space-y-3 hover:border-neutral-700 transition">
-              <div className="h-10 w-10 rounded-xl bg-white text-black flex items-center justify-center font-bold">
+            <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900/50 dark:bg-neutral-100/50 p-6 space-y-3 hover:border-neutral-700 dark:hover:border-neutral-300 transition">
+              <div className="h-10 w-10 rounded-xl bg-white dark:bg-black text-black flex items-center justify-center font-bold">
                 <Zap className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-bold text-white">Fractional Indexing</h3>
-              <p className="text-xs text-neutral-400 leading-relaxed">
+              <h3 className="text-base font-bold text-white dark:text-black">Fractional Indexing</h3>
+              <p className="text-xs text-neutral-400 dark:text-neutral-600 leading-relaxed">
                 Positions are calculated using midpoint floats (P_prev + P_next) / 2, eliminating cascading database locks during card reordering.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-neutral-800 bg-neutral-900/50 p-6 space-y-3 hover:border-neutral-700 transition">
-              <div className="h-10 w-10 rounded-xl bg-white text-black flex items-center justify-center font-bold">
+            <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900/50 dark:bg-neutral-100/50 p-6 space-y-3 hover:border-neutral-700 dark:hover:border-neutral-300 transition">
+              <div className="h-10 w-10 rounded-xl bg-white dark:bg-black text-black flex items-center justify-center font-bold">
                 <ShieldCheck className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-bold text-white">Server-Guarded RBAC</h3>
-              <p className="text-xs text-neutral-400 leading-relaxed">
+              <h3 className="text-base font-bold text-white dark:text-black">Server-Guarded RBAC</h3>
+              <p className="text-xs text-neutral-400 dark:text-neutral-600 leading-relaxed">
                 Role checks happen strictly inside Server Actions (`OWNER`, `ADMIN`, `MEMBER`, `VIEWER`), preventing any unauthorized mutations.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-neutral-800 bg-neutral-900/50 p-6 space-y-3 hover:border-neutral-700 transition">
-              <div className="h-10 w-10 rounded-xl bg-white text-black flex items-center justify-center font-bold">
+            <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900/50 dark:bg-neutral-100/50 p-6 space-y-3 hover:border-neutral-700 dark:hover:border-neutral-300 transition">
+              <div className="h-10 w-10 rounded-xl bg-white dark:bg-black text-black flex items-center justify-center font-bold">
                 <Terminal className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-bold text-white">Zero-Config Turbopack</h3>
-              <p className="text-xs text-neutral-400 leading-relaxed">
+              <h3 className="text-base font-bold text-white dark:text-black">Zero-Config Turbopack</h3>
+              <p className="text-xs text-neutral-400 dark:text-neutral-600 leading-relaxed">
                 Sub-second hot-reloads and instant server component renders powered by Next.js 16 with React 19 server transitions.
               </p>
             </div>
@@ -254,19 +254,19 @@ export default async function HowItWorksPage() {
       </section>
 
       {/* 5. CALL TO ACTION - PURE WHITE */}
-      <section className="bg-white text-black px-6 py-20 border-b border-neutral-200 text-center">
+      <section className="bg-white dark:bg-black text-black px-6 py-20 border-b border-neutral-200 dark:border-neutral-800 text-center">
         <div className="max-w-2xl mx-auto space-y-6">
-          <h3 className="text-3xl sm:text-4xl font-extrabold text-black tracking-tight">
+          <h3 className="text-3xl sm:text-4xl font-extrabold text-black dark:text-white tracking-tight">
             Ready to experience high-velocity issue management?
           </h3>
-          <p className="text-xs sm:text-sm text-neutral-600">
+          <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">
             Create your account in seconds with Google, GitHub, or Email. Or get in touch for custom enterprise onboarding.
           </p>
           <div className="flex items-center justify-center gap-4">
             {userWorkspaceUrl ? (
               <Link
                 href={userWorkspaceUrl}
-                className="flex items-center gap-2 rounded-xl bg-black px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-xl hover:bg-neutral-800 transition"
+                className="flex items-center gap-2 rounded-xl bg-black dark:bg-white px-6 py-3.5 text-xs sm:text-sm font-bold text-white dark:text-black shadow-xl hover:bg-neutral-800 transition"
               >
                 <span>Go to Workspace</span>
                 <ArrowRight className="h-4 w-4" />
@@ -274,7 +274,7 @@ export default async function HowItWorksPage() {
             ) : (
               <Link
                 href="/register"
-                className="flex items-center gap-2 rounded-xl bg-black px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-xl hover:bg-neutral-800 transition"
+                className="flex items-center gap-2 rounded-xl bg-black dark:bg-white px-6 py-3.5 text-xs sm:text-sm font-bold text-white dark:text-black shadow-xl hover:bg-neutral-800 transition"
               >
                 <span>Create Free Account</span>
                 <ArrowRight className="h-4 w-4" />
@@ -282,7 +282,7 @@ export default async function HowItWorksPage() {
             )}
             <Link
               href="/contact"
-              className="rounded-xl border border-neutral-300 bg-white px-6 py-3.5 text-xs sm:text-sm font-semibold text-black hover:border-black transition"
+              className="rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black px-6 py-3.5 text-xs sm:text-sm font-semibold text-black dark:text-white hover:border-black transition"
             >
               <span>Enterprise Enquiry</span>
             </Link>
@@ -291,27 +291,27 @@ export default async function HowItWorksPage() {
       </section>
 
       {/* 6. FOOTER - PURE BLACK */}
-      <footer className="border-t border-neutral-900 bg-black px-6 py-12 text-white">
+      <footer className="border-t border-neutral-900 dark:border-neutral-100 bg-black dark:bg-white px-6 py-12 text-white">
         <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-white text-black font-black text-xs">
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-white dark:bg-black text-black font-black text-xs">
               W
             </div>
-            <span className="text-sm font-bold text-white">Workflow</span>
-            <span className="text-xs text-neutral-500">© 2026. Built with Next.js & PostgreSQL.</span>
+            <span className="text-sm font-bold text-white dark:text-black">Workflow</span>
+            <span className="text-xs text-neutral-500 dark:text-neutral-500">© 2026. Built with Next.js & PostgreSQL.</span>
           </div>
 
-          <div className="flex items-center gap-6 text-xs text-neutral-400 font-medium">
-            <Link href="/" className="hover:text-white transition">
+          <div className="flex items-center gap-6 text-xs text-neutral-400 dark:text-neutral-600 font-medium">
+            <Link href="/" className="hover:text-white dark:text-black transition">
               Home
             </Link>
-            <Link href="/contact" className="hover:text-white transition">
+            <Link href="/contact" className="hover:text-white dark:text-black transition">
               Contact & Support
             </Link>
-            <Link href="/login" className="hover:text-white transition">
+            <Link href="/login" className="hover:text-white dark:text-black transition">
               Sign In
             </Link>
-            <Link href="/register" className="hover:text-white transition font-bold text-white">
+            <Link href="/register" className="hover:text-white dark:text-black transition font-bold text-white dark:text-black">
               Create Account
             </Link>
           </div>

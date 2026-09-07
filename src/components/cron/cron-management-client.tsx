@@ -169,21 +169,21 @@ export function CronManagementClient({
     .sort((a, b) => a.getTime() - b.getTime())[0];
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 text-white pb-16">
+    <div className="max-w-6xl mx-auto space-y-8 text-white dark:text-black pb-16">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-900 pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-900 dark:border-neutral-100 pb-6">
         <div>
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
               <Clock className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white">
+              <h1 className="text-2xl font-bold tracking-tight text-white dark:text-black">
                 Cron Jobs & Automation
               </h1>
-              <p className="text-xs text-neutral-400 mt-0.5">
+              <p className="text-xs text-neutral-400 dark:text-neutral-600 mt-0.5">
                 Schedule configurable AI jobs, link any repository, and inspect every run for{" "}
-                <strong className="text-neutral-200">{workspaceName}</strong>.
+                <strong className="text-neutral-200 dark:text-neutral-800">{workspaceName}</strong>.
               </p>
             </div>
           </div>
@@ -193,7 +193,7 @@ export function CronManagementClient({
           <button
             onClick={refresh}
             disabled={refreshing}
-            className="flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
+            className="flex items-center gap-1.5 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-3 py-2 text-xs font-semibold text-neutral-300 dark:text-neutral-700 hover:border-neutral-700 hover:text-white dark:text-black transition"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
             <span>Refresh</span>
@@ -201,7 +201,7 @@ export function CronManagementClient({
 
           <button
             onClick={() => setCreateOpen(true)}
-            className="flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
+            className="flex items-center gap-1.5 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-3 py-2 text-xs font-semibold text-neutral-300 dark:text-neutral-700 hover:border-neutral-700 hover:text-white dark:text-black transition"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>New Cron Job</span>
@@ -211,7 +211,7 @@ export function CronManagementClient({
             <button
               onClick={handleRunAll}
               disabled={runningAll}
-              className="flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-xs font-bold text-black hover:bg-neutral-200 transition disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-xl bg-white dark:bg-black px-4 py-2 text-xs font-bold text-black dark:text-white hover:bg-neutral-200 transition disabled:opacity-50"
             >
               {runningAll ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4 fill-current" />}
               <span>{runningAll ? "Running Jobs..." : "Run All Jobs"}</span>
@@ -240,43 +240,43 @@ export function CronManagementClient({
 
       {/* Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-4">
-          <div className="flex items-center justify-between text-neutral-400">
+        <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-4">
+          <div className="flex items-center justify-between text-neutral-400 dark:text-neutral-600">
             <span className="text-[11px] font-bold uppercase tracking-wider font-mono">Active Jobs</span>
             <Bot className="h-4 w-4 text-emerald-400" />
           </div>
-          <div className="mt-2 text-2xl font-extrabold text-white">
+          <div className="mt-2 text-2xl font-extrabold text-white dark:text-black">
             {enabledCount}
-            <span className="text-xs font-normal text-neutral-500"> / {jobs.length}</span>
+            <span className="text-xs font-normal text-neutral-500 dark:text-neutral-500"> / {jobs.length}</span>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-4">
-          <div className="flex items-center justify-between text-neutral-400">
+        <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-4">
+          <div className="flex items-center justify-between text-neutral-400 dark:text-neutral-600">
             <span className="text-[11px] font-bold uppercase tracking-wider font-mono">Total Runs</span>
-            <Clock className="h-4 w-4 text-neutral-300" />
+            <Clock className="h-4 w-4 text-neutral-300 dark:text-neutral-700" />
           </div>
-          <div className="mt-2 text-2xl font-extrabold text-white">{totalRuns}</div>
+          <div className="mt-2 text-2xl font-extrabold text-white dark:text-black">{totalRuns}</div>
         </div>
 
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-4">
-          <div className="flex items-center justify-between text-neutral-400">
+        <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-4">
+          <div className="flex items-center justify-between text-neutral-400 dark:text-neutral-600">
             <span className="text-[11px] font-bold uppercase tracking-wider font-mono">Failed Runs</span>
             <AlertCircle className="h-4 w-4 text-rose-400" />
           </div>
           <div className="mt-2 text-2xl font-extrabold text-rose-400">{totalFailed}</div>
         </div>
 
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-4">
-          <div className="flex items-center justify-between text-neutral-400">
+        <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-4">
+          <div className="flex items-center justify-between text-neutral-400 dark:text-neutral-600">
             <span className="text-[11px] font-bold uppercase tracking-wider font-mono">Findings</span>
             <Zap className="h-4 w-4 text-amber-400" />
           </div>
           <div className="mt-2 text-2xl font-extrabold text-amber-400">{totalFindings}</div>
         </div>
 
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-4 col-span-2 lg:col-span-1">
-          <div className="flex items-center justify-between text-neutral-400">
+        <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-4 col-span-2 lg:col-span-1">
+          <div className="flex items-center justify-between text-neutral-400 dark:text-neutral-600">
             <span className="text-[11px] font-bold uppercase tracking-wider font-mono">Next Run</span>
             <Calendar className="h-4 w-4 text-emerald-400" />
           </div>
@@ -287,21 +287,21 @@ export function CronManagementClient({
       {/* Cron Jobs */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-400 font-mono">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono">
             CRON JOBS
           </h2>
-          <span className="text-xs text-neutral-500">{jobs.length} job(s)</span>
+          <span className="text-xs text-neutral-500 dark:text-neutral-500">{jobs.length} job(s)</span>
         </div>
 
         {loading ? (
-          <div className="flex h-32 items-center justify-center rounded-2xl border border-neutral-800 bg-neutral-950">
-            <Loader2 className="h-6 w-6 animate-spin text-neutral-500" />
+          <div className="flex h-32 items-center justify-center rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50">
+            <Loader2 className="h-6 w-6 animate-spin text-neutral-500 dark:text-neutral-500" />
           </div>
         ) : jobs.length === 0 ? (
-          <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-12 text-center text-neutral-400">
-            <Clock className="h-8 w-8 mx-auto text-neutral-600" />
-            <p className="text-sm font-semibold text-white mt-2">No cron jobs yet</p>
-            <p className="text-xs text-neutral-500 mt-1">
+          <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-12 text-center text-neutral-400 dark:text-neutral-600">
+            <Clock className="h-8 w-8 mx-auto text-neutral-600 dark:text-neutral-400" />
+            <p className="text-sm font-semibold text-white dark:text-black mt-2">No cron jobs yet</p>
+            <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
               Create a job to schedule an AI scan against any project & repository in this workspace.
             </p>
           </div>
@@ -312,17 +312,17 @@ export function CronManagementClient({
               return (
                 <div
                   key={job.id}
-                  className="flex flex-col justify-between rounded-2xl border border-neutral-800 bg-neutral-950 p-5 shadow-lg space-y-4"
+                  className="flex flex-col justify-between rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-5 shadow-lg space-y-4"
                 >
                   <div className="space-y-3">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2.5">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-neutral-800 bg-neutral-900 text-neutral-300">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 text-neutral-300">
                           <Bot className="h-4 w-4" />
                         </span>
                         <div>
-                          <h3 className="font-bold text-white text-sm">{job.name}</h3>
-                          <span className="font-mono text-[11px] text-neutral-400">{job.projectName} ({job.projectKey})</span>
+                          <h3 className="font-bold text-white dark:text-black text-sm">{job.name}</h3>
+                          <span className="font-mono text-[11px] text-neutral-400 dark:text-neutral-600">{job.projectName} ({job.projectKey})</span>
                         </div>
                       </div>
                       <button
@@ -331,7 +331,7 @@ export function CronManagementClient({
                         className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider transition ${
                           job.enabled
                             ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                            : "bg-neutral-900 border border-neutral-800 text-neutral-500"
+                            : "bg-neutral-900 dark:bg-neutral-100 border border-neutral-800 text-neutral-500 dark:text-neutral-500"
                         }`}
                       >
                         {job.enabled ? "Active" : "Paused"}
@@ -339,37 +339,37 @@ export function CronManagementClient({
                     </div>
 
                     {job.description && (
-                      <p className="text-xs text-neutral-400 leading-relaxed line-clamp-3">{job.description}</p>
+                      <p className="text-xs text-neutral-400 dark:text-neutral-600 leading-relaxed line-clamp-3">{job.description}</p>
                     )}
 
-                    <div className="space-y-1.5 rounded-xl border border-neutral-800 bg-neutral-900/50 p-3 text-xs">
-                      <div className="flex items-center justify-between text-neutral-300">
+                    <div className="space-y-1.5 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900/50 dark:bg-neutral-100/50 p-3 text-xs">
+                      <div className="flex items-center justify-between text-neutral-300 dark:text-neutral-700">
                         <span className="flex items-center gap-1.5 truncate">
-                          <GitBranch className="h-3.5 w-3.5 text-neutral-500 shrink-0" />
+                          <GitBranch className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-500 shrink-0" />
                           <span className="font-medium truncate">{job.repoOwner}/{job.repoName}</span>
                         </span>
                         <span className="font-mono text-[11px] text-emerald-400 font-bold shrink-0">{job.defaultBranch}</span>
                       </div>
-                      <div className="flex items-center justify-between text-[11px] text-neutral-400 pt-1 border-t border-neutral-800">
+                      <div className="flex items-center justify-between text-[11px] text-neutral-400 dark:text-neutral-600 pt-1 border-t border-neutral-800 dark:border-neutral-200">
                         <span>Next run:</span>
-                        <span className="font-semibold text-neutral-200">{fmtDate(job.nextRunAt)}</span>
+                        <span className="font-semibold text-neutral-200 dark:text-neutral-800">{fmtDate(job.nextRunAt)}</span>
                       </div>
-                      <div className="flex items-center gap-3 text-[11px] pt-1 border-t border-neutral-800 text-neutral-400">
-                        <span>Ran: <strong className={job.failedCount > 0 ? "text-rose-400" : "text-neutral-200"}>{job.runCount}</strong></span>
-                        <span>Failed: <strong className={job.failedCount > 0 ? "text-rose-400" : "text-neutral-200"}>{job.failedCount}</strong></span>
-                        <span>Last: <strong className={job.lastStatus === "FAILED" ? "text-rose-400" : "text-neutral-200"}>{job.lastStatus || "—"}</strong></span>
+                      <div className="flex items-center gap-3 text-[11px] pt-1 border-t border-neutral-800 dark:border-neutral-200 text-neutral-400 dark:text-neutral-600">
+                        <span>Ran: <strong className={job.failedCount > 0 ? "text-rose-400" : "text-neutral-200 dark:text-neutral-800"}>{job.runCount}</strong></span>
+                        <span>Failed: <strong className={job.failedCount > 0 ? "text-rose-400" : "text-neutral-200 dark:text-neutral-800"}>{job.failedCount}</strong></span>
+                        <span>Last: <strong className={job.lastStatus === "FAILED" ? "text-rose-400" : "text-neutral-200 dark:text-neutral-800"}>{job.lastStatus || "—"}</strong></span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 border-t border-neutral-900 pt-3 text-xs">
+                  <div className="flex items-center gap-2 border-t border-neutral-900 dark:border-neutral-100 pt-3 text-xs">
                     <button
                       onClick={() => {
                         setFilterJobId(job.id);
                         setFilterProjectId("ALL");
                         setFilterStatus("ALL");
                       }}
-                      className="flex items-center gap-1 text-[11px] font-semibold text-neutral-400 hover:text-white transition"
+                      className="flex items-center gap-1 text-[11px] font-semibold text-neutral-400 dark:text-neutral-600 hover:text-white dark:text-black transition"
                     >
                       <ChevronRight className="h-3.5 w-3.5" />
                       <span>History</span>
@@ -379,7 +379,7 @@ export function CronManagementClient({
                       <button
                         onClick={() => handleDelete(job)}
                         title="Delete this cron job"
-                        className="flex items-center gap-1 text-[11px] font-semibold text-neutral-500 hover:text-rose-400 transition"
+                        className="flex items-center gap-1 text-[11px] font-semibold text-neutral-500 dark:text-neutral-500 hover:text-rose-400 transition"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                         <span>Delete</span>
@@ -408,10 +408,10 @@ export function CronManagementClient({
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-400 font-mono">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono">
               RUN HISTORY
             </h2>
-            <p className="text-xs text-neutral-400">
+            <p className="text-xs text-neutral-400 dark:text-neutral-600">
               Combined history across every cron job. Click any run for full details.
             </p>
           </div>
@@ -420,7 +420,7 @@ export function CronManagementClient({
             <select
               value={filterJobId}
               onChange={(e) => setFilterJobId(e.target.value)}
-              className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-xs text-white focus:border-neutral-700 focus:outline-none"
+              className="rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-3 py-1.5 text-xs text-white dark:text-black focus:border-neutral-700 focus:outline-none"
             >
               <option value="ALL">All Jobs</option>
               {jobs.map((j) => (
@@ -432,7 +432,7 @@ export function CronManagementClient({
             <select
               value={filterProjectId}
               onChange={(e) => setFilterProjectId(e.target.value)}
-              className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-xs text-white focus:border-neutral-700 focus:outline-none"
+              className="rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-3 py-1.5 text-xs text-white dark:text-black focus:border-neutral-700 focus:outline-none"
             >
               <option value="ALL">All Projects</option>
               {projects.map((p) => (
@@ -443,7 +443,7 @@ export function CronManagementClient({
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-xs text-white focus:border-neutral-700 focus:outline-none"
+              className="rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-3 py-1.5 text-xs text-white dark:text-black focus:border-neutral-700 focus:outline-none"
             >
               <option value="ALL">All Statuses</option>
               <option value="SUCCESS">Success</option>
@@ -453,7 +453,7 @@ export function CronManagementClient({
             <select
               value={filterSince}
               onChange={(e) => setFilterSince(e.target.value)}
-              className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-xs text-white focus:border-neutral-700 focus:outline-none"
+              className="rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-3 py-1.5 text-xs text-white dark:text-black focus:border-neutral-700 focus:outline-none"
             >
               <option value="ALL">Any Time</option>
               <option value="7">Last 7 days</option>
@@ -463,13 +463,13 @@ export function CronManagementClient({
         </div>
 
         {loading ? (
-          <div className="flex h-40 items-center justify-center rounded-2xl border border-neutral-800 bg-neutral-950">
-            <Loader2 className="h-6 w-6 animate-spin text-neutral-500" />
+          <div className="flex h-40 items-center justify-center rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50">
+            <Loader2 className="h-6 w-6 animate-spin text-neutral-500 dark:text-neutral-500" />
           </div>
         ) : filteredLogs.length === 0 ? (
-          <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-12 text-center text-neutral-400">
-            <Clock className="h-8 w-8 mx-auto text-neutral-600" />
-            <p className="text-sm font-semibold text-white mt-2">No runs match these filters</p>
+          <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-12 text-center text-neutral-400 dark:text-neutral-600">
+            <Clock className="h-8 w-8 mx-auto text-neutral-600 dark:text-neutral-400" />
+            <p className="text-sm font-semibold text-white dark:text-black mt-2">No runs match these filters</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -477,7 +477,7 @@ export function CronManagementClient({
               <button
                 key={log.id}
                 onClick={() => router.push(`/${orgSlug}/${workspaceSlug}/cron/${log.id}`)}
-                className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-2xl border border-neutral-800 bg-neutral-950 p-4 text-left hover:bg-neutral-900/60 transition"
+                className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-4 text-left hover:bg-neutral-900/60 dark:hover:bg-neutral-100/60 transition"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <span
@@ -491,21 +491,21 @@ export function CronManagementClient({
                   </span>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-white text-sm truncate">{log.cronJobName || log.projectName || "Manual Run"}</span>
+                      <span className="font-bold text-white dark:text-black text-sm truncate">{log.cronJobName || log.projectName || "Manual Run"}</span>
                       {log.projectKey && (
-                        <span className="rounded bg-neutral-900 border border-neutral-800 px-1.5 py-0.2 font-mono text-[10px] text-neutral-400 shrink-0">{log.projectKey}</span>
+                        <span className="rounded bg-neutral-900 dark:bg-neutral-100 border border-neutral-800 px-1.5 py-0.2 font-mono text-[10px] text-neutral-400 dark:text-neutral-600 shrink-0">{log.projectKey}</span>
                       )}
                     </div>
-                    <p className="text-xs text-neutral-400 truncate">{log.summary}</p>
+                    <p className="text-xs text-neutral-400 dark:text-neutral-600 truncate">{log.summary}</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 text-xs text-neutral-400 shrink-0">
+                <div className="flex items-center gap-4 text-xs text-neutral-400 dark:text-neutral-600 shrink-0">
                   <div className="text-right">
-                    <div className="text-neutral-200 font-medium">{fmtDate(log.createdAt)}</div>
-                    <span className="text-[11px] text-neutral-500">{log.durationMs}ms · {log.findingsCount} finding(s)</span>
+                    <div className="text-neutral-200 dark:text-neutral-800 font-medium">{fmtDate(log.createdAt)}</div>
+                    <span className="text-[11px] text-neutral-500 dark:text-neutral-500">{log.durationMs}ms · {log.findingsCount} finding(s)</span>
                   </div>
-                  <ChevronRight className="h-4 w-4 text-neutral-500" />
+                  <ChevronRight className="h-4 w-4 text-neutral-500 dark:text-neutral-500" />
                 </div>
               </button>
             ))}

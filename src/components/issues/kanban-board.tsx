@@ -330,7 +330,7 @@ export function KanbanBoard({
     <div className="flex h-full flex-col space-y-4">
       {/* Board Top Toolbar with Ambient Pure B&W Backdrop */}
       <div
-        className="relative overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 p-4 shadow-xl"
+        className="relative overflow-hidden rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-4 shadow-xl"
         data-tour="board-toolbar"
       >
         {/* Ambient B&W Backdrop Images with Smooth Cross-fade Transition */}
@@ -354,24 +354,24 @@ export function KanbanBoard({
           {/* Title, Key, Realtime Status & Banners */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <h1 className="text-xl font-extrabold tracking-tight text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+              <h1 className="text-xl font-extrabold tracking-tight text-white dark:text-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                 {projectName}
               </h1>
-              <span className="font-mono text-xs rounded-md bg-neutral-900/90 border border-neutral-800 px-2 py-0.5 font-bold text-neutral-300">
+              <span className="font-mono text-xs rounded-md bg-neutral-900/90 dark:bg-neutral-100/90 border border-neutral-800 px-2 py-0.5 font-bold text-neutral-300 dark:text-neutral-700">
                 {projectKey}
               </span>
               <div
                 title={isConnected ? "Live real-time sync active" : "Attempting real-time connection..."}
-                className="flex items-center gap-1.5 rounded-full border border-neutral-800 bg-neutral-950/90 px-2.5 py-0.5 text-[11px] font-medium text-neutral-400 select-none backdrop-blur-sm"
+                className="flex items-center gap-1.5 rounded-full border border-neutral-800 dark:border-neutral-200 bg-neutral-950/90 dark:bg-neutral-50/90 px-2.5 py-0.5 text-[11px] font-medium text-neutral-400 dark:text-neutral-600 select-none backdrop-blur-sm"
               >
                 <span
                   className={`h-2 w-2 rounded-full ${
                     isConnected
                       ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse"
-                      : "bg-neutral-600"
+                      : "bg-neutral-600 dark:bg-neutral-400"
                   }`}
                 />
-                <span className="text-[10px] tracking-wide uppercase font-semibold text-neutral-300">
+                <span className="text-[10px] tracking-wide uppercase font-semibold text-neutral-300 dark:text-neutral-700">
                   {isConnected ? "Live" : "Connecting"}
                 </span>
               </div>
@@ -380,18 +380,18 @@ export function KanbanBoard({
             {/* Banners Trigger & Cycle Controls */}
             <div className="flex items-center gap-1.5">
               {displayBanners.length > 1 && (
-                <div className="flex items-center gap-1 rounded-xl border border-neutral-800 bg-neutral-900/80 px-2 py-1 backdrop-blur-sm shadow-sm">
+                <div className="flex items-center gap-1 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900/80 dark:bg-neutral-100/80 px-2 py-1 backdrop-blur-sm shadow-sm">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       setActiveBannerIndex((prev) => (prev - 1 + displayBanners.length) % displayBanners.length);
                     }}
                     title="Previous banner image"
-                    className="cursor-pointer text-neutral-400 hover:text-white transition p-0.5"
+                    className="cursor-pointer text-neutral-400 dark:text-neutral-600 hover:text-white dark:text-black transition p-0.5"
                   >
                     <ChevronLeft className="h-3.5 w-3.5" />
                   </button>
-                  <span className="text-[10px] font-mono text-neutral-400 select-none px-0.5">
+                  <span className="text-[10px] font-mono text-neutral-400 dark:text-neutral-600 select-none px-0.5">
                     {(activeBannerIndex % displayBanners.length) + 1}/{displayBanners.length}
                   </span>
                   <button
@@ -400,7 +400,7 @@ export function KanbanBoard({
                       setActiveBannerIndex((prev) => (prev + 1) % displayBanners.length);
                     }}
                     title="Next banner image"
-                    className="cursor-pointer text-neutral-400 hover:text-white transition p-0.5"
+                    className="cursor-pointer text-neutral-400 dark:text-neutral-600 hover:text-white dark:text-black transition p-0.5"
                   >
                     <ChevronRight className="h-3.5 w-3.5" />
                   </button>
@@ -410,9 +410,9 @@ export function KanbanBoard({
                 onClick={() => setBannerModalOpen(true)}
                 title="View & manage project banner images"
                 data-tour="board-banners"
-                className="cursor-pointer flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-900/80 px-2.5 py-1 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition backdrop-blur-sm shadow-sm"
+                className="cursor-pointer flex items-center gap-1.5 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900/80 dark:bg-neutral-100/80 px-2.5 py-1 text-xs font-semibold text-neutral-300 dark:text-neutral-700 hover:border-neutral-700 hover:text-white dark:text-black transition backdrop-blur-sm shadow-sm"
               >
-                <ImageIcon className="h-3.5 w-3.5 text-neutral-400" />
+                <ImageIcon className="h-3.5 w-3.5 text-neutral-400 dark:text-neutral-600" />
                 <span className="hidden sm:inline">Banners</span>
               </button>
               <TourReplayButton tourId="board" />
@@ -423,13 +423,13 @@ export function KanbanBoard({
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Search Bar */}
           <div className="relative" data-tour="board-search">
-            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-neutral-500" />
+            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-neutral-500 dark:text-neutral-500" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search issues..."
-              className="w-32 sm:w-44 rounded-xl border border-neutral-800 bg-neutral-950 py-1.5 pl-8 pr-3 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+              className="w-32 sm:w-44 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 py-1.5 pl-8 pr-3 text-xs text-white dark:text-black placeholder:text-neutral-500 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none"
             />
           </div>
 
@@ -438,8 +438,8 @@ export function KanbanBoard({
             onClick={() => setOnlyMyIssues((prev) => !prev)}
             className={`cursor-pointer flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-bold transition ${
               onlyMyIssues
-                ? "border-white bg-white text-black shadow-md"
-                : "border-neutral-800 bg-neutral-950 text-neutral-400 hover:border-neutral-700 hover:text-white"
+                ? "border-white dark:border-black bg-white dark:bg-black text-black shadow-md"
+                : "border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 text-neutral-400 hover:border-neutral-700 dark:hover:border-neutral-300 hover:text-white dark:text-black"
             }`}
           >
             <UserCheck className="h-3.5 w-3.5" />
@@ -450,8 +450,8 @@ export function KanbanBoard({
             onClick={() => setOnlyUrgent((prev) => !prev)}
             className={`cursor-pointer flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-bold transition ${
               onlyUrgent
-                ? "border-rose-500 bg-rose-500 text-white shadow-md shadow-rose-950"
-                : "border-neutral-800 bg-neutral-950 text-neutral-400 hover:border-neutral-700 hover:text-white"
+                ? "border-rose-500 bg-rose-500 text-white dark:text-black shadow-md shadow-rose-950"
+                : "border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 text-neutral-400 hover:border-neutral-700 dark:hover:border-neutral-300 hover:text-white dark:text-black"
             }`}
           >
             <AlertCircle className="h-3.5 w-3.5" />
@@ -468,7 +468,7 @@ export function KanbanBoard({
                 setSelectedStatusFilter("ALL");
               }}
               title="Reset all filters"
-              className="cursor-pointer flex items-center gap-1 rounded-xl border border-neutral-800 bg-neutral-900 px-2 py-1.5 text-xs text-neutral-400 hover:text-white transition"
+              className="cursor-pointer flex items-center gap-1 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-2 py-1.5 text-xs text-neutral-400 dark:text-neutral-600 hover:text-white dark:text-black transition"
             >
               <X className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Reset</span>
@@ -476,21 +476,21 @@ export function KanbanBoard({
           )}
 
           {/* Export Menu */}
-          <div className="ml-auto flex items-center rounded-xl border border-neutral-800 bg-neutral-950 p-0.5">
+          <div className="ml-auto flex items-center rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-0.5">
             <button
               onClick={() => handleExport("csv")}
               disabled={exporting !== null}
               title="Export issues to CSV"
-              className="cursor-pointer px-2 py-1 text-[11px] font-bold text-neutral-400 hover:text-white transition"
+              className="cursor-pointer px-2 py-1 text-[11px] font-bold text-neutral-400 dark:text-neutral-600 hover:text-white dark:text-black transition"
             >
               {exporting === "csv" ? "..." : "CSV"}
             </button>
-            <span className="text-neutral-800">|</span>
+            <span className="text-neutral-800 dark:text-neutral-200">|</span>
             <button
               onClick={() => handleExport("json")}
               disabled={exporting !== null}
               title="Export issues to JSON"
-              className="cursor-pointer px-2 py-1 text-[11px] font-bold text-neutral-400 hover:text-white transition"
+              className="cursor-pointer px-2 py-1 text-[11px] font-bold text-neutral-400 dark:text-neutral-600 hover:text-white dark:text-black transition"
             >
               {exporting === "json" ? "..." : "JSON"}
             </button>
@@ -501,9 +501,9 @@ export function KanbanBoard({
             <button
               onClick={() => setCreateColumnDialogOpen(true)}
               title="Add a new custom list/column"
-              className="cursor-pointer flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
+              className="cursor-pointer flex items-center gap-1.5 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-2.5 py-1.5 text-xs font-semibold text-neutral-300 dark:text-neutral-700 hover:border-neutral-700 hover:text-white dark:text-black transition"
             >
-              <LayoutGrid className="h-3.5 w-3.5 text-neutral-400" />
+              <LayoutGrid className="h-3.5 w-3.5 text-neutral-400 dark:text-neutral-600" />
               <span className="hidden sm:inline">Add List</span>
             </button>
           )}
@@ -512,9 +512,9 @@ export function KanbanBoard({
           <button
             onClick={() => setSprintsDialogOpen(true)}
             title="Plan sprints & manage the backlog"
-            className="cursor-pointer flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
+            className="cursor-pointer flex items-center gap-1.5 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-2.5 py-1.5 text-xs font-semibold text-neutral-300 dark:text-neutral-700 hover:border-neutral-700 hover:text-white dark:text-black transition"
           >
-            <Flag className="h-3.5 w-3.5 text-neutral-400" />
+            <Flag className="h-3.5 w-3.5 text-neutral-400 dark:text-neutral-600" />
             <span className="hidden sm:inline">Sprints</span>
           </button>
 
@@ -522,9 +522,9 @@ export function KanbanBoard({
           <button
             onClick={() => setCronDialogOpen(true)}
             title="Scheduled AI cron jobs for this project"
-            className="cursor-pointer flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
+            className="cursor-pointer flex items-center gap-1.5 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-2.5 py-1.5 text-xs font-semibold text-neutral-300 dark:text-neutral-700 hover:border-neutral-700 hover:text-white dark:text-black transition"
           >
-            <Clock className="h-3.5 w-3.5 text-neutral-400" />
+            <Clock className="h-3.5 w-3.5 text-neutral-400 dark:text-neutral-600" />
             <span className="hidden sm:inline">Cron</span>
           </button>
 
@@ -544,29 +544,29 @@ export function KanbanBoard({
             onClick={() => setPermissionsDialogOpen(true)}
             title="Manage Project Access & Granular Permissions"
             data-tour="board-access"
-            className="cursor-pointer flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
+            className="cursor-pointer flex items-center gap-1.5 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-2.5 py-1.5 text-xs font-semibold text-neutral-300 dark:text-neutral-700 hover:border-neutral-700 hover:text-white dark:text-black transition"
           >
-            <Shield className="h-3.5 w-3.5 text-neutral-400" />
+            <Shield className="h-3.5 w-3.5 text-neutral-400 dark:text-neutral-600" />
             <span className="hidden sm:inline">Access</span>
           </button>
 
           <button
             onClick={() => handleAddIssue(columns[0]?.key || "TODO")}
             data-tour="new-issue"
-            className="cursor-pointer flex items-center gap-1.5 rounded-xl bg-white px-3.5 py-1.5 text-xs font-bold text-black shadow-lg transition hover:bg-neutral-200"
+            className="cursor-pointer flex items-center gap-1.5 rounded-xl bg-white dark:bg-black px-3.5 py-1.5 text-xs font-bold text-black dark:text-white shadow-lg transition hover:bg-neutral-200 dark:hover:bg-neutral-800"
           >
             <Plus className="h-4 w-4" />
             <span>New Issue</span>
           </button>
 
           {/* View Mode Toggle */}
-          <div className="flex items-center rounded-xl border border-neutral-800 bg-neutral-950 p-1" data-tour="view-toggle">
+          <div className="flex items-center rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-1" data-tour="view-toggle">
             <button
               onClick={() => setViewMode("board")}
               className={`cursor-pointer flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
                 viewMode === "board"
-                  ? "bg-white text-black shadow-sm"
-                  : "text-neutral-400 hover:text-white"
+                  ? "bg-white dark:bg-black text-black shadow-sm"
+                  : "text-neutral-400 dark:text-neutral-600 hover:text-white dark:text-black"
               }`}
             >
               <Kanban className="h-3.5 w-3.5" />
@@ -576,8 +576,8 @@ export function KanbanBoard({
               onClick={() => setViewMode("list")}
               className={`cursor-pointer flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
                 viewMode === "list"
-                  ? "bg-white text-black shadow-sm"
-                  : "text-neutral-400 hover:text-white"
+                  ? "bg-white dark:bg-black text-black shadow-sm"
+                  : "text-neutral-400 dark:text-neutral-600 hover:text-white dark:text-black"
               }`}
             >
               <List className="h-3.5 w-3.5" />
@@ -622,7 +622,7 @@ export function KanbanBoard({
           {canManageBoard && (
             <button
               onClick={() => setCreateColumnDialogOpen(true)}
-              className="cursor-pointer flex h-36 min-w-[200px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-neutral-800 bg-neutral-950/40 text-neutral-400 transition hover:border-neutral-600 hover:bg-neutral-900/60 hover:text-white"
+              className="cursor-pointer flex h-36 min-w-[200px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-neutral-800 dark:border-neutral-200 bg-neutral-950/40 dark:bg-neutral-50/40 text-neutral-400 transition hover:border-neutral-600 dark:hover:border-neutral-400 hover:bg-neutral-900/60 dark:hover:bg-neutral-100/60 hover:text-white dark:text-black"
             >
               <Plus className="h-5 w-5" />
               <span className="text-xs font-bold uppercase tracking-wider">New List</span>

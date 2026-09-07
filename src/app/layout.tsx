@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { SessionProvider } from "@/components/common/session-provider";
 import { SmoothScrollProvider } from "@/components/common/smooth-scroll-provider";
+import { ThemeProvider } from "@/components/theme/theme-provider";
+import { ThemeProvider } from "@/components/theme/theme-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,10 +16,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
-      <body className="h-full antialiased bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
+    <html lang="en" className="h-full" suppressHydrationWarning>
+      <body className="h-full antialiased bg-white dark:bg-black text-neutral-900 dark:text-neutral-100">
         <SessionProvider>
-          <SmoothScrollProvider>{children}</SmoothScrollProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            <SmoothScrollProvider>{children}</SmoothScrollProvider>
+          </ThemeProvider>
+          </ThemeProvider>
         </SessionProvider>
       </body>
     </html>

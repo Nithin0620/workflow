@@ -49,18 +49,18 @@ export default async function CronRunDetailPage({ params }: CronRunPageProps) {
   const backHref = `/${orgSlug}/${workspaceSlug}/cron`;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 text-white pb-16">
+    <div className="max-w-4xl mx-auto space-y-6 text-white dark:text-black pb-16">
       {/* Back link */}
       <Link
         href={backHref}
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-400 hover:text-white transition"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-400 dark:text-neutral-600 hover:text-white dark:text-black transition"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
         <span>Back to Cron Jobs</span>
       </Link>
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-900 pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-900 dark:border-neutral-100 pb-6">
         <div className="flex items-center gap-3">
           <span
             className={`flex h-11 w-11 items-center justify-center rounded-2xl border ${
@@ -84,9 +84,9 @@ export default async function CronRunDetailPage({ params }: CronRunPageProps) {
                 {log.status}
               </span>
             </div>
-            <p className="text-xs text-neutral-400 mt-0.5">
-              {log.projectName && <span className="font-semibold text-neutral-200">{log.projectName}</span>}
-              {log.projectKey && <span className="font-mono text-neutral-500"> ({log.projectKey})</span>}
+            <p className="text-xs text-neutral-400 dark:text-neutral-600 mt-0.5">
+              {log.projectName && <span className="font-semibold text-neutral-200 dark:text-neutral-800">{log.projectName}</span>}
+              {log.projectKey && <span className="font-mono text-neutral-500 dark:text-neutral-500"> ({log.projectKey})</span>}
               {" · "}
               {log.triggerSource} trigger
             </p>
@@ -95,7 +95,7 @@ export default async function CronRunDetailPage({ params }: CronRunPageProps) {
 
         <Link
           href={log.projectId ? `/${orgSlug}/${workspaceSlug}/projects/${log.projectKey}/board` : backHref}
-          className="hidden md:flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
+          className="hidden md:flex items-center gap-1.5 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-3 py-2 text-xs font-semibold text-neutral-300 dark:text-neutral-700 hover:border-neutral-700 hover:text-white dark:text-black transition"
         >
           <Bot className="h-3.5 w-3.5" />
           <span>Open Project Board</span>
@@ -104,43 +104,43 @@ export default async function CronRunDetailPage({ params }: CronRunPageProps) {
 
       {/* Meta stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-4">
-          <div className="flex items-center gap-1.5 text-neutral-400">
+        <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-4">
+          <div className="flex items-center gap-1.5 text-neutral-400 dark:text-neutral-600">
             <Calendar className="h-3.5 w-3.5" />
             <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Executed At</span>
           </div>
-          <div className="mt-2 text-sm font-bold text-white">{fmtDate(log.createdAt)}</div>
+          <div className="mt-2 text-sm font-bold text-white dark:text-black">{fmtDate(log.createdAt)}</div>
         </div>
 
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-4">
-          <div className="flex items-center gap-1.5 text-neutral-400">
+        <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-4">
+          <div className="flex items-center gap-1.5 text-neutral-400 dark:text-neutral-600">
             <Clock className="h-3.5 w-3.5" />
             <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Duration</span>
           </div>
-          <div className="mt-2 text-sm font-bold text-white">{log.durationMs}ms</div>
+          <div className="mt-2 text-sm font-bold text-white dark:text-black">{log.durationMs}ms</div>
         </div>
 
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-4">
-          <div className="flex items-center gap-1.5 text-neutral-400">
+        <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-4">
+          <div className="flex items-center gap-1.5 text-neutral-400 dark:text-neutral-600">
             <FileCode2 className="h-3.5 w-3.5" />
             <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Findings</span>
           </div>
-          <div className="mt-2 text-sm font-bold text-white">{log.findingsCount}</div>
+          <div className="mt-2 text-sm font-bold text-white dark:text-black">{log.findingsCount}</div>
         </div>
 
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-4">
-          <div className="flex items-center gap-1.5 text-neutral-400">
+        <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-4">
+          <div className="flex items-center gap-1.5 text-neutral-400 dark:text-neutral-600">
             <Bot className="h-3.5 w-3.5" />
             <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Issues Created</span>
           </div>
-          <div className="mt-2 text-sm font-bold text-white">{log.issuesCreated}</div>
+          <div className="mt-2 text-sm font-bold text-white dark:text-black">{log.issuesCreated}</div>
         </div>
       </div>
 
       {/* Summary */}
-      <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-5">
-        <h2 className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono mb-2">Summary</h2>
-        <p className="text-sm text-neutral-300">{log.summary}</p>
+      <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-5">
+        <h2 className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono mb-2">Summary</h2>
+        <p className="text-sm text-neutral-300 dark:text-neutral-700">{log.summary}</p>
       </div>
 
       {/* Error */}
@@ -153,19 +153,19 @@ export default async function CronRunDetailPage({ params }: CronRunPageProps) {
 
       {/* Findings */}
       <div className="space-y-3">
-        <h2 className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono">
+        <h2 className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono">
           DETECTED FINDINGS & PATCHES ({findings.length})
         </h2>
         {findings.length === 0 ? (
-          <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-8 text-center text-neutral-500">
-            <FileCode2 className="h-8 w-8 mx-auto text-neutral-600 mb-2" />
-            <p className="text-sm font-semibold text-neutral-300">No findings recorded on this run.</p>
+          <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-8 text-center text-neutral-500 dark:text-neutral-500">
+            <FileCode2 className="h-8 w-8 mx-auto text-neutral-600 dark:text-neutral-400 mb-2" />
+            <p className="text-sm font-semibold text-neutral-300 dark:text-neutral-700">No findings recorded on this run.</p>
           </div>
         ) : (
           findings.map((finding, idx) => (
-            <div key={idx} className="rounded-2xl border border-neutral-800 bg-neutral-950 p-5 space-y-3">
+            <div key={idx} className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-5 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-white text-sm">{finding.title}</span>
+                <span className="font-bold text-white dark:text-black text-sm">{finding.title}</span>
                 <span
                   className={`rounded px-2 py-0.5 font-mono text-[10px] font-bold ${
                     finding.severity === "HIGH" || finding.severity === "URGENT"
@@ -176,18 +176,18 @@ export default async function CronRunDetailPage({ params }: CronRunPageProps) {
                   {finding.severity}
                 </span>
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-neutral-400">
+              <div className="flex items-center gap-1.5 text-xs text-neutral-400 dark:text-neutral-600">
                 <GitBranch className="h-3.5 w-3.5 text-emerald-400" />
-                <span className="font-mono text-neutral-300">{finding.filePath}</span>
+                <span className="font-mono text-neutral-300 dark:text-neutral-700">{finding.filePath}</span>
               </div>
-              <p className="text-xs text-neutral-300 leading-relaxed">{finding.rootCause}</p>
+              <p className="text-xs text-neutral-300 dark:text-neutral-700 leading-relaxed">{finding.rootCause}</p>
               {finding.proposedPatch && (
-                <pre className="rounded-lg border border-neutral-800 bg-neutral-900/90 p-3 text-[11px] font-mono text-emerald-300 overflow-x-auto">
+                <pre className="rounded-lg border border-neutral-800 dark:border-neutral-200 bg-neutral-900/90 dark:bg-neutral-100/90 p-3 text-[11px] font-mono text-emerald-300 overflow-x-auto">
                   <code>{finding.proposedPatch}</code>
                 </pre>
               )}
               {finding.reproduction && (
-                <p className="text-xs text-neutral-500"><strong className="text-neutral-300">Reproduction:</strong> {finding.reproduction}</p>
+                <p className="text-xs text-neutral-500 dark:text-neutral-500"><strong className="text-neutral-300 dark:text-neutral-700">Reproduction:</strong> {finding.reproduction}</p>
               )}
             </div>
           ))

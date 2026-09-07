@@ -22,11 +22,11 @@ export function BannerStrip({ imageUrls, max = 3, className = "" }: BannerStripP
           src={url}
           alt=""
           loading="lazy"
-          className="h-7 w-14 rounded-md object-cover border border-neutral-800 grayscale contrast-125 brightness-95"
+          className="h-7 w-14 rounded-md object-cover border border-neutral-800 dark:border-neutral-200 grayscale contrast-125 brightness-95"
         />
       ))}
       {imageUrls.length > max && (
-        <span className="flex items-center gap-1 rounded-md border border-neutral-800 bg-neutral-900 px-1.5 py-1 text-[10px] font-bold text-neutral-400">
+        <span className="flex items-center gap-1 rounded-md border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-1.5 py-1 text-[10px] font-bold text-neutral-400 dark:text-neutral-600">
           <ImageIcon className="h-3 w-3" />
           +{imageUrls.length - max}
         </span>

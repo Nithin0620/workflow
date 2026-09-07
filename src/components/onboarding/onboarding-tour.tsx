@@ -61,7 +61,7 @@ export function TourReplayButton({ tourId, className = "" }: TourReplayButtonPro
       onClick={play}
       title="Replay the guided tour"
       aria-label="Replay the guided tour"
-      className={`flex h-8 w-8 items-center justify-center rounded-lg border border-neutral-800 bg-neutral-950 text-neutral-400 transition hover:border-neutral-600 hover:text-white ${className}`}
+      className={`flex h-8 w-8 items-center justify-center rounded-lg border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 text-neutral-400 transition hover:border-neutral-600 dark:hover:border-neutral-400 hover:text-white dark:text-black ${className}`}
     >
       <CircleHelp className="h-4 w-4" />
     </button>

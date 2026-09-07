@@ -123,24 +123,24 @@ export function CreateCronJobDialog({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black dark:bg-white/80 backdrop-blur-sm p-4">
+      <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-6 shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
+        <div className="flex items-center justify-between border-b border-neutral-800 dark:border-neutral-200 pb-4">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
               <Clock className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white">New Cron Job</h2>
-              <p className="text-xs text-neutral-400">
+              <h2 className="text-lg font-bold text-white dark:text-black">New Cron Job</h2>
+              <p className="text-xs text-neutral-400 dark:text-neutral-600">
                 Schedule an automated AI scan with a custom description & target repository.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+            className="rounded-lg p-1.5 text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
           >
             <X className="h-5 w-5" />
           </button>
@@ -155,13 +155,13 @@ export function CreateCronJobDialog({
 
           {loading ? (
             <div className="flex h-40 items-center justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-neutral-500" />
+              <Loader2 className="h-6 w-6 animate-spin text-neutral-500 dark:text-neutral-500" />
             </div>
           ) : (
             <>
               {/* Project link */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-neutral-300">
+                <label className="text-xs font-semibold text-neutral-300 dark:text-neutral-700">
                   Linked Project <span className="text-rose-400">*</span>
                 </label>
                 <select
@@ -170,7 +170,7 @@ export function CreateCronJobDialog({
                     setProjectId(e.target.value);
                     if (repoMode === "PROJECT" && !branch) setBranch("main");
                   }}
-                  className="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-2.5 text-xs text-white focus:border-neutral-600 focus:outline-none"
+                  className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-3 py-2.5 text-xs text-white dark:text-black focus:border-neutral-600 focus:outline-none"
                 >
                   <option value="">Select a project in this workspace...</option>
                   {projects.map((p) => (
@@ -179,24 +179,24 @@ export function CreateCronJobDialog({
                     </option>
                   ))}
                 </select>
-                <p className="text-[11px] text-neutral-500">
+                <p className="text-[11px] text-neutral-500 dark:text-neutral-500">
                   Issues created by this job land on this project&apos;s board.
                 </p>
               </div>
 
               {/* Name & description */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-neutral-300">Name</label>
+                <label className="text-xs font-semibold text-neutral-300 dark:text-neutral-700">Name</label>
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Nightly security sweep on payments"
-                  className="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-2.5 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+                  className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-3 py-2.5 text-xs text-white dark:text-black placeholder:text-neutral-500 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-neutral-300">
+                <label className="text-xs font-semibold text-neutral-300 dark:text-neutral-700">
                   What should this job do?
                 </label>
                 <textarea
@@ -204,20 +204,20 @@ export function CreateCronJobDialog({
                   onChange={(e) => setDescription(e.target.value)}
                   rows={2}
                   placeholder="e.g. Focus on authentication flows, race conditions and unhandled promises. Skip the frontend styling code."
-                  className="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-2.5 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+                  className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-3 py-2.5 text-xs text-white dark:text-black placeholder:text-neutral-500 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none"
                 />
-                <p className="text-[11px] text-neutral-500">
+                <p className="text-[11px] text-neutral-500 dark:text-neutral-500">
                   Sent to the AI agent as an instruction — this is what makes each job unique.
                 </p>
               </div>
 
               {/* Schedule */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-neutral-300">Schedule</label>
+                <label className="text-xs font-semibold text-neutral-300 dark:text-neutral-700">Schedule</label>
                 <select
                   value={schedule}
                   onChange={(e) => setSchedule(e.target.value)}
-                  className="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-2.5 text-xs text-white focus:border-neutral-600 focus:outline-none"
+                  className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-3 py-2.5 text-xs text-white dark:text-black focus:border-neutral-600 focus:outline-none"
                 >
                   {SCHEDULE_PRESETS.map((s) => (
                     <option key={s.value} value={s.value}>
@@ -229,15 +229,15 @@ export function CreateCronJobDialog({
                   value={schedule}
                   onChange={(e) => setSchedule(e.target.value)}
                   spellCheck={false}
-                  className="w-full rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 text-[11px] font-mono text-emerald-300 focus:border-neutral-600 focus:outline-none"
+                  className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-3 py-2 text-[11px] font-mono text-emerald-300 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none"
                 />
               </div>
 
               {/* Repository target */}
-              <div className="space-y-2.5 rounded-xl border border-neutral-800 bg-neutral-900/50 p-3.5">
+              <div className="space-y-2.5 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900/50 dark:bg-neutral-100/50 p-3.5">
                 <div className="flex items-center gap-1.5">
                   <GitBranch className="h-4 w-4 text-emerald-400" />
-                  <span className="text-xs font-bold text-white">Target Repository</span>
+                  <span className="text-xs font-bold text-white dark:text-black">Target Repository</span>
                 </div>
 
                 <div className="flex flex-wrap gap-1.5">
@@ -252,8 +252,8 @@ export function CreateCronJobDialog({
                       onClick={() => setRepoMode(opt.mode)}
                       className={`rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition ${
                         repoMode === opt.mode
-                          ? "border-white bg-white text-black"
-                          : "border-neutral-800 bg-neutral-950 text-neutral-400 hover:border-neutral-700 hover:text-white"
+                          ? "border-white dark:border-black bg-white dark:bg-black text-black"
+                          : "border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 text-neutral-400 hover:border-neutral-700 dark:hover:border-neutral-300 hover:text-white dark:text-black"
                       }`}
                     >
                       {opt.label}
@@ -267,7 +267,7 @@ export function CreateCronJobDialog({
                       <select
                         value={otherProjectId}
                         onChange={(e) => setOtherProjectId(e.target.value)}
-                        className="w-full rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 text-xs text-white focus:border-neutral-600 focus:outline-none"
+                        className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-3 py-2 text-xs text-white dark:text-black focus:border-neutral-600 focus:outline-none"
                       >
                         <option value="">Pick a project whose repo to scan...</option>
                         {projects
@@ -280,12 +280,12 @@ export function CreateCronJobDialog({
                       </select>
                     )}
                     {targetRepo ? (
-                      <div className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 text-xs text-neutral-300 font-mono">
+                      <div className="rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-3 py-2 text-xs text-neutral-300 dark:text-neutral-700 font-mono">
                         {targetRepo.owner}/{targetRepo.name}
                         <span className="text-emerald-400"> @ {branch.trim() || targetRepo.branch}</span>
                       </div>
                     ) : (
-                      <div className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 text-[11px] text-neutral-500">
+                      <div className="rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-3 py-2 text-[11px] text-neutral-500 dark:text-neutral-500">
                         {repoMode === "PROJECT"
                           ? "The selected project has no linked repository. Use another project&apos;s repo or a custom URL."
                           : "No repositories found for other projects."}
@@ -297,14 +297,14 @@ export function CreateCronJobDialog({
                     value={customRepo}
                     onChange={(e) => setCustomRepo(e.target.value)}
                     placeholder="Use owner/repo or https://github.com/owner/repo"
-                    className="w-full rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+                    className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-3 py-2 text-xs text-white dark:text-black placeholder:text-neutral-500 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none"
                   />
                 )}
 
                 <button
                   type="button"
                   onClick={() => setAdvancedOpen((v) => !v)}
-                  className="flex w-full items-center justify-between text-[11px] font-semibold text-neutral-400 hover:text-white transition"
+                  className="flex w-full items-center justify-between text-[11px] font-semibold text-neutral-400 dark:text-neutral-600 hover:text-white dark:text-black transition"
                 >
                   <span>Branch & access token</span>
                   {advancedOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
@@ -313,16 +313,16 @@ export function CreateCronJobDialog({
                 {advancedOpen && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                     <div className="space-y-1">
-                      <label className="text-[11px] font-medium text-neutral-300">Branch</label>
+                      <label className="text-[11px] font-medium text-neutral-300 dark:text-neutral-700">Branch</label>
                       <input
                         value={branch}
                         onChange={(e) => setBranch(e.target.value)}
                         placeholder="main"
-                        className="w-full rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 text-xs text-white focus:border-neutral-600 focus:outline-none"
+                        className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-3 py-2 text-xs text-white dark:text-black focus:border-neutral-600 focus:outline-none"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[11px] font-medium text-neutral-300">
+                      <label className="text-[11px] font-medium text-neutral-300 dark:text-neutral-700">
                         Access Token (ghp_...)
                       </label>
                       <input
@@ -330,7 +330,7 @@ export function CreateCronJobDialog({
                         value={accessToken}
                         onChange={(e) => setAccessToken(e.target.value)}
                         placeholder="Required for private repos"
-                        className="w-full rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 text-xs text-white placeholder:text-neutral-600 focus:border-neutral-600 focus:outline-none"
+                        className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-3 py-2 text-xs text-white dark:text-black placeholder:text-neutral-600 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none"
                       />
                     </div>
                   </div>
@@ -341,14 +341,14 @@ export function CreateCronJobDialog({
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   onClick={onClose}
-                  className="rounded-xl border border-neutral-800 px-4 py-2 text-xs font-semibold text-neutral-300 hover:bg-neutral-900 hover:text-white transition"
+                  className="rounded-xl border border-neutral-800 dark:border-neutral-200 px-4 py-2 text-xs font-semibold text-neutral-300 dark:text-neutral-700 hover:bg-neutral-900 hover:text-white dark:text-black transition"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="flex items-center gap-1.5 rounded-xl bg-white px-5 py-2 text-xs font-bold text-black hover:bg-neutral-200 transition disabled:opacity-50"
+                  className="flex items-center gap-1.5 rounded-xl bg-white dark:bg-black px-5 py-2 text-xs font-bold text-black dark:text-white hover:bg-neutral-200 transition disabled:opacity-50"
                 >
                   {submitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                   <Bot className="h-4 w-4" />

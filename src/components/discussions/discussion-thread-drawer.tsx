@@ -84,18 +84,18 @@ export function DiscussionThreadDrawer({
   };
 
   return (
-    <div className="flex h-full w-96 flex-col border-l border-neutral-900 bg-neutral-950/95 backdrop-blur shadow-2xl animate-in slide-in-from-right duration-200">
+    <div className="flex h-full w-96 flex-col border-l border-neutral-900 dark:border-neutral-100 bg-neutral-950/95 dark:bg-neutral-50/95 backdrop-blur shadow-2xl animate-in slide-in-from-right duration-200">
       {/* Header */}
-      <div className="flex h-14 items-center justify-between border-b border-neutral-900 px-4">
+      <div className="flex h-14 items-center justify-between border-b border-neutral-900 dark:border-neutral-100 px-4">
         <div className="flex items-center gap-2">
-          <MessageSquare className="h-4 w-4 text-white" />
-          <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+          <MessageSquare className="h-4 w-4 text-white dark:text-black" />
+          <h3 className="text-xs font-bold text-white dark:text-black uppercase tracking-wider font-mono">
             Thread
           </h3>
         </div>
         <button
           onClick={onClose}
-          className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+          className="rounded-lg p-1.5 text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
         >
           <X className="h-4 w-4" />
         </button>
@@ -105,12 +105,12 @@ export function DiscussionThreadDrawer({
       <div className="flex-1 overflow-y-auto p-2 space-y-3">
         {loading ? (
           <div className="flex h-40 items-center justify-center">
-            <Loader2 className="h-5 w-5 animate-spin text-neutral-500" />
+            <Loader2 className="h-5 w-5 animate-spin text-neutral-500 dark:text-neutral-500" />
           </div>
         ) : parentMessage ? (
           <>
             {/* Root Message */}
-            <div className="border-b border-neutral-900 pb-3">
+            <div className="border-b border-neutral-900 dark:border-neutral-100 pb-3">
               <DiscussionMessageItem
                 message={parentMessage}
                 currentUserId={currentUserId}
@@ -123,11 +123,11 @@ export function DiscussionThreadDrawer({
             {/* Reply Count Separator */}
             {replies.length > 0 && (
               <div className="flex items-center gap-2 px-3 py-1">
-                <div className="h-px flex-1 bg-neutral-900" />
-                <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-wider">
+                <div className="h-px flex-1 bg-neutral-900 dark:bg-neutral-100" />
+                <span className="text-[10px] font-mono text-neutral-500 dark:text-neutral-500 uppercase tracking-wider">
                   {replies.length} {replies.length === 1 ? "reply" : "replies"}
                 </span>
-                <div className="h-px flex-1 bg-neutral-900" />
+                <div className="h-px flex-1 bg-neutral-900 dark:bg-neutral-100" />
               </div>
             )}
 
@@ -147,14 +147,14 @@ export function DiscussionThreadDrawer({
             <div ref={messagesEndRef} />
           </>
         ) : (
-          <div className="p-4 text-center text-xs text-neutral-500">
+          <div className="p-4 text-center text-xs text-neutral-500 dark:text-neutral-500">
             Thread could not be loaded.
           </div>
         )}
       </div>
 
       {/* Thread Composer */}
-      <div className="border-t border-neutral-900 p-3 bg-black">
+      <div className="border-t border-neutral-900 dark:border-neutral-100 p-3 bg-black dark:bg-white">
         <DiscussionComposer
           placeholder="Reply in thread..."
           workspaceId={parentMessage?.channel?.workspaceId}

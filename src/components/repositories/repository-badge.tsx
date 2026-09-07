@@ -34,10 +34,10 @@ export function RepositoryBadge({
         className={`cursor-pointer flex items-center gap-1.5 rounded-xl border px-2.5 py-1 text-xs font-semibold transition backdrop-blur-sm shadow-sm ${
           repository
             ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:border-emerald-500/60 hover:bg-emerald-500/20"
-            : "border-neutral-800 bg-neutral-900/80 text-neutral-300 hover:border-neutral-700 hover:text-white"
+            : "border-neutral-800 dark:border-neutral-200 bg-neutral-900/80 dark:bg-neutral-100/80 text-neutral-300 hover:border-neutral-700 dark:hover:border-neutral-300 hover:text-white dark:text-black"
         }`}
       >
-        <Bot className={`h-3.5 w-3.5 ${repository ? "text-emerald-400" : "text-neutral-400"}`} />
+        <Bot className={`h-3.5 w-3.5 ${repository ? "text-emerald-400" : "text-neutral-400 dark:text-neutral-600"}`} />
         <span className="hidden sm:inline">
           {repository ? `${repository.repoName}` : "AI Repo"}
         </span>

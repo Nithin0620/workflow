@@ -94,22 +94,22 @@ export function InviteMemberDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-2xl text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black dark:bg-white/80 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-6 shadow-2xl text-white dark:text-black">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-neutral-900 pb-4">
+        <div className="flex items-center justify-between border-b border-neutral-900 dark:border-neutral-100 pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-black font-bold">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white dark:bg-black text-black font-bold">
               <UserPlus className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">Invite Team Member</h2>
-              <p className="text-xs text-neutral-400">Add a teammate to collaborate in this workspace.</p>
+              <h2 className="text-base font-bold text-white dark:text-black">Invite Team Member</h2>
+              <p className="text-xs text-neutral-400 dark:text-neutral-600">Add a teammate to collaborate in this workspace.</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+            className="rounded-lg p-1.5 text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
           >
             <X className="h-4 w-4" />
           </button>
@@ -127,8 +127,8 @@ export function InviteMemberDialog({
           </div>
         )}
         {inviteLink && (
-          <div className="mt-3 rounded-xl border border-neutral-800 bg-black p-3">
-            <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500">
+          <div className="mt-3 rounded-xl border border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white p-3">
+            <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
               Invite link (copy & share)
             </div>
             <button
@@ -136,7 +136,7 @@ export function InviteMemberDialog({
               onClick={() => {
                 navigator.clipboard.writeText(inviteLink);
               }}
-              className="mt-1.5 w-full break-all rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2 text-left text-[11px] text-neutral-300 hover:border-neutral-700"
+              className="mt-1.5 w-full break-all rounded-lg border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 px-3 py-2 text-left text-[11px] text-neutral-300 dark:text-neutral-700 hover:border-neutral-700"
               title="Copy to clipboard"
             >
               {inviteLink}
@@ -147,24 +147,24 @@ export function InviteMemberDialog({
         {/* Form */}
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono">
               Teammate Email
             </label>
             <div className="relative mt-1.5">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-neutral-500" />
+              <Mail className="absolute left-3 top-3 h-4 w-4 text-neutral-500 dark:text-neutral-500" />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="colleague@company.com"
-                className="w-full rounded-xl border border-neutral-800 bg-black py-2.5 pl-10 pr-3 text-sm text-white placeholder:text-neutral-600 focus:border-neutral-500 focus:outline-none"
+                className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white py-2.5 pl-10 pr-3 text-sm text-white dark:text-black placeholder:text-neutral-600 focus:border-neutral-500 dark:focus:border-neutral-500 focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono mb-2">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono mb-2">
               Select Role
             </label>
             <div className="space-y-2">
@@ -177,25 +177,25 @@ export function InviteMemberDialog({
                     onClick={() => setRole(r.role)}
                     className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${
                       isSelected
-                        ? "border-white bg-neutral-900 shadow-md"
-                        : "border-neutral-800 bg-black/40 hover:border-neutral-700 hover:bg-neutral-900/40"
+                        ? "border-white dark:border-black bg-neutral-900 shadow-md"
+                        : "border-neutral-800 dark:border-neutral-200 bg-black dark:bg-white/40 hover:border-neutral-700 hover:bg-neutral-900/40 dark:hover:bg-neutral-100/40"
                     }`}
                   >
                     <div
                       className={`mt-0.5 flex h-7 w-7 items-center justify-center rounded-lg ${
-                        isSelected ? "bg-white text-black" : "bg-neutral-900 text-neutral-400"
+                        isSelected ? "bg-white dark:bg-black text-black" : "bg-neutral-900 text-neutral-400 dark:text-neutral-600"
                       }`}
                     >
                       <Icon className="h-4 w-4" />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-white">{r.label}</span>
+                        <span className="text-xs font-bold text-white dark:text-black">{r.label}</span>
                         {isSelected && (
                           <span className="text-[10px] font-mono font-bold text-emerald-400">Selected</span>
                         )}
                       </div>
-                      <p className="mt-0.5 text-[11px] text-neutral-400 leading-relaxed">{r.description}</p>
+                      <p className="mt-0.5 text-[11px] text-neutral-400 dark:text-neutral-600 leading-relaxed">{r.description}</p>
                     </div>
                   </div>
                 );
@@ -204,18 +204,18 @@ export function InviteMemberDialog({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-neutral-900">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-neutral-900 dark:border-neutral-100">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl border border-neutral-800 px-4 py-2.5 text-xs font-semibold text-neutral-400 hover:bg-neutral-900 hover:text-white transition"
+              className="rounded-xl border border-neutral-800 dark:border-neutral-200 px-4 py-2.5 text-xs font-semibold text-neutral-400 dark:text-neutral-600 hover:bg-neutral-900 hover:text-white dark:text-black transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-xs font-bold text-black shadow-lg hover:bg-neutral-200 transition disabled:opacity-50"
+              className="flex items-center gap-2 rounded-xl bg-white dark:bg-black px-5 py-2.5 text-xs font-bold text-black dark:text-white shadow-lg hover:bg-neutral-200 transition disabled:opacity-50"
             >
               {loading ? (
                 <>

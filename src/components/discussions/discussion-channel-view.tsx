@@ -245,28 +245,28 @@ export function DiscussionChannelView({
   const isAnnouncement = channel.type === "ANNOUNCEMENT";
 
   return (
-    <div className="flex h-full w-full overflow-hidden bg-black text-white">
+    <div className="flex h-full w-full overflow-hidden bg-black dark:bg-white text-white">
       {/* Main Channel Column */}
       <div className="flex flex-1 flex-col h-full overflow-hidden">
         {/* Channel Header */}
-        <div className="flex h-14 shrink-0 items-center justify-between border-b border-neutral-900 px-6 bg-black">
+        <div className="flex h-14 shrink-0 items-center justify-between border-b border-neutral-900 dark:border-neutral-100 px-6 bg-black dark:bg-white">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-300">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-neutral-900 dark:bg-neutral-100 border border-neutral-800 text-neutral-300 dark:text-neutral-700">
               {isAnnouncement ? (
                 <Megaphone className="h-4 w-4 text-amber-400" />
               ) : (
-                <Hash className="h-4 w-4 text-neutral-300" />
+                <Hash className="h-4 w-4 text-neutral-300 dark:text-neutral-700" />
               )}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-sm font-bold text-white font-mono">
+                <h1 className="text-sm font-bold text-white dark:text-black font-mono">
                   #{channel.name}
                 </h1>
                 {channel.project && (
                   <Link
                     href={`/${orgSlug}/${workspaceSlug}/projects/${channel.project.key}/board`}
-                    className="flex items-center gap-1 rounded-md border border-neutral-800 bg-neutral-900/60 px-2 py-0.5 text-[10px] font-mono text-neutral-400 hover:border-neutral-700 hover:text-white transition"
+                    className="flex items-center gap-1 rounded-md border border-neutral-800 dark:border-neutral-200 bg-neutral-900/60 dark:bg-neutral-100/60 px-2 py-0.5 text-[10px] font-mono text-neutral-400 dark:text-neutral-600 hover:border-neutral-700 hover:text-white dark:text-black transition"
                   >
                     <FolderKanban className="h-2.5 w-2.5" />
                     <span>Project: {channel.project.name}</span>
@@ -274,7 +274,7 @@ export function DiscussionChannelView({
                 )}
               </div>
               {channel.topic && (
-                <p className="text-[11px] text-neutral-400 truncate max-w-lg">
+                <p className="text-[11px] text-neutral-400 dark:text-neutral-600 truncate max-w-lg">
                   {channel.topic}
                 </p>
               )}
@@ -282,7 +282,7 @@ export function DiscussionChannelView({
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 rounded-full border border-neutral-800 bg-neutral-900/50 px-2.5 py-1 text-[11px] text-neutral-400 font-mono">
+            <div className="flex items-center gap-1.5 rounded-full border border-neutral-800 dark:border-neutral-200 bg-neutral-900/50 dark:bg-neutral-100/50 px-2.5 py-1 text-[11px] text-neutral-400 dark:text-neutral-600 font-mono">
               <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>Live Sync</span>
             </div>
@@ -292,18 +292,18 @@ export function DiscussionChannelView({
         {/* Message Stream */}
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
           {/* Welcome Banner at start of stream */}
-          <div className="mb-6 rounded-2xl border border-neutral-900 bg-neutral-950/60 p-6 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-neutral-900 border border-neutral-800 text-white shadow-inner mb-3">
+          <div className="mb-6 rounded-2xl border border-neutral-900 dark:border-neutral-100 bg-neutral-950/60 dark:bg-neutral-50/60 p-6 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-neutral-900 dark:bg-neutral-100 border border-neutral-800 text-white dark:text-black shadow-inner mb-3">
               {isAnnouncement ? (
                 <Megaphone className="h-6 w-6 text-amber-400" />
               ) : (
                 <Hash className="h-6 w-6" />
               )}
             </div>
-            <h2 className="text-base font-bold text-white">
+            <h2 className="text-base font-bold text-white dark:text-black">
               Welcome to #{channel.name}!
             </h2>
-            <p className="mt-1 text-xs text-neutral-400 max-w-md mx-auto">
+            <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-600 max-w-md mx-auto">
               {channel.topic ||
                 (channel.project
                   ? `This is the dedicated discussion channel for ${channel.project.name}. Turn any thread into an issue anytime.`
@@ -326,11 +326,11 @@ export function DiscussionChannelView({
         </div>
 
         {/* Channel Composer */}
-        <div className="p-4 border-t border-neutral-900 bg-black relative">
+        <div className="p-4 border-t border-neutral-900 dark:border-neutral-100 bg-black dark:bg-white relative">
           {typingUser && (
-            <div className="absolute -top-6 left-6 flex items-center gap-1.5 text-[11px] text-neutral-400 font-mono animate-in fade-in duration-200">
+            <div className="absolute -top-6 left-6 flex items-center gap-1.5 text-[11px] text-neutral-400 dark:text-neutral-600 font-mono animate-in fade-in duration-200">
               <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping" />
-              <span className="font-semibold text-neutral-200">{typingUser}</span>
+              <span className="font-semibold text-neutral-200 dark:text-neutral-800">{typingUser}</span>
               <span>is typing...</span>
             </div>
           )}

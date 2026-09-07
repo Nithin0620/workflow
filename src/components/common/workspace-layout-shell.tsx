@@ -77,7 +77,7 @@ export function WorkspaceLayoutShell({
   };
 
   return (
-    <div className="flex h-full w-full bg-black text-white selection:bg-white selection:text-black">
+    <div className="flex h-full w-full bg-black dark:bg-white text-white dark:text-black selection:bg-white dark:selection:bg-black selection:text-black dark:selection:text-white">
       <Sidebar
         orgSlug={orgSlug}
         workspaceSlug={workspaceSlug}
@@ -89,14 +89,14 @@ export function WorkspaceLayoutShell({
         workspaceChannels={workspaceChannels}
         projectChannelGroups={projectChannelGroups}
       />
-      <div className="flex flex-1 flex-col overflow-hidden bg-black">
+      <div className="flex flex-1 flex-col overflow-hidden bg-black dark:bg-white">
         <Header
           orgSlug={orgSlug}
           workspaceSlug={workspaceSlug}
           workspaceId={workspaceId}
         />
         <main
-          className="flex-1 overflow-y-auto p-6 bg-black text-white"
+          className="flex-1 overflow-y-auto p-6 bg-black dark:bg-white text-white"
           data-lenis-prevent
         >
           {children}

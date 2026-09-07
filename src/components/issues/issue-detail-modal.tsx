@@ -54,7 +54,7 @@ interface IssueDetailModalProps {
 }
 
 const PRIORITY_ICONS: Record<IssuePriority, React.ReactNode> = {
-  NO_PRIORITY: <Minus className="h-4 w-4 text-neutral-400" />,
+  NO_PRIORITY: <Minus className="h-4 w-4 text-neutral-400 dark:text-neutral-600" />,
   LOW: <ArrowDown className="h-4 w-4 text-blue-600" />,
   MEDIUM: <Equal className="h-4 w-4 text-amber-600" />,
   HIGH: <ArrowUp className="h-4 w-4 text-orange-600" />,
@@ -452,19 +452,19 @@ export function IssueDetailModal({
   const workspaceMembers = issue?.project?.workspace?.members || [];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-2 sm:p-4 backdrop-blur-sm">
-      <div className="flex h-[90vh] w-full max-w-5xl flex-col rounded-2xl border border-neutral-800 bg-[#0a0a0a] shadow-2xl text-white overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black dark:bg-white/80 p-2 sm:p-4 backdrop-blur-sm">
+      <div className="flex h-[90vh] w-full max-w-5xl flex-col rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-[#0a0a0a] shadow-2xl text-white dark:text-black overflow-hidden">
         {/* Top Header */}
-        <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-3.5 bg-neutral-900/60">
+        <div className="flex items-center justify-between border-b border-neutral-800 dark:border-neutral-200 px-6 py-3.5 bg-neutral-900/60 dark:bg-neutral-100/60">
           <div className="flex items-center gap-3">
             {issue && (
-              <span className="font-mono text-xs font-bold text-neutral-300 bg-neutral-950 border border-neutral-800 px-2 py-0.5 rounded-md">
+              <span className="font-mono text-xs font-bold text-neutral-300 dark:text-neutral-700 bg-neutral-950 dark:bg-neutral-50 border border-neutral-800 px-2 py-0.5 rounded-md">
                 {formatIssueKey(issue.projectKey, issue.issueNumber)}
               </span>
             )}
             <button
               onClick={copyLink}
-              className="cursor-pointer flex items-center gap-1 rounded-md px-2 py-1 text-xs text-neutral-400 hover:bg-neutral-800 hover:text-white transition"
+              className="cursor-pointer flex items-center gap-1 rounded-md px-2 py-1 text-xs text-neutral-400 dark:text-neutral-600 hover:bg-neutral-800 hover:text-white dark:text-black transition"
             >
               {copied ? (
                 <>
@@ -500,13 +500,13 @@ export function IssueDetailModal({
               onClick={handleDeleteIssue}
               disabled={deleting}
               title="Delete issue"
-              className="cursor-pointer rounded-lg p-1.5 text-neutral-400 hover:bg-rose-950/50 hover:text-rose-400 transition disabled:opacity-50"
+              className="cursor-pointer rounded-lg p-1.5 text-neutral-400 dark:text-neutral-600 hover:bg-rose-950/50 hover:text-rose-400 transition disabled:opacity-50"
             >
               <Trash2 className="h-4 w-4" />
             </button>
             <button
               onClick={onClose}
-              className="cursor-pointer rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-800 hover:text-white transition"
+              className="cursor-pointer rounded-lg p-1.5 text-neutral-400 dark:text-neutral-600 hover:bg-neutral-800 hover:text-white dark:text-black transition"
             >
               <X className="h-5 w-5" />
             </button>
@@ -516,10 +516,10 @@ export function IssueDetailModal({
         {/* Modal Body */}
         {loading ? (
           <div className="flex flex-1 items-center justify-center bg-[#0a0a0a]">
-            <Loader2 className="h-8 w-8 animate-spin text-neutral-400" />
+            <Loader2 className="h-8 w-8 animate-spin text-neutral-400 dark:text-neutral-600" />
           </div>
         ) : !issue ? (
-          <div className="flex flex-1 items-center justify-center text-sm text-neutral-500 bg-[#0a0a0a]">
+          <div className="flex flex-1 items-center justify-center text-sm text-neutral-500 dark:text-neutral-500 bg-[#0a0a0a]">
             Issue not found.
           </div>
         ) : (
@@ -533,42 +533,42 @@ export function IssueDetailModal({
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   onBlur={() => handleUpdate({ title })}
-                  className="w-full text-xl font-bold tracking-tight text-white bg-transparent border-b border-transparent hover:border-neutral-800 focus:border-neutral-500 focus:outline-none transition py-1"
+                  className="w-full text-xl font-bold tracking-tight text-white dark:text-black bg-transparent border-b border-transparent hover:border-neutral-800 dark:hover:border-neutral-200 focus:border-neutral-500 focus:outline-none transition py-1"
                 />
               </div>
 
               {/* Originating Discussion Card */}
               {issue.discussionLinks && issue.discussionLinks.length > 0 && (
-                <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-4 space-y-2.5">
+                <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900/40 dark:bg-neutral-100/40 p-4 space-y-2.5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-neutral-800 text-neutral-300">
+                      <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-neutral-800 dark:bg-neutral-200 text-neutral-300">
                         <Hash className="h-3.5 w-3.5" />
                       </div>
-                      <span className="text-xs font-bold text-white font-mono">
+                      <span className="text-xs font-bold text-white dark:text-black font-mono">
                         Started in #{issue.discussionLinks[0].message.channel.name}
                       </span>
                     </div>
                     {issue.discussionLinks[0].message.channel.workspace?.organization?.slug && (
                       <Link
                         href={`/${issue.discussionLinks[0].message.channel.workspace.organization.slug}/${issue.discussionLinks[0].message.channel.workspace.slug}/discussions/${issue.discussionLinks[0].message.channel.id}`}
-                        className="flex items-center gap-1.5 rounded-lg border border-neutral-800 bg-neutral-900 px-2.5 py-1 text-[11px] font-medium text-neutral-300 hover:border-neutral-700 hover:text-white transition"
+                        className="flex items-center gap-1.5 rounded-lg border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-2.5 py-1 text-[11px] font-medium text-neutral-300 dark:text-neutral-700 hover:border-neutral-700 hover:text-white dark:text-black transition"
                       >
                         <span>Open Discussion</span>
                         <ExternalLink className="h-3 w-3" />
                       </Link>
                     )}
                   </div>
-                  <div className="rounded-xl border border-neutral-800/80 bg-black/60 p-3 text-xs text-neutral-300">
-                    <div className="flex items-center gap-2 mb-1 text-[11px] text-neutral-400">
-                      <span className="font-semibold text-white">
+                  <div className="rounded-xl border border-neutral-800/80 dark:border-neutral-200/80 bg-black dark:bg-white/60 p-3 text-xs text-neutral-300">
+                    <div className="flex items-center gap-2 mb-1 text-[11px] text-neutral-400 dark:text-neutral-600">
+                      <span className="font-semibold text-white dark:text-black">
                         {issue.discussionLinks[0].message.author.name || "Teammate"}
                       </span>
-                      <span className="font-mono text-[10px] text-neutral-500">
+                      <span className="font-mono text-[10px] text-neutral-500 dark:text-neutral-500">
                         {new Date(issue.discussionLinks[0].message.createdAt).toLocaleString()}
                       </span>
                     </div>
-                    <p className="line-clamp-2 text-neutral-300 italic font-mono text-[11px]">
+                    <p className="line-clamp-2 text-neutral-300 dark:text-neutral-700 italic font-mono text-[11px]">
                       "{issue.discussionLinks[0].message.content}"
                     </p>
                   </div>
@@ -578,15 +578,15 @@ export function IssueDetailModal({
               {/* Editable Markdown Description */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono">
                     DESCRIPTION
                   </label>
-                  <div className="flex items-center rounded-lg border border-neutral-800 bg-neutral-900 p-0.5 text-[11px] font-semibold">
+                  <div className="flex items-center rounded-lg border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 p-0.5 text-[11px] font-semibold">
                     <button
                       type="button"
                       onClick={() => setDescriptionMode("edit")}
                       className={`cursor-pointer rounded-md px-2.5 py-1 transition ${
-                        descriptionMode === "edit" ? "bg-neutral-700 text-white" : "text-neutral-400 hover:text-white"
+                        descriptionMode === "edit" ? "bg-neutral-700 dark:bg-neutral-300 text-white dark:text-black" : "text-neutral-400 hover:text-white dark:text-black"
                       }`}
                     >
                       Edit
@@ -595,7 +595,7 @@ export function IssueDetailModal({
                       type="button"
                       onClick={() => setDescriptionMode("preview")}
                       className={`cursor-pointer rounded-md px-2.5 py-1 transition ${
-                        descriptionMode === "preview" ? "bg-neutral-700 text-white" : "text-neutral-400 hover:text-white"
+                        descriptionMode === "preview" ? "bg-neutral-700 dark:bg-neutral-300 text-white dark:text-black" : "text-neutral-400 hover:text-white dark:text-black"
                       }`}
                     >
                       Preview
@@ -609,10 +609,10 @@ export function IssueDetailModal({
                     onChange={(e) => setDescription(e.target.value)}
                     onBlur={() => handleUpdate({ description })}
                     placeholder="Add a detailed description or acceptance criteria (Markdown supported)..."
-                    className="w-full rounded-xl border border-neutral-800 bg-neutral-900/60 p-3.5 text-xs text-neutral-200 placeholder:text-neutral-500 focus:border-neutral-600 focus:bg-neutral-900 focus:outline-none transition resize-y"
+                    className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900/60 dark:bg-neutral-100/60 p-3.5 text-xs text-neutral-200 dark:text-neutral-800 placeholder:text-neutral-500 focus:border-neutral-600 dark:focus:border-neutral-400 focus:bg-neutral-900 dark:focus:bg-neutral-100 focus:outline-none transition resize-y"
                   />
                 ) : (
-                  <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-3.5">
+                  <div className="rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900/40 dark:bg-neutral-100/40 p-3.5">
                     <Markdown content={description || "_No description yet._"} />
                   </div>
                 )}
@@ -644,14 +644,14 @@ export function IssueDetailModal({
               />
 
               {/* Activity & Comments Tabs */}
-              <div className="border-t border-neutral-800 pt-4 space-y-4">
+              <div className="border-t border-neutral-800 dark:border-neutral-200 pt-4 space-y-4">
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => setActiveTab("comments")}
                     className={`cursor-pointer flex items-center gap-1.5 pb-2 text-xs font-bold uppercase tracking-wider transition border-b-2 ${
                       activeTab === "comments"
-                        ? "border-white text-white"
-                        : "border-transparent text-neutral-400 hover:text-neutral-200"
+                        ? "border-white dark:border-black text-white dark:text-black"
+                        : "border-transparent text-neutral-400 dark:text-neutral-600 hover:text-neutral-200"
                     }`}
                   >
                     <MessageSquare className="h-3.5 w-3.5" />
@@ -662,8 +662,8 @@ export function IssueDetailModal({
                     onClick={() => setActiveTab("activity")}
                     className={`cursor-pointer flex items-center gap-1.5 pb-2 text-xs font-bold uppercase tracking-wider transition border-b-2 ${
                       activeTab === "activity"
-                        ? "border-white text-white"
-                        : "border-transparent text-neutral-400 hover:text-neutral-200"
+                        ? "border-white dark:border-black text-white dark:text-black"
+                        : "border-transparent text-neutral-400 dark:text-neutral-600 hover:text-neutral-200"
                     }`}
                   >
                     <Activity className="h-3.5 w-3.5" />
@@ -689,14 +689,14 @@ export function IssueDetailModal({
                               className={`flex gap-3 rounded-xl p-3.5 border transition ${
                                 isAiComment
                                   ? "border-emerald-500/40 bg-emerald-950/20 shadow-lg shadow-emerald-950/10"
-                                  : "border-neutral-800 bg-neutral-900/50"
+                                  : "border-neutral-800 dark:border-neutral-200 bg-neutral-900/50 dark:bg-neutral-100/50"
                               }`}
                             >
                               <div
                                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-bold border shadow-sm ${
                                   isAiComment
                                     ? "bg-emerald-900 border-emerald-500/50 text-emerald-300"
-                                    : "bg-neutral-800 text-white border-neutral-700"
+                                    : "bg-neutral-800 dark:bg-neutral-200 text-white dark:text-black border-neutral-700"
                                 }`}
                               >
                                 {isAiComment ? <Bot className="h-4 w-4" /> : initial}
@@ -704,7 +704,7 @@ export function IssueDetailModal({
                               <div className="flex-1 space-y-1">
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-1.5">
-                                    <span className={`text-xs font-bold ${isAiComment ? "text-emerald-300" : "text-neutral-200"}`}>
+                                    <span className={`text-xs font-bold ${isAiComment ? "text-emerald-300" : "text-neutral-200 dark:text-neutral-800"}`}>
                                       {authorName}
                                     </span>
                                     {isAiComment && (
@@ -713,11 +713,11 @@ export function IssueDetailModal({
                                       </span>
                                     )}
                                   </div>
-                                  <span className="text-[11px] text-neutral-400">
+                                  <span className="text-[11px] text-neutral-400 dark:text-neutral-600">
                                     {formatDate(c.createdAt)}
                                   </span>
                                 </div>
-                                <div className="text-xs text-neutral-300 whitespace-pre-wrap leading-relaxed font-sans">
+                                <div className="text-xs text-neutral-300 dark:text-neutral-700 whitespace-pre-wrap leading-relaxed font-sans">
                                   <Markdown content={c.content || ""} />
                                 </div>
                                 {c.attachments?.length > 0 && (
@@ -735,7 +735,7 @@ export function IssueDetailModal({
                         })}
 
                       {commentsList.length === 0 && (
-                        <div className="py-6 text-center text-xs text-neutral-400">
+                        <div className="py-6 text-center text-xs text-neutral-400 dark:text-neutral-600">
                           No comments yet. Start the conversation below.
                         </div>
                       )}
@@ -748,7 +748,7 @@ export function IssueDetailModal({
                         value={commentContent}
                         onChange={(e) => setCommentContent(e.target.value)}
                         placeholder="Write a comment... (supports Markdown & @mentions)"
-                        className="w-full rounded-xl border border-neutral-800 bg-neutral-900/60 p-3 text-xs text-neutral-200 placeholder:text-neutral-500 focus:border-neutral-600 focus:bg-neutral-900 focus:outline-none transition resize-none"
+                        className="w-full rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900/60 dark:bg-neutral-100/60 p-3 text-xs text-neutral-200 dark:text-neutral-800 placeholder:text-neutral-500 focus:border-neutral-600 dark:focus:border-neutral-400 focus:bg-neutral-900 dark:focus:bg-neutral-100 focus:outline-none transition resize-none"
                       />
 
                       {pendingAttachments.length > 0 && (
@@ -760,14 +760,14 @@ export function IssueDetailModal({
                                 <img
                                   src={meta.fileUrl}
                                   alt={meta.fileName}
-                                  className="h-12 w-12 rounded-lg border border-neutral-800 object-cover"
+                                  className="h-12 w-12 rounded-lg border border-neutral-800 dark:border-neutral-200 object-cover"
                                 />
                                 <button
                                   type="button"
                                   onClick={() =>
                                     setPendingAttachments((prev) => prev.filter((_, i) => i !== idx))
                                   }
-                                  className="cursor-pointer absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-700 text-white hover:bg-rose-600"
+                                  className="cursor-pointer absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-700 dark:bg-neutral-300 text-white dark:text-black hover:bg-rose-600"
                                 >
                                   <X className="h-3 w-3" />
                                 </button>
@@ -775,16 +775,16 @@ export function IssueDetailModal({
                             ) : (
                               <span
                                 key={idx}
-                                className="flex items-center gap-1.5 rounded-lg border border-neutral-800 bg-neutral-900 px-2 py-1 text-[11px] text-neutral-300"
+                                className="flex items-center gap-1.5 rounded-lg border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-2 py-1 text-[11px] text-neutral-300 dark:text-neutral-700"
                               >
-                                <Paperclip className="h-3 w-3 text-neutral-400" />
+                                <Paperclip className="h-3 w-3 text-neutral-400 dark:text-neutral-600" />
                                 <span className="max-w-[120px] truncate">{meta.fileName}</span>
                                 <button
                                   type="button"
                                   onClick={() =>
                                     setPendingAttachments((prev) => prev.filter((_, i) => i !== idx))
                                   }
-                                  className="cursor-pointer text-neutral-500 hover:text-rose-400"
+                                  className="cursor-pointer text-neutral-500 dark:text-neutral-500 hover:text-rose-400"
                                 >
                                   <X className="h-3 w-3" />
                                 </button>
@@ -795,7 +795,7 @@ export function IssueDetailModal({
                       )}
 
                       <div className="flex items-center justify-between">
-                        <label className="cursor-pointer rounded-lg p-1.5 text-neutral-400 transition hover:bg-neutral-800 hover:text-white">
+                        <label className="cursor-pointer rounded-lg p-1.5 text-neutral-400 dark:text-neutral-600 transition hover:bg-neutral-800 dark:hover:bg-neutral-200 hover:text-white dark:text-black">
                           <ImagePlus className="h-4 w-4" />
                           <input
                             type="file"
@@ -812,7 +812,7 @@ export function IssueDetailModal({
                           disabled={
                             submittingComment || (!commentContent.trim() && pendingAttachments.length === 0)
                           }
-                          className="cursor-pointer flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-1.5 text-xs font-bold text-black shadow transition hover:bg-neutral-200 disabled:opacity-50"
+                          className="cursor-pointer flex items-center gap-1.5 rounded-lg bg-white dark:bg-black px-3.5 py-1.5 text-xs font-bold text-black dark:text-white shadow transition hover:bg-neutral-200 dark:hover:bg-neutral-800 disabled:opacity-50"
                         >
                           {submittingComment ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -838,16 +838,16 @@ export function IssueDetailModal({
                         return (
                           <div
                             key={log.id || `log-${index}`}
-                            className={`flex items-center gap-3 text-xs py-2 border-b border-neutral-800/40 last:border-b-0 ${
-                              isDiscussionAction ? "text-amber-300 font-medium" : "text-neutral-300"
+                            className={`flex items-center gap-3 text-xs py-2 border-b border-neutral-800/40 dark:border-neutral-200/40 last:border-b-0 ${
+                              isDiscussionAction ? "text-amber-300 font-medium" : "text-neutral-300 dark:text-neutral-700"
                             }`}
                           >
                             <div
                               className={`h-2 w-2 rounded-full shrink-0 ${
-                                isDiscussionAction ? "bg-amber-400" : "bg-neutral-400"
+                                isDiscussionAction ? "bg-amber-400" : "bg-neutral-400 dark:bg-neutral-600"
                               }`}
                             />
-                            <span className="font-bold text-white">
+                            <span className="font-bold text-white dark:text-black">
                               {log.actor?.name || log.actor?.email || "User"}
                             </span>
                             <span>
@@ -859,14 +859,14 @@ export function IssueDetailModal({
                                 ? String(log.action).replace(/_/g, " ").toLowerCase()
                                 : "updated"}
                             </span>
-                            <span className="text-[11px] text-neutral-400 ml-auto font-mono">
+                            <span className="text-[11px] text-neutral-400 dark:text-neutral-600 ml-auto font-mono">
                               {formatDate(log.createdAt)}
                             </span>
                           </div>
                         );
                       })}
                     {activityList.length === 0 && (
-                      <div className="py-6 text-center text-xs text-neutral-400">
+                      <div className="py-6 text-center text-xs text-neutral-400 dark:text-neutral-600">
                         No activity recorded yet.
                       </div>
                     )}
@@ -876,14 +876,14 @@ export function IssueDetailModal({
             </div>
 
             {/* Right Properties Panel */}
-            <div className="w-full lg:w-72 border-t lg:border-t-0 lg:border-l border-neutral-800 bg-neutral-950 p-6 space-y-6">
-              <h4 className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono">
+            <div className="w-full lg:w-72 border-t lg:border-t-0 lg:border-l border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-6 space-y-6">
+              <h4 className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600 font-mono">
                 PROPERTIES
               </h4>
 
               {/* Status Picker */}
               <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-300 mb-1.5">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-300 dark:text-neutral-700 mb-1.5">
                   Status
                 </label>
                 <select
@@ -893,10 +893,10 @@ export function IssueDetailModal({
                     setStatus(newStatus);
                     handleUpdate({ status: newStatus });
                   }}
-                  className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-2.5 py-1.5 text-xs font-semibold text-neutral-200 focus:border-neutral-600 focus:outline-none transition"
+                  className="w-full rounded-lg border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-2.5 py-1.5 text-xs font-semibold text-neutral-200 dark:text-neutral-800 focus:border-neutral-600 focus:outline-none transition"
                 >
                   {ISSUE_STATUSES.map((s) => (
-                    <option key={s.id} value={s.id} className="bg-neutral-900 text-white">
+                    <option key={s.id} value={s.id} className="bg-neutral-900 dark:bg-neutral-100 text-white dark:text-black">
                       {s.label}
                     </option>
                   ))}
@@ -905,7 +905,7 @@ export function IssueDetailModal({
 
               {/* Priority Picker */}
               <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-300 mb-1.5">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-300 dark:text-neutral-700 mb-1.5">
                   Priority
                 </label>
                 <select
@@ -915,10 +915,10 @@ export function IssueDetailModal({
                     setPriority(newPriority);
                     handleUpdate({ priority: newPriority });
                   }}
-                  className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-2.5 py-1.5 text-xs font-semibold text-neutral-200 focus:border-neutral-600 focus:outline-none transition"
+                  className="w-full rounded-lg border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-2.5 py-1.5 text-xs font-semibold text-neutral-200 dark:text-neutral-800 focus:border-neutral-600 focus:outline-none transition"
                 >
                   {ISSUE_PRIORITIES.map((p) => (
-                    <option key={p.id} value={p.id} className="bg-neutral-900 text-white">
+                    <option key={p.id} value={p.id} className="bg-neutral-900 dark:bg-neutral-100 text-white dark:text-black">
                       {p.label}
                     </option>
                   ))}
@@ -927,7 +927,7 @@ export function IssueDetailModal({
 
               {/* Assignee Picker */}
               <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-300 mb-1.5">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-300 dark:text-neutral-700 mb-1.5">
                   Assignee
                 </label>
                 <select
@@ -937,11 +937,11 @@ export function IssueDetailModal({
                     setAssigneeId(newAssignee);
                     handleUpdate({ assigneeId: newAssignee });
                   }}
-                  className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-2.5 py-1.5 text-xs font-semibold text-neutral-200 focus:border-neutral-600 focus:outline-none transition"
+                  className="w-full rounded-lg border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-2.5 py-1.5 text-xs font-semibold text-neutral-200 dark:text-neutral-800 focus:border-neutral-600 focus:outline-none transition"
                 >
-                  <option value="" className="bg-neutral-900 text-white">Unassigned</option>
+                  <option value="" className="bg-neutral-900 dark:bg-neutral-100 text-white dark:text-black">Unassigned</option>
                   {workspaceMembers.map((m: any) => (
-                    <option key={m.user.id} value={m.user.id} className="bg-neutral-900 text-white">
+                    <option key={m.user.id} value={m.user.id} className="bg-neutral-900 dark:bg-neutral-100 text-white dark:text-black">
                       {m.user.name || m.user.email}
                     </option>
                   ))}
@@ -950,7 +950,7 @@ export function IssueDetailModal({
 
               {/* Sprint Picker */}
               <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-300 mb-1.5">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-300 dark:text-neutral-700 mb-1.5">
                   Sprint
                 </label>
                 <select
@@ -960,11 +960,11 @@ export function IssueDetailModal({
                     setSprintId(newSprint);
                     handleUpdate({ sprintId: newSprint });
                   }}
-                  className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-2.5 py-1.5 text-xs font-semibold text-neutral-200 focus:border-neutral-600 focus:outline-none transition"
+                  className="w-full rounded-lg border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-2.5 py-1.5 text-xs font-semibold text-neutral-200 dark:text-neutral-800 focus:border-neutral-600 focus:outline-none transition"
                 >
-                  <option value="" className="bg-neutral-900 text-white">No sprint</option>
+                  <option value="" className="bg-neutral-900 dark:bg-neutral-100 text-white dark:text-black">No sprint</option>
                   {(issue?.project?.sprints || []).map((s) => (
-                    <option key={s.id} value={s.id} className="bg-neutral-900 text-white">
+                    <option key={s.id} value={s.id} className="bg-neutral-900 dark:bg-neutral-100 text-white dark:text-black">
                       {s.isActive ? "● " : ""}Sprint {s.number} — {s.name}
                     </option>
                   ))}
@@ -973,7 +973,7 @@ export function IssueDetailModal({
 
               {/* Story Points */}
               <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-300 mb-1.5">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-300 dark:text-neutral-700 mb-1.5">
                   Story Points
                 </label>
                 <input
@@ -984,21 +984,21 @@ export function IssueDetailModal({
                   onChange={(e) => setEstimate(e.target.value === "" ? "" : Number(e.target.value))}
                   onBlur={() => handleUpdate({ estimate: estimate === "" ? null : Number(estimate) })}
                   placeholder="0"
-                  className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-2.5 py-1.5 text-xs font-bold text-neutral-200 placeholder:text-neutral-600 focus:border-neutral-600 focus:outline-none transition"
+                  className="w-full rounded-lg border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-2.5 py-1.5 text-xs font-bold text-neutral-200 dark:text-neutral-800 placeholder:text-neutral-600 focus:border-neutral-600 dark:focus:border-neutral-400 focus:outline-none transition"
                 />
               </div>
 
               {/* Metadata */}
-              <div className="border-t border-neutral-800 pt-4 space-y-2 text-xs text-neutral-400">
+              <div className="border-t border-neutral-800 dark:border-neutral-200 pt-4 space-y-2 text-xs text-neutral-400 dark:text-neutral-600">
                 <div className="flex justify-between">
                   <span>Created:</span>
-                  <span className="font-semibold text-neutral-300">
+                  <span className="font-semibold text-neutral-300 dark:text-neutral-700">
                     {formatDate(issue.createdAt)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Reporter:</span>
-                  <span className="font-semibold text-neutral-300">
+                  <span className="font-semibold text-neutral-300 dark:text-neutral-700">
                     {issue.creator?.name || "Author"}
                   </span>
                 </div>

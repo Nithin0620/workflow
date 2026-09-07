@@ -46,7 +46,7 @@ const ROLE_BADGES: Record<UserRole, { label: string; icon: any; color: string }>
   VIEWER: {
     label: "Viewer",
     icon: Eye,
-    color: "border-neutral-500/30 bg-neutral-500/10 text-neutral-400",
+    color: "border-neutral-500/30 dark:border-neutral-500/30 bg-neutral-500/10 dark:bg-neutral-500/10 text-neutral-400",
   },
 };
 
@@ -107,14 +107,14 @@ export function MembersList({
   };
 
   return (
-    <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-xl">
+    <div className="rounded-2xl border border-neutral-800 dark:border-neutral-200 bg-neutral-950 dark:bg-neutral-50 p-6 shadow-xl">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-neutral-900 pb-5">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-neutral-900 dark:border-neutral-100 pb-5">
         <div>
-          <h2 className="text-sm font-bold text-white">
+          <h2 className="text-sm font-bold text-white dark:text-black">
             Team Members ({members.length})
           </h2>
-          <p className="text-xs text-neutral-400 mt-0.5">
+          <p className="text-xs text-neutral-400 dark:text-neutral-600 mt-0.5">
             Teammates with access to this workspace and all associated projects.
           </p>
         </div>
@@ -122,7 +122,7 @@ export function MembersList({
         {canManage && (
           <button
             onClick={() => setInviteModalOpen(true)}
-            className="flex items-center gap-2 rounded-xl bg-white px-3.5 py-2 text-xs font-bold text-black shadow-lg transition hover:bg-neutral-200"
+            className="flex items-center gap-2 rounded-xl bg-white dark:bg-black px-3.5 py-2 text-xs font-bold text-black dark:text-white shadow-lg transition hover:bg-neutral-200 dark:hover:bg-neutral-800"
           >
             <UserPlus className="h-4 w-4" />
             <span>Invite Member</span>
@@ -155,21 +155,21 @@ export function MembersList({
             >
               {/* Member Details */}
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-900 border border-neutral-800 text-xs font-extrabold text-white">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-900 dark:bg-neutral-100 border border-neutral-800 text-xs font-extrabold text-white dark:text-black">
                   {(m.user.name || m.user.email || "U").charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-white">
+                    <span className="text-xs font-bold text-white dark:text-black">
                       {m.user.name || "Teammate"}
                     </span>
                     {isMe && (
-                      <span className="rounded-md bg-neutral-900 border border-neutral-800 px-1.5 py-0.2 text-[9px] font-mono font-bold text-neutral-400">
+                      <span className="rounded-md bg-neutral-900 dark:bg-neutral-100 border border-neutral-800 px-1.5 py-0.2 text-[9px] font-mono font-bold text-neutral-400 dark:text-neutral-600">
                         YOU
                       </span>
                     )}
                   </div>
-                  <div className="text-[11px] text-neutral-400 font-mono">
+                  <div className="text-[11px] text-neutral-400 dark:text-neutral-600 font-mono">
                     {m.user.email}
                   </div>
                 </div>
@@ -182,7 +182,7 @@ export function MembersList({
                     value={m.role}
                     disabled={updatingId === m.id}
                     onChange={(e) => handleRoleChange(m.id, e.target.value as UserRole)}
-                    className="rounded-xl border border-neutral-800 bg-neutral-900 px-2.5 py-1.5 text-xs font-bold text-neutral-300 focus:border-neutral-600 focus:outline-none"
+                    className="rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 px-2.5 py-1.5 text-xs font-bold text-neutral-300 dark:text-neutral-700 focus:border-neutral-600 focus:outline-none"
                   >
                     {currentUserRole === "OWNER" && <option value="OWNER">Owner</option>}
                     <option value="ADMIN">Admin</option>
@@ -203,7 +203,7 @@ export function MembersList({
                     onClick={() => handleRemoveMember(m)}
                     disabled={updatingId === m.id}
                     title="Remove member"
-                    className="rounded-xl border border-neutral-800 bg-neutral-900 p-2 text-neutral-400 hover:border-rose-900 hover:bg-rose-950/30 hover:text-rose-400 transition"
+                    className="rounded-xl border border-neutral-800 dark:border-neutral-200 bg-neutral-900 dark:bg-neutral-100 p-2 text-neutral-400 hover:border-rose-900 hover:bg-rose-950/30 hover:text-rose-400 transition"
                   >
                     {updatingId === m.id ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
