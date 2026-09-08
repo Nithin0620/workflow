@@ -290,23 +290,20 @@ export function DiscussionChannelView({
         </div>
 
         {/* Message Stream */}
-        <div className="flex-1 overflow-y-auto p-4 flex flex-col">
-          {/* Spacer to push content to bottom if few messages */}
-          <div className="flex-1 min-h-0 shrink-0"></div>
-          <div className="flex flex-col justify-end space-y-2 mt-auto">
+        <div className="flex-1 overflow-y-auto p-4 space-y-2">
           {/* Welcome Banner at start of stream */}
-          <div className="mb-6 px-2 pt-10 shrink-0">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-neutral-900 border border-neutral-800 text-white shadow-inner mb-4">
+          <div className="mb-6 rounded-2xl border border-neutral-900 bg-neutral-950/60 p-6 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-neutral-900 border border-neutral-800 text-white shadow-inner mb-3">
               {isAnnouncement ? (
-                <Megaphone className="h-8 w-8 text-amber-400" />
+                <Megaphone className="h-6 w-6 text-amber-400" />
               ) : (
-                <Hash className="h-8 w-8 text-neutral-300" />
+                <Hash className="h-6 w-6" />
               )}
             </div>
-            <h2 className="text-3xl font-bold text-white mb-2">
+            <h2 className="text-base font-bold text-white">
               Welcome to #{channel.name}!
             </h2>
-            <p className="text-neutral-400 max-w-2xl">
+            <p className="mt-1 text-xs text-neutral-400 max-w-md mx-auto">
               {channel.topic ||
                 (channel.project
                   ? `This is the dedicated discussion channel for ${channel.project.name}. Turn any thread into an issue anytime.`
@@ -326,7 +323,6 @@ export function DiscussionChannelView({
             />
           ))}
           <div ref={messagesEndRef} />
-          </div>
         </div>
 
         {/* Channel Composer */}

@@ -590,7 +590,7 @@ export function KanbanBoard({
 
       {/* Main Content Area: Board or List */}
       {viewMode === "board" ? (
-        <div className="flex flex-1 gap-4 overflow-x-auto pb-4 items-start scrollbar-thin scrollbar-thumb-neutral-800 hover:scrollbar-thumb-neutral-700 scrollbar-track-transparent" data-tour="board-columns">
+        <div className="flex flex-1 gap-4 overflow-x-auto pb-4 items-start" data-tour="board-columns">
           {columns.map((col) => (
             <KanbanColumn
               key={col.id}

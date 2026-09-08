@@ -50,7 +50,7 @@ export function IssueCard({ issue, onSelect }: IssueCardProps) {
               setCopied(true);
               setTimeout(() => setCopied(false), 2000);
             }}
-            className="opacity-0 group-hover/key:opacity-100 transition-opacity p-0.5 rounded hover:bg-neutral-800 text-neutral-500 hover:text-neutral-300"
+            className="opacity-0 group-hover/key:opacity-100 transition-opacity p-0.5 rounded hover:bg-neutral-800 text-neutral-500 hover:text-neutral-300 cursor-pointer"
             title="Copy Issue Key"
           >
             {copied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}

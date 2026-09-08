@@ -484,7 +484,7 @@ export function IssueDetailModal({
                     setKeyCopied(true);
                     setTimeout(() => setKeyCopied(false), 2000);
                   }}
-                  className="opacity-0 group-hover/key:opacity-100 transition-opacity p-1 rounded hover:bg-neutral-800 text-neutral-500 hover:text-neutral-300"
+                  className="opacity-0 group-hover/key:opacity-100 transition-opacity p-1 rounded hover:bg-neutral-800 text-neutral-500 hover:text-neutral-300 cursor-pointer"
                   title="Copy Issue Key"
                 >
                   {keyCopied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}

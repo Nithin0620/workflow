@@ -1,6 +1,7 @@
 import { getCurrentUser } from "@/lib/auth/session";
+import { prisma } from "@/lib/db/prisma";
 import { redirect, notFound } from "next/navigation";
-import { MessageSquare } from "lucide-react";
+import { getWorkspaceChannels } from "@/actions/discussions";
 
 interface DiscussionsPageProps {
   params: Promise<{ orgSlug: string; workspaceSlug: string }>;
@@ -24,14 +25,22 @@ export default async function DiscussionsPage({ params }: DiscussionsPageProps) 
     notFound();
   }
 
+  const { workspaceChannels, projectGroups } = await getWorkspaceChannels(currentMembership.workspaceId);
+
+  // Redirect to first available channel
+  const firstChannel =
+    workspaceChannels[0] ||
+    projectGroups[0]?.channels[0];
+
+  if (firstChannel) {
+    redirect(`/${orgSlug}/${workspaceSlug}/discussions/${firstChannel.id}`);
+  }
+
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center bg-black p-8 text-center">
-      <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-neutral-900 border border-neutral-800 text-white shadow-inner mb-6">
-        <MessageSquare className="h-10 w-10 text-neutral-400" />
-      </div>
-      <h2 className="text-2xl font-bold text-white mb-2">Welcome to Discussions</h2>
-      <p className="text-neutral-400 max-w-md text-sm">
-        Select a server, group, or channel from the sidebar to start collaborating. You can participate in threads or convert discussions directly into tracked issues.
+    <div className="flex h-full flex-col items-center justify-center text-center p-8">
+      <h2 className="text-lg font-bold text-white">No discussion channels found</h2>
+      <p className="mt-1 text-xs text-neutral-400">
+        Create a channel in the sidebar to start collaborating.
       </p>
     </div>
   );

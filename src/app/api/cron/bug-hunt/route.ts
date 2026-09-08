@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { runCronJobScan, BugHuntResult } from "@/lib/ai/bug-hunter";
-import crypto from "crypto";
 
 /**
  * Scheduled Cron Endpoint for Autonomous scans.
@@ -17,27 +16,12 @@ export async function POST(req: NextRequest) {
 }
 
 async function handleCronExecution(req: NextRequest) {
-  const authHeader = req.headers.get("authorization") || "";
+  const authHeader = req.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
 
   // Verify cron secret if configured in environment
-  if (cronSecret) {
-    const expectedAuthHeader = `Bearer ${cronSecret}`;
-    const providedBuffer = Buffer.from(authHeader);
-    const expectedBuffer = Buffer.from(expectedAuthHeader);
-    const isValidLength = providedBuffer.byteLength === expectedBuffer.byteLength;
-
-    let isMatch = false;
-    if (isValidLength) {
-      isMatch = crypto.timingSafeEqual(providedBuffer, expectedBuffer);
-    } else {
-      // Avoid timing attack on length by always calling timingSafeEqual
-      crypto.timingSafeEqual(expectedBuffer, expectedBuffer);
-    }
-
-    if (!isMatch) {
-      return NextResponse.json({ error: "Unauthorized cron request." }, { status: 401 });
-    }
+  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    return NextResponse.json({ error: "Unauthorized cron request." }, { status: 401 });
   }
 
   const startTime = Date.now();
