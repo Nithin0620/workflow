@@ -224,7 +224,7 @@ export function CommandPalette({
                   setQuery("");
                   searchInputRef.current?.focus();
                 }}
-                className="text-neutral-500 hover:text-white shrink-0 -ml-8 mr-2"
+                className="text-neutral-500 hover:text-white shrink-0 -ml-8 mr-2 cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </motion.button>

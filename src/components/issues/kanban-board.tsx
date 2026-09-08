@@ -445,7 +445,7 @@ export function KanbanBoard({
                     setSearch("");
                     searchInputRef.current?.focus();
                   }}
-                  className="absolute right-2.5 top-2.5 text-neutral-500 hover:text-white"
+                  className="absolute right-2.5 top-2.5 text-neutral-500 hover:text-white cursor-pointer"
                 >
                   <X className="h-3.5 w-3.5" />
                 </motion.button>

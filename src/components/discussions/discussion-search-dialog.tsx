@@ -76,7 +76,7 @@ export function DiscussionSearchDialog({
                   setQuery("");
                   searchInputRef.current?.focus();
                 }}
-                className="absolute right-2.5 text-neutral-500 hover:text-white"
+                className="absolute right-2.5 text-neutral-500 hover:text-white cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </motion.button>
