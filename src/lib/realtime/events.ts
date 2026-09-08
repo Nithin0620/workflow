@@ -71,7 +71,7 @@ export interface RealtimeEventPayload {
 
 // Global in-memory broadcast bus (works across server actions and SSE route handlers)
 declare global {
-  // eslint-disable-next-line no-var
+
   var __WORKFLOW_EVENT_BUS__: EventEmitter | undefined;
 }
 

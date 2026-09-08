@@ -145,8 +145,8 @@ export async function getWorkspaceAnalytics(options: AnalyticsFilterOptions): Pr
     let urgentCount = 0;
     let totalStoryPoints = 0;
     let completedStoryPoints = 0;
-    let cycleTimes: number[] = [];
-    let leadTimes: number[] = [];
+    const cycleTimes: number[] = [];
+    const leadTimes: number[] = [];
 
     const nowMs = Date.now();
     const bottlenecks: AnalyticsSummaryData["bottlenecks"] = [];
