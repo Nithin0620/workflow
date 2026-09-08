@@ -111,3 +111,27 @@ html.lenis body {
   border-left-color: #0a0a0a;
 }
 
+
+@utility scrollbar-thin {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+}
+@utility scrollbar-track-transparent {
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+}
+@utility scrollbar-thumb-neutral-800 {
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--color-neutral-800);
+    border-radius: 9999px;
+  }
+}
+@utility scrollbar-thumb-neutral-700 {
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--color-neutral-700);
+    border-radius: 9999px;
+  }
+}
