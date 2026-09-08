@@ -168,6 +168,7 @@ export function IssueDetailModal({
   const [submittingComment, setSubmittingComment] = useState(false);
   const [activeTab, setActiveTab] = useState<"comments" | "activity">("comments");
   const [copied, setCopied] = useState(false);
+  const [keyCopied, setKeyCopied] = useState(false);
   const [sprintId, setSprintId] = useState<string | null>(null);
   const [aiScanning, setAiScanning] = useState(false);
   const [customGroqKey, setCustomGroqKey] = useState("");
@@ -258,8 +259,8 @@ export function IssueDetailModal({
   useEffect(() => {
     if (!isOpen) return;
 
-    if (initialData) {
-      setIssue((prev) => (prev?.id === initialData.id ? prev : (initialData as IssueDetailData)));
+    if (initialData && (!issue || issue.id !== initialData.id)) {
+      setIssue(initialData as IssueDetailData);
       if (initialData.title) setTitle(initialData.title);
       if (initialData.description !== undefined) setDescription(initialData.description || "");
       if (initialData.status) setStatus(initialData.status as IssueStatus);
@@ -473,9 +474,22 @@ export function IssueDetailModal({
         <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-3.5 bg-neutral-900/60">
           <div className="flex items-center gap-3">
             {issue && (
-              <span className="font-mono text-xs font-bold text-neutral-300 bg-neutral-950 border border-neutral-800 px-2 py-0.5 rounded-md">
-                {formatIssueKey(issue.projectKey, issue.issueNumber)}
-              </span>
+              <div className="flex items-center gap-1 group/key">
+                <span className="font-mono text-xs font-bold text-neutral-300 bg-neutral-950 border border-neutral-800 px-2 py-0.5 rounded-md">
+                  {formatIssueKey(issue.projectKey, issue.issueNumber)}
+                </span>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(formatIssueKey(issue.projectKey, issue.issueNumber));
+                    setKeyCopied(true);
+                    setTimeout(() => setKeyCopied(false), 2000);
+                  }}
+                  className="opacity-0 group-hover/key:opacity-100 transition-opacity p-1 rounded hover:bg-neutral-800 text-neutral-500 hover:text-neutral-300 cursor-pointer"
+                  title="Copy Issue Key"
+                >
+                  {keyCopied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+                </button>
+              </div>
             )}
             <button
               onClick={copyLink}
