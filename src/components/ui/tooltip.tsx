@@ -50,7 +50,7 @@ export function Tooltip({ content, children, className = "" }: TooltipProps) {
 
   const tooltipElement = isVisible && mounted ? createPortal(
     <div
-      className={`absolute z-[9999] px-3 py-1.5 text-xs font-semibold text-neutral-100 bg-neutral-800 border border-neutral-700/80 rounded-md shadow-lg shadow-black/40 whitespace-nowrap pointer-events-none animate-in fade-in zoom-in-95 duration-200 ${className}`}
+      className={`absolute z-[9999] px-3 py-1.5 text-xs font-semibold text-neutral-100 bg-neutral-800 border border-neutral-700/80 rounded-md shadow-lg shadow-black/40 whitespace-nowrap pointer-events-none animate-in fade-in duration-200 ${className}`}
       style={{
         top: coords.showTop ? coords.top - 8 : coords.top + 32,
         left: coords.showLeft ? coords.left : coords.left + 16,
