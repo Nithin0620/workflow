@@ -20,37 +20,40 @@ export async function searchWorkspace(
     return { success: true, results: [] };
   }
 
-  const { workspace } = await requireWorkspaceMember(workspaceId);
+  await requireWorkspaceMember(workspaceId);
   const cleanQuery = query.trim();
 
-  // Search projects
-  const projects = await prisma.project.findMany({
-    where: {
-      workspaceId,
-      OR: [
-        { name: { contains: cleanQuery, mode: "insensitive" } },
-        { key: { contains: cleanQuery.toUpperCase() } },
-        { description: { contains: cleanQuery, mode: "insensitive" } },
-      ],
-    },
-    take: 5,
-  });
+  // ⚡ Bolt: Parallelize DB queries to reduce search latency and select only needed fields
+  const [projects, issues] = await Promise.all([
+    // Search projects
+    prisma.project.findMany({
+      where: {
+        workspaceId,
+        OR: [
+          { name: { contains: cleanQuery, mode: "insensitive" } },
+          { key: { contains: cleanQuery.toUpperCase() } },
+          { description: { contains: cleanQuery, mode: "insensitive" } },
+        ],
+      },
+      take: 5,
+    }),
 
-  // Search issues
-  const issues = await prisma.issue.findMany({
-    where: {
-      project: { workspaceId },
-      OR: [
-        { title: { contains: cleanQuery, mode: "insensitive" } },
-        { description: { contains: cleanQuery, mode: "insensitive" } },
-        { projectKey: { contains: cleanQuery.toUpperCase() } },
-      ],
-    },
-    include: {
-      project: true,
-    },
-    take: 8,
-  });
+    // Search issues
+    prisma.issue.findMany({
+      where: {
+        project: { workspaceId },
+        OR: [
+          { title: { contains: cleanQuery, mode: "insensitive" } },
+          { description: { contains: cleanQuery, mode: "insensitive" } },
+          { projectKey: { contains: cleanQuery.toUpperCase() } },
+        ],
+      },
+      include: {
+        project: { select: { key: true } },
+      },
+      take: 8,
+    })
+  ]);
 
   const projectResults: SearchResultItem[] = projects.map((p) => ({
     type: "project",
