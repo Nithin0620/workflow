@@ -1,20 +1,34 @@
 "use client";
 
 import * as React from "react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 interface TooltipProps {
   content: React.ReactNode;
   children: React.ReactNode;
-  side?: "top" | "bottom" | "left" | "right";
   className?: string;
 }
 
-export function Tooltip({ content, children, side = "top", className = "" }: TooltipProps) {
+export function Tooltip({ content, children, className = "" }: TooltipProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const [position, setPosition] = useState({ top: false, left: false });
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isVisible && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      // If close to top edge, show below. Otherwise show above.
+      const showTop = rect.top > 50;
+      // If close to left edge, shift right
+      const showLeft = rect.left < 50;
+
+      setPosition({ top: showTop, left: showLeft });
+    }
+  }, [isVisible]);
 
   return (
     <div
+      ref={containerRef}
       className="relative inline-block"
       onMouseEnter={() => setIsVisible(true)}
       onMouseLeave={() => setIsVisible(false)}
@@ -24,14 +38,14 @@ export function Tooltip({ content, children, side = "top", className = "" }: Too
       {children}
       {isVisible && (
         <div
-          className={`absolute z-50 px-2 py-1 text-xs font-medium text-neutral-100 bg-neutral-900 border border-neutral-800 rounded-md shadow-md whitespace-nowrap pointer-events-none ${
-            side === "top"
-              ? "bottom-full left-1/2 -translate-x-1/2 mb-2"
-              : side === "bottom"
-              ? "top-full left-1/2 -translate-x-1/2 mt-2"
-              : side === "left"
-              ? "right-full top-1/2 -translate-y-1/2 mr-2"
-              : "left-full top-1/2 -translate-y-1/2 ml-2"
+          className={`absolute z-[100] px-3 py-1.5 text-xs font-semibold text-neutral-100 bg-neutral-800 border border-neutral-700/80 rounded-md shadow-lg shadow-black/40 whitespace-nowrap pointer-events-none animate-in fade-in zoom-in-95 duration-200 ${
+            position.top
+              ? "bottom-full mb-2"
+              : "top-full mt-2"
+          } ${
+            position.left
+              ? "left-0"
+              : "left-1/2 -translate-x-1/2"
           } ${className}`}
         >
           {content}
