@@ -1,6 +1,7 @@
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 generator client {
@@ -329,6 +330,7 @@ model Issue {
   activityLogs ActivityLog[]
   labels       Label[]
   discussionLinks DiscussionIssueLink[]
+  gitLinks     IssueGitLink[]
 
   @@unique([projectId, issueNumber])
   @@index([projectId, status, order])
@@ -646,5 +648,48 @@ model ProjectWhiteboard {
   @@index([projectId])
   @@index([whiteboardId])
 }
+
+// -------------------------------------------------------------
+// Git & Version Control Integrations (Branches, Commits, PRs)
+// -------------------------------------------------------------
+
+enum GitLinkType {
+  BRANCH
+  COMMIT
+  PULL_REQUEST
+}
+
+enum GitItemStatus {
+  OPEN
+  MERGED
+  CLOSED
+}
+
+model IssueGitLink {
+  id            String         @id @default(cuid())
+  issueId       String
+  issue         Issue          @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  
+  type          GitLinkType    // BRANCH, COMMIT, PULL_REQUEST
+  title         String         // e.g. "feat: add user session token verification" or branch name
+  url           String         // Direct GitHub URL
+  refNumber     Int?           // PR number (e.g. 42)
+  sha           String?        // Git commit SHA or branch HEAD SHA
+  author        String?        // GitHub username or committer name
+  authorAvatar  String?        // GitHub avatar URL
+  status        GitItemStatus  @default(OPEN)
+  
+  repoOwner     String?        // GitHub repo owner e.g. "facebook"
+  repoName      String?        // GitHub repo name e.g. "react"
+  
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@unique([issueId, type, url])
+  @@index([issueId])
+  @@index([type])
+  @@index([status])
+}
+
 
 

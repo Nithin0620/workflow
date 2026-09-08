@@ -202,10 +202,23 @@ export async function getIssueDetails(issueId: string) {
           },
           orderBy: { createdAt: "desc" },
         },
+        gitLinks: {
+          orderBy: { createdAt: "desc" },
+        },
         project: {
           select: {
             id: true,
+            key: true,
             workspaceId: true,
+            repository: {
+              select: {
+                id: true,
+                repoUrl: true,
+                repoOwner: true,
+                repoName: true,
+                defaultBranch: true,
+              },
+            },
             sprints: {
               orderBy: { number: "desc" },
               select: {

@@ -1,9 +1,10 @@
 "use client";
 
 import { IssuePriority } from "@prisma/client";
-import { MessageSquare, Paperclip, ArrowUp, ArrowDown, Equal, AlertCircle, Minus } from "lucide-react";
+import { MessageSquare, Paperclip, ArrowUp, ArrowDown, Equal, AlertCircle, Minus, Copy, Check, GitPullRequest, GitBranch } from "lucide-react";
 import { formatIssueKey } from "@/lib/utils";
 import { Tooltip } from "@/components/ui/tooltip";
+import { useState } from "react";
 
 interface IssueCardProps {
   issue: {
@@ -15,6 +16,13 @@ interface IssueCardProps {
     priority: IssuePriority;
     estimate?: number | null;
     assignee?: { id: string; name?: string | null; image?: string | null } | null;
+    gitLinks?: Array<{
+      id: string;
+      type: "BRANCH" | "COMMIT" | "PULL_REQUEST";
+      status: "OPEN" | "MERGED" | "CLOSED";
+      refNumber?: number | null;
+      title: string;
+    }>;
     _count?: { comments: number; attachments: number };
   };
   onSelect?: () => void;
@@ -31,6 +39,7 @@ const PRIORITY_ICONS: Record<IssuePriority, React.ReactNode> = {
 
 export function IssueCard({ issue, onSelect }: IssueCardProps) {
   const issueKey = formatIssueKey(issue.projectKey, issue.issueNumber);
+  const [copied, setCopied] = useState(false);
 
   return (
     <div
@@ -38,9 +47,23 @@ export function IssueCard({ issue, onSelect }: IssueCardProps) {
       className="group cursor-pointer rounded-xl border border-neutral-800 bg-neutral-900/80 p-3.5 shadow-md transition hover:border-neutral-500 hover:bg-neutral-900"
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="font-mono text-xs font-bold text-neutral-400">
-          {issueKey}
-        </span>
+        <div className="flex items-center gap-1 group/key">
+          <span className="font-mono text-xs font-bold text-neutral-400">
+            {issueKey}
+          </span>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigator.clipboard.writeText(issueKey);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+            }}
+            className="opacity-0 group-hover/key:opacity-100 transition-opacity p-0.5 rounded hover:bg-neutral-800 text-neutral-500 hover:text-neutral-300 cursor-pointer"
+            title="Copy Issue Key"
+          >
+            {copied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
+          </button>
+        </div>
         <div className="flex items-center gap-1.5">
           {issue.estimate && (
             <Tooltip content={`Story Points: ${issue.estimate} pts`}>
@@ -73,6 +96,34 @@ export function IssueCard({ issue, onSelect }: IssueCardProps) {
             <div className="flex items-center gap-1 font-medium text-neutral-400">
               <Paperclip className="h-3.5 w-3.5" />
               <span>{issue._count.attachments}</span>
+            </div>
+          )}
+          {issue.gitLinks && issue.gitLinks.length > 0 && (
+            <div className="flex items-center gap-1">
+              {issue.gitLinks.some((g) => g.type === "PULL_REQUEST") ? (
+                <div
+                  title="Linked Pull Request"
+                  className={`flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-mono font-bold ${
+                    issue.gitLinks.some((g) => g.type === "PULL_REQUEST" && g.status === "MERGED")
+                      ? "bg-purple-500/10 text-purple-400 border border-purple-500/30"
+                      : issue.gitLinks.some((g) => g.type === "PULL_REQUEST" && g.status === "CLOSED")
+                      ? "bg-rose-500/10 text-rose-400 border border-rose-500/30"
+                      : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                  }`}
+                >
+                  <GitPullRequest className="h-3 w-3" />
+                  <span>
+                    #{issue.gitLinks.find((g) => g.type === "PULL_REQUEST")?.refNumber || "PR"}
+                  </span>
+                </div>
+              ) : (
+                <div
+                  title="Linked Git Branch/Commit"
+                  className="flex items-center gap-1 rounded bg-neutral-800/80 border border-neutral-700/60 px-1.5 py-0.5 text-[10px] font-mono text-neutral-400"
+                >
+                  <GitBranch className="h-3 w-3" />
+                </div>
+              )}
             </div>
           )}
         </div>
