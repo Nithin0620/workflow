@@ -40,7 +40,6 @@ const categories: { name: string; blurb: string; items: Journey[] }[] = [
     items: [
       { icon: Sparkles, name: "AI Workspace Assistant", tag: "Ask · Summarize · Generate", desc: "Context-aware copilot that surfaces blockers and drafts tasks.", hue: 262 },
       { icon: ClipboardCheck, name: "Decision Log", tag: "Decisions · Context", desc: "Capture the why behind every big call.", hue: 315 },
-      { icon: BarChart3, name: "Analytics & Insights", tag: "Velocity · Cycle · Bottlenecks", desc: "See where time goes and where flow breaks.", hue: 330 },
       { icon: Clock, name: "Time Tracking", tag: "Work logs · Estimates", desc: "Activity-based logs with zero manual timing.", hue: 25 },
     ],
   },
@@ -48,7 +47,6 @@ const categories: { name: string; blurb: string; items: Journey[] }[] = [
     name: "Integrations & Automation",
     blurb: "Connect your tools and let the busywork run itself.",
     items: [
-      { icon: GitBranch, name: "Git Integrations", tag: "Commits · PRs · Branches", desc: "Link every push straight to issues and projects.", hue: 210 },
       { icon: Webhook, name: "Webhooks & API", tag: "Integrate · Extend", desc: "Wire Workflow into any external service.", hue: 280 },
       { icon: Workflow, name: "Workflow Automation", tag: "Triggers · Conditions · Actions", desc: "Automate the busywork across your whole workspace.", hue: 160 },
       { icon: Calendar, name: "Calendar & Scheduling", tag: "Deadlines · Meetings", desc: "Sync every milestone with your calendar.", hue: 130 },
@@ -80,6 +78,8 @@ const active: Journey[] = [
   { icon: MessagesSquare, name: "Discussions", tag: "Channels · Threads · Live Sync", desc: "Real-time threads with connected servers, team members, and all workspaces.", hue: 28 },
   { icon: Users, name: "Workspace Collaboration", tag: "Boards · Live Cursors · Roles", desc: "Shared boards, live cursors, and roles for seamless team collaboration.", hue: 250 },
   { icon: PenTool, name: "Collaborative Whiteboards", tag: "Excalidraw · Multi-cursor · Diagrams", desc: "Infinite canvas for real-time architecture, flowcharts, and visual brainstorming.", hue: 170 },
+  { icon: GitBranch, name: "Git Integrations", tag: "Commits · PRs · Branches", desc: "Link every push straight to issues and projects.", hue: 210 },
+  { icon: BarChart3, name: "Analytics & Insights", tag: "Velocity · Cycle · Bottlenecks", desc: "See where time goes and where flow breaks.", hue: 330 },
 ];
 
 function GlowOrb({ hue, size, delay, style }: { hue: number; size: number; delay: number; style?: CSSProperties }) {

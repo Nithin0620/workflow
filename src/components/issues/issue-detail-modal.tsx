@@ -36,6 +36,9 @@ import {
   Sparkles,
   ExternalLink,
   Hash,
+  GitBranch,
+  GitPullRequest,
+  GitCommit,
 } from "lucide-react";
 
 interface IssueDetailModalProps {
@@ -87,6 +90,14 @@ interface IssueDetailData {
   createdAt: string | Date;
   creator?: { id: string; name?: string | null; email?: string | null; image?: string | null } | null;
   project?: {
+    key?: string;
+    repository?: {
+      id: string;
+      repoUrl: string;
+      repoOwner: string;
+      repoName: string;
+      defaultBranch: string;
+    } | null;
     workspace?: {
       members?: Array<{
         user: { id: string; name?: string | null; email?: string | null; image?: string | null };
@@ -104,6 +115,18 @@ interface IssueDetailData {
   } | null;
   attachments?: AttachmentItem[];
   comments?: IssueCommentDetail[];
+  gitLinks?: Array<{
+    id: string;
+    type: "BRANCH" | "COMMIT" | "PULL_REQUEST";
+    title: string;
+    url: string;
+    refNumber?: number | null;
+    sha?: string | null;
+    author?: string | null;
+    authorAvatar?: string | null;
+    status: "OPEN" | "MERGED" | "CLOSED";
+    createdAt: string | Date;
+  }>;
   activityLogs?: Array<{
     id: string;
     action: string;
@@ -172,6 +195,7 @@ export function IssueDetailModal({
   const [sprintId, setSprintId] = useState<string | null>(null);
   const [aiScanning, setAiScanning] = useState(false);
   const [customGroqKey, setCustomGroqKey] = useState("");
+  const [branchCopied, setBranchCopied] = useState(false);
 
   const issueAttachments: AttachmentItem[] = deduplicateById(
     Array.isArray(issue?.attachments) ? issue.attachments.filter((a) => !a.commentId) : []
@@ -916,7 +940,7 @@ export function IssueDetailModal({
             </div>
 
             {/* Right Properties Panel */}
-            <div className="w-full lg:w-72 border-t lg:border-t-0 lg:border-l border-neutral-800 bg-neutral-950 p-6 space-y-6">
+            <div className="w-full lg:w-80 border-t lg:border-t-0 lg:border-l border-neutral-800 bg-neutral-950 p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-80px)] shrink-0">
               <h4 className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono">
                 PROPERTIES
               </h4>
@@ -1026,6 +1050,127 @@ export function IssueDetailModal({
                   placeholder="0"
                   className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-2.5 py-1.5 text-xs font-bold text-neutral-200 placeholder:text-neutral-600 focus:border-neutral-600 focus:outline-none transition"
                 />
+              </div>
+
+              {/* Development & Git Tracking Widget */}
+              <div className="border-t border-neutral-800 pt-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h5 className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-mono flex items-center gap-1.5">
+                    <GitBranch className="h-3.5 w-3.5 text-neutral-300" />
+                    <span>Development</span>
+                  </h5>
+                  {issue.project?.repository && (
+                    <a
+                      href={issue.project.repository.repoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] text-neutral-400 hover:text-white flex items-center gap-1"
+                    >
+                      <span>{issue.project.repository.repoName}</span>
+                      <ExternalLink className="h-2.5 w-2.5" />
+                    </a>
+                  )}
+                </div>
+
+                {/* Git Checkout Branch Helper */}
+                <div className="rounded-xl border border-neutral-800/80 bg-neutral-900/50 p-2.5 space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-neutral-400 text-[10px] uppercase font-bold font-mono">Branch Name</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const branch = `feat/${issue.projectKey}-${issue.issueNumber}-${(issue.title || "task")
+                          .toLowerCase()
+                          .replace(/[^a-z0-9\s-]/g, "")
+                          .trim()
+                          .replace(/\s+/g, "-")
+                          .slice(0, 30)}`;
+                        navigator.clipboard.writeText(`git checkout -b ${branch}`);
+                        setBranchCopied(true);
+                        setTimeout(() => setBranchCopied(false), 2000);
+                      }}
+                      className="cursor-pointer text-[10px] font-mono text-neutral-300 hover:text-white flex items-center gap-1"
+                    >
+                      {branchCopied ? (
+                        <>
+                          <Check className="h-3 w-3 text-emerald-400" />
+                          <span className="text-emerald-400">Copied command</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-3 w-3 text-neutral-400" />
+                          <span>Copy git checkout</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <div className="rounded-lg bg-neutral-950 px-2 py-1 font-mono text-[10px] text-neutral-300 truncate select-all border border-neutral-800">
+                    feat/{issue.projectKey}-{issue.issueNumber}-{(issue.title || "task")
+                      .toLowerCase()
+                      .replace(/[^a-z0-9\s-]/g, "")
+                      .trim()
+                      .replace(/\s+/g, "-")
+                      .slice(0, 24)}
+                  </div>
+                </div>
+
+                {/* Linked Git Items (PRs, Commits, Branches) */}
+                {issue.gitLinks && issue.gitLinks.length > 0 ? (
+                  <div className="space-y-1.5 max-h-48 overflow-y-auto pr-0.5">
+                    {issue.gitLinks.map((link) => (
+                      <a
+                        key={link.id}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex items-start gap-2 rounded-lg border border-neutral-800/80 bg-neutral-900/40 p-2 hover:border-neutral-700 hover:bg-neutral-900 transition"
+                      >
+                        {link.type === "PULL_REQUEST" ? (
+                          <GitPullRequest
+                            className={`h-3.5 w-3.5 mt-0.5 shrink-0 ${
+                              link.status === "MERGED"
+                                ? "text-purple-400"
+                                : link.status === "CLOSED"
+                                ? "text-rose-400"
+                                : "text-emerald-400"
+                            }`}
+                          />
+                        ) : link.type === "COMMIT" ? (
+                          <GitCommit className="h-3.5 w-3.5 mt-0.5 text-neutral-400 shrink-0" />
+                        ) : (
+                          <GitBranch className="h-3.5 w-3.5 mt-0.5 text-neutral-400 shrink-0" />
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="text-[11px] font-medium text-white truncate group-hover:text-blue-400 transition">
+                              {link.title}
+                            </span>
+                            <span
+                              className={`rounded px-1 py-0.2 font-mono text-[9px] font-bold ${
+                                link.status === "MERGED"
+                                  ? "bg-purple-500/10 text-purple-400 border border-purple-500/30"
+                                  : link.status === "CLOSED"
+                                  ? "bg-rose-500/10 text-rose-400 border border-rose-500/30"
+                                  : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                              }`}
+                            >
+                              {link.status}
+                            </span>
+                          </div>
+                          {link.author && (
+                            <span className="text-[10px] text-neutral-400 font-mono">
+                              by @{link.author}
+                            </span>
+                          )}
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-neutral-400 italic">
+                    No linked pull requests or commits yet. Reference <span className="font-mono text-neutral-300 font-bold">{issue.projectKey}-{issue.issueNumber}</span> in your branch or PR.
+                  </p>
+                )}
               </div>
 
               {/* Metadata */}

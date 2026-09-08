@@ -18,6 +18,9 @@ import {
   Clock,
   ChevronDown,
   ChevronUp,
+  GitPullRequest,
+  Copy,
+  Check,
 } from "lucide-react";
 import {
   getProjectRepository,
@@ -67,6 +70,7 @@ export function RepositorySettingsDialog({
   const [testing, setTesting] = useState(false);
   const [hunting, setHunting] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [webhookCopied, setWebhookCopied] = useState(false);
 
   const loadData = async () => {
     setLoading(true);
@@ -414,6 +418,47 @@ export function RepositorySettingsDialog({
                               <span className="text-[10px] text-neutral-500 shrink-0">GET/POST</span>
                             </div>
                           </div>
+                        </div>
+                      </div>
+
+                      {/* GitHub Webhook Realtime Auto-Sync Configuration */}
+                      <div className="rounded-xl border border-neutral-800 bg-neutral-900/60 p-3.5 space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <GitPullRequest className="h-4 w-4 text-purple-400" />
+                            <span className="text-xs font-bold text-white">Live GitHub Webhook Sync (PRs, Commits & Branches)</span>
+                          </div>
+                          <span className="rounded bg-purple-500/10 border border-purple-500/30 px-2 py-0.5 font-mono text-[10px] font-bold text-purple-400">
+                            AUTO-SYNC
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-neutral-400">
+                          Receive automatic updates on this board when PRs are opened, merged, or branches are pushed referencing <strong className="text-white font-mono">{projectKey}-#</strong>.
+                        </p>
+
+                        <div className="space-y-2 pt-1">
+                          <label className="text-[11px] font-medium text-neutral-300">GitHub Payload URL (Add in Repo Settings &rarr; Webhooks)</label>
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 text-xs font-mono text-neutral-300 truncate">
+                              {typeof window !== "undefined" ? `${window.location.origin}/api/webhooks/github` : "/api/webhooks/github"}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const url = typeof window !== "undefined" ? `${window.location.origin}/api/webhooks/github` : "/api/webhooks/github";
+                                navigator.clipboard.writeText(url);
+                                setWebhookCopied(true);
+                                setTimeout(() => setWebhookCopied(false), 2000);
+                              }}
+                              className="cursor-pointer flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs font-semibold text-neutral-300 hover:text-white hover:border-neutral-700 transition"
+                            >
+                              {webhookCopied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                              <span>{webhookCopied ? "Copied" : "Copy URL"}</span>
+                            </button>
+                          </div>
+                          <p className="text-[10px] text-neutral-400 font-mono">
+                            Events to check: <span className="text-neutral-300">Pushes</span>, <span className="text-neutral-300">Pull requests</span>, <span className="text-neutral-300">Branch creation</span>.
+                          </p>
                         </div>
                       </div>
 

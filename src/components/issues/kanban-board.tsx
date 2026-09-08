@@ -56,6 +56,14 @@ export interface IssueItem {
   priority: IssuePriority;
   estimate?: number | null;
   assignee?: { id: string; name?: string | null; image?: string | null } | null;
+  gitLinks?: Array<{
+    id: string;
+    type: "BRANCH" | "COMMIT" | "PULL_REQUEST";
+    status: "OPEN" | "MERGED" | "CLOSED";
+    refNumber?: number | null;
+    title: string;
+    url: string;
+  }>;
   _count?: { comments: number; attachments: number };
 }
 

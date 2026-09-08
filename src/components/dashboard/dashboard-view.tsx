@@ -512,6 +512,42 @@ export function DashboardView({
                   </p>
                 </div>
               </div>
+
+              {/* Active: Git Integrations */}
+              <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-900 text-neutral-300">
+                    <GitBranch className="h-4 w-4" />
+                  </div>
+                  <span className="rounded-md border border-emerald-900/40 bg-emerald-950/30 px-2 py-0.5 text-[10px] font-mono font-bold text-emerald-400">
+                    Active
+                  </span>
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">Git Integrations</h4>
+                  <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
+                    Connect repositories, commits, pull requests, and branches directly to issues and projects.
+                  </p>
+                </div>
+              </div>
+
+              {/* Active: Analytics & Insights */}
+              <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-900 text-neutral-300">
+                    <BarChart3 className="h-4 w-4" />
+                  </div>
+                  <span className="rounded-md border border-emerald-900/40 bg-emerald-950/30 px-2 py-0.5 text-[10px] font-mono font-bold text-emerald-400">
+                    Active
+                  </span>
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">Analytics & Insights</h4>
+                  <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
+                    Track project velocity, cycle time, workload, bottlenecks, and team activity.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -647,24 +683,6 @@ export function DashboardView({
                 </div>
               </div>
 
-              {/* Coming Soon: Git Integrations */}
-              <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 p-5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-900 text-neutral-300">
-                    <GitBranch className="h-4 w-4" />
-                  </div>
-                  <span className="rounded-md bg-neutral-900 border border-neutral-800 px-2 py-0.5 text-[10px] font-mono text-neutral-400">
-                    Coming Soon
-                  </span>
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-white">Git Integrations</h4>
-                  <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
-                    Connect repositories, commits, pull requests, and branches directly to issues and projects.
-                  </p>
-                </div>
-              </div>
-
               {/* Coming Soon: Workflow Automation */}
               <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 p-5 space-y-3">
                 <div className="flex items-center justify-between">
@@ -679,24 +697,6 @@ export function DashboardView({
                   <h4 className="text-sm font-bold text-white">Workflow Automation</h4>
                   <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
                     Automate repetitive actions with triggers, conditions, and actions across your workspace.
-                  </p>
-                </div>
-              </div>
-
-              {/* Coming Soon: Analytics & Insights */}
-              <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 p-5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-900 text-neutral-300">
-                    <BarChart3 className="h-4 w-4" />
-                  </div>
-                  <span className="rounded-md bg-neutral-900 border border-neutral-800 px-2 py-0.5 text-[10px] font-mono text-neutral-400">
-                    Coming Soon
-                  </span>
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-white">Analytics & Insights</h4>
-                  <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
-                    Track project velocity, cycle time, workload, bottlenecks, and team activity.
                   </p>
                 </div>
               </div>
