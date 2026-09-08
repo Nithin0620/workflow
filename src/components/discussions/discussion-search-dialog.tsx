@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { searchDiscussions } from "@/actions/discussions";
 import { Search, Hash, MessageSquare, X, Loader2, ArrowRight } from "lucide-react";
@@ -21,7 +20,6 @@ export function DiscussionSearchDialog({
   isOpen,
   onClose,
 }: DiscussionSearchDialogProps) {
-  const searchInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
@@ -57,7 +55,6 @@ export function DiscussionSearchDialog({
         <div className="relative flex items-center border-b border-neutral-800 pb-3">
           <Search className="absolute left-3 h-4 w-4 text-neutral-400" />
           <input
-            ref={searchInputRef}
             type="text"
             placeholder="Search all discussion messages, threads, topics..."
             value={query}
@@ -65,23 +62,14 @@ export function DiscussionSearchDialog({
             autoFocus
             className="w-full rounded-xl bg-neutral-900/60 pl-9 pr-8 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-white transition"
           />
-          <AnimatePresence>
-            {query.length > 0 && (
-              <motion.button
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.15 }}
-                onClick={() => {
-                  setQuery("");
-                  searchInputRef.current?.focus();
-                }}
-                className="absolute right-2.5 text-neutral-500 hover:text-white cursor-pointer"
-              >
-                <X className="h-4 w-4" />
-              </motion.button>
-            )}
-          </AnimatePresence>
+          {query && (
+            <button
+              onClick={() => setQuery("")}
+              className="absolute right-2.5 text-neutral-500 hover:text-white"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         {/* Results Stream */}

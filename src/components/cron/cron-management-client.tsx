@@ -473,10 +473,7 @@ export function CronManagementClient({
         ) : filteredLogs.length === 0 ? (
           <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-12 text-center text-neutral-400">
             <Clock className="h-8 w-8 mx-auto text-neutral-600" />
-            <p className="text-sm font-semibold text-white mt-2">No execution logs recorded yet.</p>
-            <p className="text-xs text-neutral-500 mt-1">
-              Runs will appear here automatically when triggered.
-            </p>
+            <p className="text-sm font-semibold text-white mt-2">No runs match these filters</p>
           </div>
         ) : (
           <div className="space-y-2">
