@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { IssueStatus, IssuePriority } from "@prisma/client";
 import { KanbanColumn } from "./kanban-column";
 import { IssueListView } from "./issue-list-view";
@@ -85,6 +86,7 @@ export function KanbanBoard({
   banners = [],
   initialRepository = null,
 }: KanbanBoardProps) {
+  const searchInputRef = useRef<HTMLInputElement>(null);
   // Ensure default 6 columns fallback if initialColumns is empty
   const defaultCols: BoardColumnItem[] = ISSUE_STATUSES.map((s, idx) => ({
     id: `default_${s.id}`,
@@ -425,12 +427,30 @@ export function KanbanBoard({
           <div className="relative" data-tour="board-search">
             <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-neutral-500" />
             <input
+              ref={searchInputRef}
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search issues..."
-              className="w-full sm:w-32 sm:w-44 rounded-xl border border-neutral-800 bg-neutral-950 py-1.5 pl-8 pr-3 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+              className="w-full sm:w-32 sm:w-44 rounded-xl border border-neutral-800 bg-neutral-950 py-1.5 pl-8 pr-8 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
             />
+            <AnimatePresence>
+              {search.length > 0 && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.15 }}
+                  onClick={() => {
+                    setSearch("");
+                    searchInputRef.current?.focus();
+                  }}
+                  className="absolute right-2.5 top-2.5 text-neutral-500 hover:text-white cursor-pointer"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </motion.button>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Quick Filter Pills */}
