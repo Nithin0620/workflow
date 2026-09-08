@@ -632,14 +632,25 @@ export function IssueDetailModal({
                   </div>
                 </div>
                 {descriptionMode === "edit" ? (
-                  <textarea
-                    rows={6}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    onBlur={() => handleUpdate({ description })}
-                    placeholder="Add a detailed description or acceptance criteria (Markdown supported)..."
-                    className="w-full rounded-xl border border-neutral-800 bg-neutral-900/60 p-3.5 text-xs text-neutral-200 placeholder:text-neutral-500 focus:border-neutral-600 focus:bg-neutral-900 focus:outline-none transition resize-y"
-                  />
+                  <div className="space-y-1.5">
+                    <textarea
+                      rows={6}
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      onBlur={() => handleUpdate({ description })}
+                      placeholder="Add a detailed description or acceptance criteria (Markdown supported)..."
+                      className="w-full rounded-xl border border-neutral-800 bg-neutral-900/60 p-3.5 text-xs text-neutral-200 placeholder:text-neutral-500 focus:border-neutral-600 focus:bg-neutral-900 focus:outline-none transition resize-y"
+                    />
+                    <div className="flex items-center justify-between px-1 text-[10px] text-neutral-500">
+                      <div className="flex items-center gap-3">
+                        <span><strong className="text-neutral-400 font-bold">**B**</strong></span>
+                        <span><em className="text-neutral-400 italic">*I*</em></span>
+                        <code className="rounded bg-neutral-800 px-1 py-0.5 font-mono text-neutral-400">`Code`</code>
+                        <span>- List</span>
+                      </div>
+                      <span>{description?.length || 0} characters</span>
+                    </div>
+                  </div>
                 ) : (
                   <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-3.5">
                     <Markdown content={description || "_No description yet._"} />
