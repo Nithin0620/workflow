@@ -1,0 +1,192 @@
+import { useState } from "react";
+import { Link } from "expo-router";
+import {
+  Text,
+  View,
+  TextInput,
+  Pressable,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
+import { User, Mail, Lock, Eye, EyeOff, Sparkles } from "lucide-react-native";
+import { useAuth } from "@/lib/auth-context";
+import { ApiError } from "@/lib/api";
+import { Button } from "@/components/ui/Button";
+import { GlowField } from "@/components/ui/GlowField";
+
+export default function Register() {
+  const { signup } = useAuth();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!name.trim() || !email.trim() || !password) {
+      Alert.alert("Missing Fields", "Please complete all fields.");
+      return;
+    }
+    if (password.length < 6) {
+      Alert.alert("Weak Password", "Password must be at least 6 characters long.");
+      return;
+    }
+    setLoading(true);
+    try {
+      await signup(name.trim(), email.trim(), password);
+    } catch (e: any) {
+      const msg = e instanceof ApiError ? e.message : "Signup failed. Please try again.";
+      Alert.alert("Registration Error", msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <SafeAreaView className="flex-1 bg-black">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        className="flex-1"
+      >
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+          className="px-6 justify-center"
+        >
+          {/* Top Ambient Glow */}
+          <View className="items-center mb-8">
+            <LinearGradient
+              colors={["rgba(99, 102, 241, 0.25)", "rgba(168, 85, 247, 0.05)", "transparent"]}
+              className="absolute -top-16 w-72 h-44 rounded-full blur-3xl opacity-70"
+            />
+
+            {/* Logo */}
+            <View className="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-700/80 items-center justify-center mb-4 shadow-lg shadow-indigo-500/10">
+              <Sparkles size={24} color="#818cf8" />
+            </View>
+
+            <Text className="text-white text-3xl font-bold tracking-tight">
+              Create account
+            </Text>
+            <Text className="text-zinc-400 text-sm mt-1.5 text-center">
+              Spin up your team's workspace in seconds
+            </Text>
+          </View>
+
+          {/* Form */}
+          <View className="gap-4 bg-zinc-950/80 p-5 rounded-3xl border border-zinc-800/80">
+            {/* Full Name */}
+            <View>
+              <Text className="text-zinc-300 text-xs font-semibold uppercase tracking-wider mb-2 ml-1">
+                Full Name
+              </Text>
+              <GlowField className="flex-row items-center bg-zinc-900/90 px-3.5 py-3">
+              {({ onFocus, onBlur }) => (
+                <>
+                  <User size={18} color="#71717a" />
+                  <TextInput
+                    value={name}
+                    onChangeText={setName}
+                    onFocus={onFocus}
+                    onBlur={onBlur}
+                    placeholder="Nithin Kumar"
+                    placeholderTextColor="#52525b"
+                    autoCapitalize="words"
+                    autoComplete="name"
+                    className="flex-1 text-base text-white ml-2.5"
+                  />
+                </>
+              )}
+            </GlowField>
+            </View>
+
+            {/* Email */}
+            <View>
+              <Text className="text-zinc-300 text-xs font-semibold uppercase tracking-wider mb-2 ml-1">
+                Work Email
+              </Text>
+              <GlowField className="flex-row items-center bg-zinc-900/90 px-3.5 py-3">
+              {({ onFocus, onBlur }) => (
+                <>
+                  <Mail size={18} color="#71717a" />
+                  <TextInput
+                    value={email}
+                    onChangeText={setEmail}
+                    onFocus={onFocus}
+                    onBlur={onBlur}
+                    placeholder="name@company.com"
+                    placeholderTextColor="#52525b"
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    autoComplete="email"
+                    className="flex-1 text-base text-white ml-2.5"
+                  />
+                </>
+              )}
+            </GlowField>
+            </View>
+
+            {/* Password */}
+            <View>
+              <Text className="text-zinc-300 text-xs font-semibold uppercase tracking-wider mb-2 ml-1">
+                Password
+              </Text>
+              <GlowField className="flex-row items-center bg-zinc-900/90 px-3.5 py-3">
+              {({ onFocus, onBlur }) => (
+                <>
+                  <Lock size={18} color="#71717a" />
+                  <TextInput
+                    value={password}
+                    onChangeText={setPassword}
+                    onFocus={onFocus}
+                    onBlur={onBlur}
+                    placeholder="At least 6 characters"
+                    placeholderTextColor="#52525b"
+                    secureTextEntry={!showPassword}
+                    autoComplete="new-password"
+                    className="flex-1 text-base text-white ml-2.5"
+                  />
+                  <Pressable onPress={() => setShowPassword(!showPassword)} className="p-1">
+                    {showPassword ? (
+                      <EyeOff size={18} color="#71717a" />
+                    ) : (
+                      <Eye size={18} color="#71717a" />
+                    )}
+                  </Pressable>
+                </>
+              )}
+            </GlowField>
+            </View>
+
+            {/* Submit */}
+            <Button
+              label={loading ? "Creating..." : "Create Workspace"}
+              onPress={handleSubmit}
+              loading={loading}
+              size="lg"
+              className="mt-2 bg-indigo-600 border-indigo-500 text-white"
+            />
+          </View>
+
+          {/* Footer */}
+          <View className="flex-row items-center justify-center mt-8 gap-1.5">
+            <Text className="text-zinc-500 text-sm">
+              Already have an account?
+            </Text>
+            <Link href="/(public)/login" asChild>
+              <Pressable>
+                <Text className="text-indigo-400 text-sm font-semibold hover:underline">
+                  Sign in
+                </Text>
+              </Pressable>
+            </Link>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
