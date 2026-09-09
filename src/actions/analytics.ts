@@ -7,6 +7,7 @@ export interface AnalyticsFilterOptions {
   workspaceId: string;
   projectId?: string | null;
   timeRangeDays?: number; // e.g. 7, 14, 30, 90
+  userId?: string; // Pre-verified caller (API routes); falls back to cookie session
 }
 
 export interface AnalyticsSummaryData {
@@ -92,8 +93,24 @@ export async function getWorkspaceAnalytics(options: AnalyticsFilterOptions): Pr
   error?: string;
 }> {
   try {
-    const { workspaceId, projectId, timeRangeDays = 30 } = options;
-    await requireWorkspaceMember(workspaceId);
+    const { workspaceId, projectId, timeRangeDays = 30, userId } = options;
+
+    if (userId) {
+      // API-token caller — verify membership directly against the DB
+      const membership = await prisma.workspaceMember.findUnique({
+        where: {
+          workspaceId_userId: {
+            workspaceId,
+            userId,
+          },
+        },
+      });
+      if (!membership) {
+        return { success: false, error: "Forbidden: You are not a member of this workspace." };
+      }
+    } else {
+      await requireWorkspaceMember(workspaceId);
+    }
 
     const workspace = await prisma.workspace.findUnique({
       where: { id: workspaceId },
@@ -145,8 +162,8 @@ export async function getWorkspaceAnalytics(options: AnalyticsFilterOptions): Pr
     let urgentCount = 0;
     let totalStoryPoints = 0;
     let completedStoryPoints = 0;
-    let cycleTimes: number[] = [];
-    let leadTimes: number[] = [];
+    const cycleTimes: number[] = [];
+    const leadTimes: number[] = [];
 
     const nowMs = Date.now();
     const bottlenecks: AnalyticsSummaryData["bottlenecks"] = [];

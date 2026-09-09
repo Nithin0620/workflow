@@ -3,6 +3,7 @@
 import { IssuePriority } from "@prisma/client";
 import { MessageSquare, Paperclip, ArrowUp, ArrowDown, Equal, AlertCircle, Minus, Copy, Check, GitPullRequest, GitBranch } from "lucide-react";
 import { formatIssueKey } from "@/lib/utils";
+import { Tooltip } from "@/components/ui/tooltip";
 import { useState } from "react";
 
 interface IssueCardProps {
@@ -65,11 +66,17 @@ export function IssueCard({ issue, onSelect }: IssueCardProps) {
         </div>
         <div className="flex items-center gap-1.5">
           {issue.estimate && (
-            <span className="rounded bg-neutral-800 px-1.5 py-0.5 text-[10px] font-bold text-neutral-200 border border-neutral-700 font-mono">
-              {issue.estimate} pts
-            </span>
+            <Tooltip content={`Story Points: ${issue.estimate} pts`}>
+              <span className="rounded bg-neutral-800 px-1.5 py-0.5 text-[10px] font-bold text-neutral-200 border border-neutral-700 font-mono cursor-help">
+                {issue.estimate} pts
+              </span>
+            </Tooltip>
           )}
-          <div title={issue.priority}>{PRIORITY_ICONS[issue.priority]}</div>
+          <Tooltip content={`Priority: ${issue.priority.charAt(0) + issue.priority.slice(1).toLowerCase().replace('_', ' ')}`}>
+            <div className="cursor-help">
+              {PRIORITY_ICONS[issue.priority]}
+            </div>
+          </Tooltip>
         </div>
       </div>
 

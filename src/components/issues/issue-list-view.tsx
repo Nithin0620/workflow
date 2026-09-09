@@ -5,6 +5,7 @@ import { IssuePriority } from "@prisma/client";
 import { IssueItem } from "./kanban-board";
 import { ISSUE_STATUSES, ISSUE_PRIORITIES } from "@/lib/constants";
 import { formatIssueKey } from "@/lib/utils";
+import { Tooltip } from "@/components/ui/tooltip";
 import {
   Minus,
   ArrowDown,
@@ -171,10 +172,12 @@ export function IssueListView({
 
                   {/* Priority */}
                   <td className="whitespace-nowrap px-3 py-3.5">
-                    <div className={`flex items-center gap-1.5 font-medium ${priority.color}`}>
-                      <PriorityIcon className="h-3.5 w-3.5" />
-                      <span>{priority.label}</span>
-                    </div>
+                    <Tooltip content={`Priority: ${priority.label}`}>
+                      <div className={`flex items-center gap-1.5 font-medium ${priority.color} cursor-help`}>
+                        <PriorityIcon className="h-3.5 w-3.5" />
+                        <span>{priority.label}</span>
+                      </div>
+                    </Tooltip>
                   </td>
 
                   {/* Assignee */}
@@ -197,9 +200,11 @@ export function IssueListView({
                   <td className="whitespace-nowrap px-3 py-3.5 text-right pr-4">
                     <div className="flex items-center justify-end gap-3 text-neutral-500">
                       {issue.estimate !== undefined && issue.estimate !== null && (
-                        <span className="rounded bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 font-mono text-[10px] font-bold text-neutral-400">
+                        <Tooltip content={`Story Points: ${issue.estimate} pts`}>
+                        <span className="rounded bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 font-mono text-[10px] font-bold text-neutral-400 cursor-help">
                           {issue.estimate} pts
                         </span>
+                      </Tooltip>
                       )}
                       {(issue._count?.comments ?? 0) > 0 && (
                         <div className="flex items-center gap-1 text-[11px]">
