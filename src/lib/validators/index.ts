@@ -6,6 +6,12 @@ export const createWorkspaceSchema = z.object({
   description: z.string().max(200).optional(),
 });
 
+export const updateWorkspaceSchema = z.object({
+  name: z.string().min(2, "Workspace name must be at least 2 characters").max(50).optional(),
+  slug: z.string().min(2).max(50).regex(/^[a-z0-9-]+$/, "Slug can only contain lowercase letters, numbers, and dashes").optional(),
+  description: z.string().max(200).optional().nullable(),
+});
+
 export const renameChannelSchema = z.object({
   name: z.string().min(2, "Channel name must be at least 2 characters").max(40),
 });
