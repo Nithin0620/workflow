@@ -46,7 +46,22 @@ export const createProjectSchema = z.object({
   key: z.string().min(2, "Key must be at least 2 characters").max(8).toUpperCase().regex(/^[A-Z0-9]+$/, "Key can only contain uppercase letters and numbers"),
   description: z.string().max(500).optional(),
   color: z.string().optional(),
+  isPrivate: z.boolean().optional(),
 });
+
+export const updateProjectSchema = z.object({
+  name: z.string().min(2, "Project name must be at least 2 characters").max(60).optional(),
+  description: z.string().max(500).optional().nullable(),
+  color: z.string().optional().nullable(),
+  isPrivate: z.boolean().optional(),
+  leadId: z.string().optional().nullable(),
+});
+
+export const addProjectMemberSchema = z.object({
+  userId: z.string().min(1, "User ID is required"),
+  role: z.enum(["OWNER", "EDITOR", "VIEWER"]).default("EDITOR"),
+});
+
 
 export const createIssueSchema = z.object({
   title: z.string().min(1, "Title is required").max(200),
@@ -110,12 +125,19 @@ export const createBoardColumnSchema = z.object({
   name: z.string().min(1, "Column name is required").max(30, "Column name cannot exceed 30 characters"),
   color: z.string().regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/, "Invalid color hex").optional().default("#737373"),
 });
+export const createColumnSchema = createBoardColumnSchema;
 
 export const updateBoardColumnSchema = z.object({
   name: z.string().min(1, "Column name is required").max(30, "Column name cannot exceed 30 characters").optional(),
   color: z.string().regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/, "Invalid color hex").optional(),
   order: z.number().int().min(0).optional(),
 });
+export const updateColumnSchema = updateBoardColumnSchema;
+
+export const reorderColumnsSchema = z.object({
+  orderedColumnIds: z.array(z.string().min(1)),
+});
+
 
 export const connectRepositorySchema = z.object({
   projectId: z.string().min(1, "Project ID is required"),
