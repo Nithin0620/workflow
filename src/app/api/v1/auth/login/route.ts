@@ -49,6 +49,8 @@ export async function POST(req: Request | NextRequest) {
       },
     });
   } catch (err: any) {
+    console.error("Login route error:", err);
     return apiError(err?.message || "Something went wrong", 500);
   }
 }
+

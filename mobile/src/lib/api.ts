@@ -108,6 +108,8 @@ export async function apiClient<T = any>(
     headers.set("Authorization", `Bearer ${token}`);
   }
 
+  console.log(`[API] ${fetchOptions.method || "GET"} ${url}`);
+
   const response = await fetch(url, {
     ...fetchOptions,
     headers,
@@ -133,9 +135,11 @@ export async function apiClient<T = any>(
     const message =
       (typeof data === "object" && data !== null && (data.error || data.message)) ||
       `Request failed with status ${response.status}`;
+    console.log(`[API] Error ${response.status}:`, data);
     throw new ApiError(message, response.status, data);
   }
 
+  console.log(`[API] Success ${response.status}`);
   return data as T;
 }
 

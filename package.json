@@ -1,6 +1,6 @@
 {
   "name": "workflow",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -16,10 +16,10 @@
     "test:integration": "vitest run tests/integration",
     "test:regression": "vitest run tests/regression",
     "test:e2e": "playwright test",
-    "mobile:dev": "npm --prefix app run start",
-    "mobile:android": "npm --prefix app run android",
-    "mobile:ios": "npm --prefix app run ios",
-    "mobile:web": "npm --prefix app run web",
+    "mobile:dev": "npm --prefix mobile run start",
+    "mobile:android": "npm --prefix mobile run android",
+    "mobile:ios": "npm --prefix mobile run ios",
+    "mobile:web": "npm --prefix mobile run web",
     "prepare": "husky"
   },
   "dependencies": {
