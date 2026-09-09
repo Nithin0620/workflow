@@ -5,7 +5,8 @@ export default function PublicLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        animation: "fade",
+        animation: "slide_from_right",
+        animationDuration: 200,
       }}
     />
   );

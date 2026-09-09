@@ -10,17 +10,33 @@ export interface SearchResultItem {
   subtitle: string;
   href: string;
   key?: string;
+  projectId?: string | null;
 }
 
 export async function searchWorkspace(
   workspaceId: string,
-  query: string
+  query: string,
+  userId?: string
 ): Promise<{ success: boolean; results: SearchResultItem[] }> {
   if (!query || !query.trim()) {
     return { success: true, results: [] };
   }
 
-  const { workspace } = await requireWorkspaceMember(workspaceId);
+  if (userId) {
+    const membership = await prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: {
+          workspaceId,
+          userId,
+        },
+      },
+    });
+    if (!membership) {
+      return { success: false, results: [] };
+    }
+  } else {
+    await requireWorkspaceMember(workspaceId);
+  }
   const cleanQuery = query.trim();
 
   // Search projects
@@ -68,6 +84,7 @@ export async function searchWorkspace(
     subtitle: `${i.projectKey}-${i.issueNumber} • ${i.status}`,
     href: `/projects/${i.project.key}/board`,
     key: `${i.projectKey}-${i.issueNumber}`,
+    projectId: i.projectId,
   }));
 
   return {

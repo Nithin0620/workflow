@@ -42,6 +42,10 @@ import {
   GetProfileResponse,
   UpdateProfileRequest,
   UpdateProfileResponse,
+  ListWhiteboardsResponse,
+  GetWhiteboardResponse,
+  GetWorkspaceAnalyticsResponse,
+  SearchResponse,
   Workspace,
   Project,
   Issue,
@@ -429,6 +433,41 @@ export const api = {
       return apiClient<UpdateProfileResponse>("/profile", {
         method: "PATCH",
         body: JSON.stringify(data),
+      });
+    },
+  },
+
+  whiteboards: {
+    list: async (workspaceId: string): Promise<ListWhiteboardsResponse> => {
+      return apiClient<ListWhiteboardsResponse>(`/workspaces/${workspaceId}/whiteboards`, {
+        method: "GET",
+      });
+    },
+
+    get: async (whiteboardId: string): Promise<GetWhiteboardResponse> => {
+      return apiClient<GetWhiteboardResponse>(`/whiteboards/${whiteboardId}`, {
+        method: "GET",
+      });
+    },
+  },
+
+  analytics: {
+    get: async (
+      workspaceId: string,
+      params?: { projectId?: string; timeRangeDays?: number }
+    ): Promise<GetWorkspaceAnalyticsResponse> => {
+      return apiClient<GetWorkspaceAnalyticsResponse>(
+        `/workspaces/${workspaceId}/analytics`,
+        { method: "GET", params }
+      );
+    },
+  },
+
+  search: {
+    workspace: async (workspaceId: string, q: string): Promise<SearchResponse> => {
+      return apiClient<SearchResponse>(`/workspaces/${workspaceId}/search`, {
+        method: "GET",
+        params: { q },
       });
     },
   },

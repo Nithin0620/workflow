@@ -1,25 +1,17 @@
-import { useEffect } from "react";
-import { Slot, useRouter, useSegments } from "expo-router";
+import { Stack } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
-import { AuthProvider, useAuth } from "../lib/auth-context";
+import { configureReanimatedLogger, ReanimatedLogLevel } from "react-native-reanimated";
+import { AuthProvider, useAuth } from "@/lib/auth-context";
 import "../global.css";
+
+configureReanimatedLogger({
+  level: ReanimatedLogLevel.warn,
+  strict: false,
+});
+
 
 function RootNavigator() {
   const { user, loading } = useAuth();
-  const segments = useSegments();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (loading) return;
-
-    const inPublicGroup = segments[0] === "(public)";
-
-    if (!user && !inPublicGroup) {
-      router.replace("/(public)");
-    } else if (user && inPublicGroup) {
-      router.replace("/(auth)");
-    }
-  }, [user, loading, segments]);
 
   if (loading) {
     return (
@@ -29,7 +21,16 @@ function RootNavigator() {
     );
   }
 
-  return <Slot />;
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Protected guard={!!user}>
+        <Stack.Screen name="(auth)" />
+      </Stack.Protected>
+      <Stack.Protected guard={!user}>
+        <Stack.Screen name="(public)" />
+      </Stack.Protected>
+    </Stack>
+  );
 }
 
 export default function RootLayout() {

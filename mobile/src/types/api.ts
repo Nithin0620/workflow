@@ -574,3 +574,110 @@ export interface UpdateProfileResponse {
   profile: User;
   user: User;
 }
+
+// Whiteboards
+export type WhiteboardCanvasElement = {
+  id: string;
+  type: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  strokeColor: string;
+  backgroundColor: string;
+  strokeWidth: number;
+  text?: string;
+  fontSize?: number;
+  opacity?: number;
+  points?: { x: number; y: number }[];
+  pageId: string;
+};
+
+export interface Whiteboard {
+  id: string;
+  workspaceId: string;
+  title: string;
+  description?: string | null;
+  data: WhiteboardCanvasElement[];
+  appState?: object | null;
+  thumbnail?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  createdBy?: { id: string; name?: string | null; image?: string | null };
+  projects?: {
+    id: string;
+    project: { id: string; name: string; key: string; color?: string | null };
+  }[];
+}
+
+export interface ListWhiteboardsResponse {
+  whiteboards: Whiteboard[];
+}
+
+export interface GetWhiteboardResponse {
+  whiteboard: Whiteboard;
+}
+
+// Analytics
+export interface WorkspaceAnalytics {
+  workspace: { id: string; name: string; slug: string };
+  projects: Array<{ id: string; name: string; key: string }>;
+  kpis: {
+    totalIssues: number;
+    doneIssues: number;
+    inProgressIssues: number;
+    backlogIssues: number;
+    urgentIssues: number;
+    completionRate: number;
+    totalStoryPoints: number;
+    completedStoryPoints: number;
+    avgCycleTimeDays: number;
+    avgLeadTimeDays: number;
+    totalPRs: number;
+    mergedPRs: number;
+  };
+  charts: {
+    dailyThroughput: Array<{ date: string; created: number; completed: number }>;
+    statusDistribution: Array<{ status: string; label: string; count: number; color: string }>;
+    priorityDistribution: Array<{ priority: string; label: string; count: number; color: string }>;
+    memberWorkload: Array<{
+      userId: string;
+      name: string;
+      image?: string | null;
+      openCount: number;
+      doneCount: number;
+      storyPoints: number;
+    }>;
+  };
+  bottlenecks: Array<{
+    id: string;
+    key: string;
+    title: string;
+    status: string;
+    priority: string;
+    daysInStatus: number;
+  }>;
+}
+
+export interface GetWorkspaceAnalyticsResponse {
+  workspace: WorkspaceAnalytics["workspace"];
+  projects: WorkspaceAnalytics["projects"];
+  kpis: WorkspaceAnalytics["kpis"];
+  charts: WorkspaceAnalytics["charts"];
+  bottlenecks: WorkspaceAnalytics["bottlenecks"];
+}
+
+// Search
+export interface SearchResultItem {
+  type: "issue" | "project";
+  id: string;
+  title: string;
+  subtitle: string;
+  href: string;
+  key?: string;
+  projectId?: string | null;
+}
+
+export interface SearchResponse {
+  results: SearchResultItem[];
+}
