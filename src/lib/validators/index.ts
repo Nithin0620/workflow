@@ -110,6 +110,28 @@ export const createSprintSchema = z
     path: ["endDate"],
   });
 
+export const updateSprintSchema = z
+  .object({
+    name: z.string().min(1, "Sprint name is required").max(100).optional(),
+    goal: z.string().max(500).optional().nullable(),
+    startDate: z.string().datetime().optional(),
+    endDate: z.string().datetime().optional(),
+    isActive: z.boolean().optional(),
+    status: z.enum(["PLANNED", "ACTIVE", "COMPLETED"]).optional(),
+  })
+  .refine(
+    (s) => {
+      if (s.startDate && s.endDate) {
+        return new Date(s.endDate) >= new Date(s.startDate);
+      }
+      return true;
+    },
+    {
+      message: "Sprint end date must be on or after the start date",
+      path: ["endDate"],
+    }
+  );
+
 export const addBannerSchema = z.object({
   imageUrl: z.string().url("Invalid image URL").max(1000),
   workspaceId: z.string().min(1).optional(),
