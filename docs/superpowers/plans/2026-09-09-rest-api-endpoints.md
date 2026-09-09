@@ -4,7 +4,7 @@
 
 **Goal:** Build a complete, secure, REST-compatible API layer (`/api/v1/...` and `/api/...`) in Next.js that mirrors all core domain operations (Workspaces, Projects, Issues, Sprints, Members, Discussions, Notifications, Profile) so that both the React Native mobile app and third-party clients can fully interact with the backend using standard HTTP/JSON and Bearer token / NextAuth authentication.
 
-**Architecture:** 
+**Architecture:**
 - A shared API authentication and authorization helper (`src/lib/api/auth.ts`) that verifies both NextAuth session cookies and `Authorization: Bearer <token>` JWTs.
 - Clean Next.js Route Handlers (`route.ts`) under `src/app/api/v1/` structured by resource hierarchy, reusing database queries and zod schemas from `src/lib/validators.ts` and domain logic.
 - Consistent JSON error formats (`{ error: string, details?: any }`) with proper HTTP status codes (`400`, `401`, `403`, `404`, `500`).

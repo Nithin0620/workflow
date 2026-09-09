@@ -58,7 +58,7 @@ export default function Login() {
               colors={["rgba(99, 102, 241, 0.25)", "rgba(168, 85, 247, 0.05)", "transparent"]}
               className="absolute -top-16 w-72 h-44 rounded-full blur-3xl opacity-70"
             />
-            
+
             {/* Logo */}
             <View className="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-700/80 items-center justify-center mb-5 shadow-lg shadow-indigo-500/10">
               <Sparkles size={24} color="#818cf8" />
