@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { motion } from "framer-motion";
 import {
   TrendingUp,
   CheckCircle2,
@@ -287,7 +288,7 @@ export function AnalyticsView({
             </div>
 
             {/* Bars */}
-            <div className="h-60 flex items-end gap-1 sm:gap-2 px-2 overflow-x-auto border-b border-neutral-800">
+            <div className="h-60 flex items-end gap-1 sm:gap-2 px-2 overflow-x-auto border-b border-neutral-800 scrollbar-thin scrollbar-thumb-neutral-800 scrollbar-track-transparent">
               {charts.dailyThroughput.map((d, i) => {
                 const createdHeight = d.created > 0 ? Math.max(8, Math.round((d.created / maxDaily) * 100)) : 0;
                 const completedHeight = d.completed > 0 ? Math.max(8, Math.round((d.completed / maxDaily) * 100)) : 0;
@@ -296,10 +297,10 @@ export function AnalyticsView({
                 return (
                   <div
                     key={i}
-                    className="flex-1 min-w-[24px] flex flex-col items-center gap-1 group relative h-full justify-end"
+                    className="flex-1 min-w-[16px] sm:min-w-[24px] flex flex-col items-center gap-1 group relative h-full justify-end"
                   >
                     {/* Tooltip */}
-                    <div className="absolute bottom-full mb-2 hidden group-hover:flex flex-col items-start bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-[11px] font-mono text-white shadow-2xl z-30 whitespace-nowrap pointer-events-none">
+                    <div className="absolute bottom-full mb-2 hidden group-hover:flex flex-col opacity-0 group-hover:opacity-100 transition-opacity duration-200 items-start bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-[11px] font-mono text-white shadow-2xl z-50 whitespace-nowrap pointer-events-none -translate-x-1/2 left-1/2">
                       <span className="font-bold text-neutral-200 border-b border-neutral-800 pb-1 w-full mb-1">
                         {d.date}
                       </span>
@@ -317,14 +318,18 @@ export function AnalyticsView({
                       ) : (
                         <>
                           {/* Created bar */}
-                          <div
-                            style={{ height: `${createdHeight}%` }}
-                            className="w-1/2 rounded-t-md bg-blue-500/80 hover:bg-blue-400 shadow-sm transition-all"
+                          <motion.div
+                            initial={{ height: 0 }}
+                            animate={{ height: `${createdHeight}%` }}
+                            transition={{ duration: 0.5, delay: i * 0.02 }}
+                            className="w-1/2 rounded-t-md bg-gradient-to-t from-blue-600 to-blue-400 hover:from-blue-500 hover:to-blue-300 shadow-[0_0_10px_rgba(59,130,246,0.2)] transition-colors"
                           />
                           {/* Completed bar */}
-                          <div
-                            style={{ height: `${completedHeight}%` }}
-                            className="w-1/2 rounded-t-md bg-emerald-500/80 hover:bg-emerald-400 shadow-sm transition-all"
+                          <motion.div
+                            initial={{ height: 0 }}
+                            animate={{ height: `${completedHeight}%` }}
+                            transition={{ duration: 0.5, delay: i * 0.02 }}
+                            className="w-1/2 rounded-t-md bg-gradient-to-t from-emerald-600 to-emerald-400 hover:from-emerald-500 hover:to-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.2)] transition-colors"
                           />
                         </>
                       )}
