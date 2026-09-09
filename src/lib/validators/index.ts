@@ -230,6 +230,26 @@ export const linkDiscussionToIssueSchema = z.object({
   messageId: z.string().min(1),
   issueId: z.string().min(1),
 });
+export const createChannelSchema = createDiscussionChannelSchema;
+export const updateChannelSchema = updateDiscussionChannelSchema;
+export const createMessageSchema = sendDiscussionMessageSchema;
 
+// -------------------------------------------------------------
+// Profile & Notification Validators
+// -------------------------------------------------------------
 
+export const updateProfileSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters").max(50).optional(),
+  image: z.string().url("Invalid image URL").optional().nullable().or(z.literal("")),
+  currentPassword: z.string().optional(),
+  newPassword: z.string().min(6, "New password must be at least 6 characters").optional(),
+});
 
+export const markNotificationSchema = z
+  .object({
+    id: z.string().min(1).optional(),
+    all: z.boolean().optional(),
+  })
+  .refine((data) => data.id !== undefined || data.all !== undefined, {
+    message: "Either 'id' or 'all' must be provided",
+  });
