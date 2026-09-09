@@ -15,7 +15,15 @@ function verifySignature(payload: string, signature: string | null, secret?: str
   const digest = `sha256=${hmac.update(payload).digest("hex")}`;
   
   try {
-    return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(digest));
+    const sigBuffer = Buffer.from(signature);
+    const digestBuffer = Buffer.from(digest);
+
+    if (sigBuffer.byteLength !== digestBuffer.byteLength) {
+      crypto.timingSafeEqual(digestBuffer, digestBuffer);
+      return false;
+    }
+
+    return crypto.timingSafeEqual(sigBuffer, digestBuffer);
   } catch {
     return false;
   }
