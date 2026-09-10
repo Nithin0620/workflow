@@ -2,6 +2,8 @@
 
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser, requireAuth } from "@/lib/auth/session";
+import { sendPushNotification } from "@/lib/push";
+import { sendNotificationEmail } from "@/lib/email";
 import { revalidatePath } from "next/cache";
 
 /**
@@ -61,7 +63,9 @@ export async function markAllNotificationsAsRead() {
 }
 
 /**
- * Helper to dispatch a notification to a specific user
+ * Central notification dispatcher. Creates the in-app record, then fans out
+ * to browser push and email. All three channels fail soft so a notification
+ * can never break the action that triggered it.
  */
 export async function createUserNotification(input: {
   userId: string;
@@ -70,7 +74,7 @@ export async function createUserNotification(input: {
   link?: string;
 }) {
   try {
-    return await prisma.notification.create({
+    const record = await prisma.notification.create({
       data: {
         userId: input.userId,
         title: input.title,
@@ -78,8 +82,43 @@ export async function createUserNotification(input: {
         link: input.link || null,
       },
     });
+
+    // ponytail: synchronous fan-out. Swap for a job queue (e.g. DB-triggered
+    // worker) if per-event latency ever matters at scale.
+    await dispatchExternalChannels(input);
+
+    return record;
   } catch (err) {
     console.error("[Notification] Failed to create notification:", err);
     return null;
   }
+}
+
+async function dispatchExternalChannels(input: {
+  userId: string;
+  title: string;
+  message: string;
+  link?: string;
+}) {
+  await Promise.allSettled([
+    sendPushNotification({
+      userId: input.userId,
+      title: input.title,
+      message: input.message,
+      url: input.link,
+    }),
+    (async () => {
+      const user = await prisma.user.findUnique({
+        where: { id: input.userId },
+        select: { email: true },
+      });
+      if (!user?.email) return;
+      await sendNotificationEmail({
+        to: user.email,
+        title: input.title,
+        message: input.message,
+        link: input.link,
+      });
+    })(),
+  ]);
 }

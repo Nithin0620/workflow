@@ -115,7 +115,7 @@ export default async function HowItWorksPage() {
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white">
             How Workflow Powers Modern Engineering Teams
           </h1>
-          <p className="text-sm sm:text-base text-neutral-400 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base text-white max-w-2xl mx-auto leading-relaxed">
             A comprehensive overview of our 4-tier multi-tenant hierarchy,
             zero-latency fractional indexing, and keyboard-first productivity
             engine.
@@ -131,7 +131,7 @@ export default async function HowItWorksPage() {
           loop
           muted
           playsInline
-          className="absolute inset-0 h-full w-full object-cover opacity-40 pointer-events-none"
+          className="fixed inset-0 h-full w-full object-cover opacity-40 pointer-events-none"
         >
           <source src="/tech-bg-2.mp4" type="video/mp4" />
         </video>
@@ -220,15 +220,6 @@ export default async function HowItWorksPage() {
 
       {/* 4. UNDER THE HOOD - PURE BLACK TECHNICAL DEEP DIVE */}
       <section className="relative overflow-hidden bg-black text-white px-6 py-24 border-b border-neutral-900">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 h-full w-full object-cover opacity-40 pointer-events-none"
-        >
-          <source src="/tech-bg-2.mp4" type="video/mp4" />
-        </video>
         <div className="relative max-w-5xl mx-auto space-y-12">
 
           <div className="text-center space-y-3">

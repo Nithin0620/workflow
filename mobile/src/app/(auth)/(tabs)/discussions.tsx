@@ -167,7 +167,7 @@ export default function DiscussionsTab() {
               <Card
                 onPress={() => {
                   if (selectedWsId) {
-                    router.push(`/(auth)/(tabs)/workspace/${selectedWsId}/discussions/${ch.id}` as any);
+                    router.push(`/(auth)/workspace/${selectedWsId}/discussions/${ch.id}` as any);
                   }
                 }}
                 className="bg-zinc-950/90 border border-zinc-800/80 p-4"

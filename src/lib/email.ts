@@ -56,3 +56,30 @@ export async function sendInviteEmail(opts: {
   });
   return true;
 }
+
+/**
+ * Sends a plain activity notification email. Returns false (without throwing)
+ * when SMTP is not configured, matching the invite flow's graceful skip.
+ */
+export async function sendNotificationEmail(opts: {
+  to: string;
+  title: string;
+  message: string;
+  link?: string | null;
+}): Promise<boolean> {
+  const transporter = buildTransporter();
+  if (!transporter) return false;
+
+  await transporter.sendMail({
+    from: process.env.SMTP_FROM ?? "Workflow <noreply@workflow.app>",
+    to: opts.to,
+    subject: opts.title,
+    text: `${opts.message}\n\n${opts.link ? `${baseUrl()}${opts.link}` : baseUrl()}`,
+    html: `<div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#111;background:#fff">
+      <p style="margin:0 0 16px;font-weight:600">${opts.title}</p>
+      <p style="margin:0 0 24px;line-height:1.5;color:#444">${opts.message}</p>
+      ${opts.link ? `<a href="${baseUrl()}${opts.link}" style="display:inline-block;background:#000;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-size:13px">View in Workflow</a>` : ""}
+    </div>`,
+  });
+  return true;
+}

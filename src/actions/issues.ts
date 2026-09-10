@@ -389,6 +389,30 @@ export async function updateIssueDetails(issueId: string, input: UpdateIssueInpu
     });
   }
 
+  // Notify the assignee when their issue's status changes (skip when it's them acting)
+  if (
+    status &&
+    status !== issue.status &&
+    issue.assigneeId &&
+    issue.assigneeId === updated.assignee?.id
+  ) {
+    if (issue.assigneeId !== user.id) {
+      await createUserNotification({
+        userId: issue.assigneeId,
+        title: `Status update · ${issue.projectKey}-${issue.issueNumber}`,
+        message: `${user.name || "A teammate"} moved "${updated.title}" from ${issue.status.replace("_", " ")} to ${status.replace("_", " ")}`,
+      });
+    }
+    // Notify the creator when their issue is completed
+    if (status === "DONE" && issue.creatorId && issue.creatorId !== user.id) {
+      await createUserNotification({
+        userId: issue.creatorId,
+        title: `Issue completed 🎉 · ${issue.projectKey}-${issue.issueNumber}`,
+        message: `${user.name || "A teammate"} marked "${updated.title}" as Done`,
+      });
+    }
+  }
+
   // Broadcast real-time issue update
   broadcastProjectEvent({
     type: "ISSUE_UPDATED",

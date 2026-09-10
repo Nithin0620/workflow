@@ -201,7 +201,7 @@ export default function Home() {
         renderItem={({ item: w, index }: { item: Workspace; index: number }) => (
           <Animated.View entering={FadeInDown.delay(200 + index * 80).duration(400).springify()}>
             <Card
-              onPress={() => router.push(`/(auth)/(tabs)/workspace/${w.id}` as any)}
+              onPress={() => router.push(`/(auth)/workspace/${w.id}` as any)}
               className="bg-zinc-950/90 border border-zinc-800/80 p-4"
             >
               <View className="flex-row items-center justify-between">

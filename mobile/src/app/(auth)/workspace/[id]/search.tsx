@@ -123,8 +123,8 @@ export default function WorkspaceSearch() {
         renderItem={({ item: r, index }: { item: SearchResultItem; index: number }) => {
           const isProject = r.type === "project";
           const href: any = isProject
-            ? `/(auth)/(tabs)/workspace/${id}/project/${r.id}`
-            : `/(auth)/(tabs)/workspace/${id}/project/${r.projectId}/issue/${r.id}`;
+            ? `/(auth)/workspace/${id}/project/${r.id}`
+            : `/(auth)/workspace/${id}/project/${r.projectId}/issue/${r.id}`;
 
           return (
             <Link href={href} asChild>

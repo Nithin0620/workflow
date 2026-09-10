@@ -36,7 +36,7 @@ export default function ChannelList() {
   const onRefresh = () => { setRefreshing(true); load(); };
 
   const renderChannel = ({ item: c, index }: { item: DiscussionChannel; index: number }) => (
-    <Link href={`/(auth)/(tabs)/workspace/${id}/discussions/${c.id}` as any} asChild>
+    <Link href={`/(auth)/workspace/${id}/discussions/${c.id}` as any} asChild>
       <Pressable className="bg-neutral-900 border border-neutral-800 rounded-xl p-4">
         <View className="flex-row items-center gap-3">
           <View className="w-10 h-10 rounded-lg bg-neutral-800 items-center justify-center">

@@ -78,7 +78,7 @@ export default function WhiteboardList() {
           }
           renderItem={({ item: w, index }: { item: Whiteboard; index: number }) => (
             <Animated.View entering={FadeInDown.delay(index * 60).duration(350).springify()} exiting={FadeOut.duration(200)}>
-              <Link href={`/(auth)/(tabs)/workspace/${id}/whiteboards/${w.id}` as any} asChild>
+              <Link href={`/(auth)/workspace/${id}/whiteboards/${w.id}` as any} asChild>
                 <Pressable className="bg-neutral-900 border border-neutral-800 rounded-xl p-4">
                   <View className="flex-row items-center gap-3">
                     <View className="w-10 h-10 rounded-lg bg-neutral-800 items-center justify-center">

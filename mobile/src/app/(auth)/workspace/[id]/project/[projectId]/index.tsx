@@ -130,7 +130,7 @@ export default function ProjectBoard() {
         showBack
         rightAction={
           <Link
-            href={`/(auth)/(tabs)/workspace/${id}/project/${projectId}/issue/new` as any}
+            href={`/(auth)/workspace/${id}/project/${projectId}/issue/new` as any}
             asChild
           >
             <Button
@@ -208,7 +208,7 @@ export default function ProjectBoard() {
                         entering={FadeInDown.delay(i * 50).duration(300)}
                       >
                       <Link
-                        href={`/(auth)/(tabs)/workspace/${id}/project/${projectId}/issue/${issue.id}` as any}
+                        href={`/(auth)/workspace/${id}/project/${projectId}/issue/${issue.id}` as any}
                         asChild
                       >
                         <Pressable className="bg-zinc-900/90 border border-zinc-800/80 rounded-2xl p-4 active:border-zinc-700">

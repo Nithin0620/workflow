@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { CommandPalette } from "./command-palette";
 import { NotificationCenter } from "../notifications/notification-center";
+import { PushManager } from "../notifications/push-manager";
 import { Search, LogOut } from "lucide-react";
 
 interface HeaderProps {
@@ -52,6 +53,9 @@ export function Header({
 
       {/* Right controls */}
       <div className="flex items-center gap-3">
+        {/* Browser push toggle */}
+        <PushManager />
+
         {/* Real-time Notifications */}
         <NotificationCenter />
 

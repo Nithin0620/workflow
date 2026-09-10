@@ -230,15 +230,6 @@ export default async function LandingPage() {
 
       {/* 6. PAID SERVICES & ENTERPRISE ENQUIRY BANNER */}
       <section className="relative overflow-hidden bg-black text-white px-6 py-20 border-t border-neutral-900">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 h-full w-full object-cover opacity-40 pointer-events-none"
-        >
-          <source src="/tech-bg-2.mp4" type="video/mp4" />
-        </video>
         <div className="relative mx-auto max-w-5xl rounded-3xl border border-neutral-800 bg-neutral-950/80 backdrop-blur-sm p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden">
 
           <div className="space-y-4 max-w-xl text-left">

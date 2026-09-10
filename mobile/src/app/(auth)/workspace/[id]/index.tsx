@@ -167,7 +167,7 @@ export default function WorkspaceDetail() {
                       entering={FadeInDown.delay(200 + i * 60).duration(400).springify()}
                       className="w-[48%]"
                     >
-                      <Link href={`/(auth)/(tabs)/workspace/${workspace?.id}/${mod.href}` as any} asChild>
+                      <Link href={`/(auth)/workspace/${workspace?.id}/${mod.href}` as any} asChild>
                         <Pressable className="bg-zinc-950 border border-zinc-800/80 rounded-2xl p-4 active:bg-zinc-900">
                           <View className={`w-9 h-9 rounded-xl bg-${mod.color}-950/60 border border-${mod.color}-800/40 items-center justify-center mb-2.5`}>
                             <mod.icon size={17} color={mod.color === "indigo" ? "#818cf8" : mod.color === "purple" ? "#c084fc" : mod.color === "emerald" ? "#34d399" : "#38bdf8"} />
@@ -204,7 +204,7 @@ export default function WorkspaceDetail() {
               <Card
                 onPress={() => {
                   if (workspace?.id) {
-                    router.push(`/(auth)/(tabs)/workspace/${workspace.id}/project/${p.id}` as any);
+                    router.push(`/(auth)/workspace/${workspace.id}/project/${p.id}` as any);
                   }
                 }}
                 className="bg-zinc-950/90 border border-zinc-800/80 p-4"

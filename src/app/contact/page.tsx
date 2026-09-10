@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { AnimatedFooter } from "@/components/layout/animated-footer";
 import { PublicNavbar } from "@/components/common/public-navbar";
+import { BackgroundVideo } from "@/components/common/background-video";
 import {
   Send,
   CheckCircle2,
@@ -52,13 +53,23 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
-      {/* Unified Public Navbar */}
-      <PublicNavbar theme="dark" />
+    <div className="relative min-h-screen bg-black text-white selection:bg-white selection:text-black">
+      {/* Animated video background */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <BackgroundVideo
+          src="/tech-bg-2.mp4"
+          videoClassName="opacity-60"
+          overlayClassName="bg-gradient-to-b from-black/60 via-black/40 to-black/80"
+        />
+      </div>
 
-      {/* Main Container */}
-      <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+      <div className="relative z-10 flex flex-col min-h-screen">
+        {/* Unified Public Navbar */}
+        <PublicNavbar theme="dark" />
+
+        {/* Main Container */}
+        <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24 flex-1">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           {/* Left Column: Pure Black Value Proposition */}
           <div className="lg:col-span-5 space-y-8">
             <div className="space-y-4">
@@ -77,7 +88,7 @@ export default function ContactPage() {
             </div>
 
             <div className="space-y-4 pt-2">
-              <div className="flex items-start gap-3 rounded-xl border border-neutral-900 bg-neutral-950 p-4">
+              <div className="flex items-start gap-3 rounded-xl border border-neutral-800/80 bg-neutral-950/70 backdrop-blur-md p-4">
                 <Server className="h-5 w-5 text-white shrink-0 mt-0.5" />
                 <div className="space-y-1">
                   <h3 className="text-xs font-bold text-white">
@@ -90,7 +101,7 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 rounded-xl border border-neutral-900 bg-neutral-950 p-4">
+              <div className="flex items-start gap-3 rounded-xl border border-neutral-800/80 bg-neutral-950/70 backdrop-blur-md p-4">
                 <Shield className="h-5 w-5 text-white shrink-0 mt-0.5" />
                 <div className="space-y-1">
                   <h3 className="text-xs font-bold text-white">
@@ -103,7 +114,7 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 rounded-xl border border-neutral-900 bg-neutral-950 p-4">
+              <div className="flex items-start gap-3 rounded-xl border border-neutral-800/80 bg-neutral-950/70 backdrop-blur-md p-4">
                 <Zap className="h-5 w-5 text-white shrink-0 mt-0.5" />
                 <div className="space-y-1">
                   <h3 className="text-xs font-bold text-white">
@@ -274,5 +285,6 @@ export default function ContactPage() {
       {/* Footer */}
       <AnimatedFooter />
     </div>
+  </div>
   );
 }
