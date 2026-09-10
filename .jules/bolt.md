@@ -5,6 +5,11 @@
 ## 2026-09-08 - Parallelizing DB Queries and Optimizing Select in Search
 **Learning:** Running multiple independent Prisma queries sequentially increases latency unnecessarily. Furthermore, returning entire nested relations when only specific fields are needed increases database payload size and memory usage.
 **Action:** Use `Promise.all()` to execute independent `findMany` queries concurrently, and use `select` to retrieve only the required fields from nested relations.
+
 ## 2024-05-14 - Optimize Search Query Payloads
 **Learning:** Search query payload endpoints returning full database records implicitly fetched via `findMany` calls without explicitly defined projections (e.g. `select: { ... }`) significantly bloat memory usage and introduce unwanted network transfer latencies.
 **Action:** When querying for search suggestions or autocomplete results, always use a `select` statement that retrieves exactly the subset of properties required for rendering the UI items, instead of fetching the complete entity state (e.g., descriptions or metadata).
+
+## 2024-05-14 - Parallelizing External Service Calls (AI Scans)
+**Learning:** Iterating over items and calling external services (like LLM generations or external API bug scans) sequentially inside a `for...of` loop causes latency to grow linearly, $O(N)$, resulting in massive perceived bottlenecks.
+**Action:** For independent processing of items involving external network boundaries, aggregate the requests and execute them concurrently via `await Promise.all(...)`.
