@@ -1,18 +1,6 @@
-import { Loader2 } from "lucide-react";
-
 export default function HowItWorksLoading() {
   return (
     <div className="min-h-screen bg-black text-white flex flex-col animate-pulse">
-      {/* Navbar skeleton */}
-      <div className="h-16 border-b border-neutral-900 bg-black px-6 flex items-center justify-between">
-        <div className="h-6 w-24 bg-neutral-900 rounded" />
-        <div className="flex gap-4">
-          <div className="h-4 w-16 bg-neutral-900 rounded hidden sm:block" />
-          <div className="h-4 w-16 bg-neutral-900 rounded hidden sm:block" />
-          <div className="h-8 w-24 bg-neutral-800 rounded-full" />
-        </div>
-      </div>
-
       {/* Hero section skeleton */}
       <section className="border-b border-neutral-900 bg-black px-6 pt-20 pb-16 text-center space-y-6">
         <div className="mx-auto max-w-4xl space-y-6 flex flex-col items-center">

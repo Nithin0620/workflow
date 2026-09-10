@@ -1,21 +1,8 @@
-import { Loader2 } from "lucide-react";
-
 export default function ContactLoading() {
   return (
     <div className="min-h-screen bg-black text-white flex flex-col animate-pulse">
-      {/* Navbar skeleton */}
-      <div className="h-16 border-b border-neutral-900 bg-black px-6 flex items-center justify-between">
-        <div className="h-6 w-24 bg-neutral-900 rounded" />
-        <div className="flex gap-4">
-          <div className="h-4 w-16 bg-neutral-900 rounded hidden sm:block" />
-          <div className="h-4 w-16 bg-neutral-900 rounded hidden sm:block" />
-          <div className="h-8 w-24 bg-neutral-800 rounded-full" />
-        </div>
-      </div>
-
       <div className="flex-1 w-full max-w-6xl mx-auto px-6 py-12 sm:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-start">
-
           {/* Left Column Skeleton */}
           <div className="lg:col-span-5 space-y-8">
             <div className="space-y-6">
@@ -78,7 +65,6 @@ export default function ContactLoading() {
               <div className="h-12 w-full bg-neutral-200 rounded-xl mt-4" />
             </div>
           </div>
-
         </div>
       </div>
     </div>

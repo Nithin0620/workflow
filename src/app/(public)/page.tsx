@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { AnimatedFooter } from "@/components/layout/animated-footer";
 import { getCurrentUser } from "@/lib/auth/session";
-import { PublicNavbar } from "@/components/common/public-navbar";
 import { AnimatedSaasObjects } from "@/components/home/animated-saas-objects";
 import { MacKanbanMockup } from "@/components/home/mac-kanban-mockup";
 import { LiveKanbanDemo } from "@/components/home/live-kanban-demo";
@@ -27,16 +26,9 @@ import {
 export default async function LandingPage() {
   const user = await getCurrentUser();
 
-  const userWorkspaceUrl = user?.workspaceMembers[0]?.workspace?.organization
-    ? `/${user.workspaceMembers[0].workspace.organization.slug}/${user.workspaceMembers[0].workspace.slug}`
-    : null;
-
   return (
     <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
-      {/* 1. TOP NAV - PURE BLACK */}
-      <PublicNavbar theme="dark" workspaceUrl={userWorkspaceUrl} />
-
-      {/* 2. HERO SECTION - PURE BLACK */}
+      {/* HERO SECTION */}
       <section className="relative overflow-hidden bg-black px-6 pt-20 pb-16 md:pt-28 md:pb-24">
         <AnimatedSaasObjects />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[350px] w-full md:w-[600px] rounded-full bg-white/5 blur-[120px] pointer-events-none" />

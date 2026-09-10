@@ -1,39 +1,19 @@
-import { Loader2 } from "lucide-react";
-
-export default function HomeLoading() {
+export default function RootLoading() {
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col animate-pulse">
-      {/* Navbar skeleton */}
-      <div className="h-16 border-b border-neutral-900 bg-black px-6 flex items-center justify-between">
-        <div className="h-6 w-24 bg-neutral-900 rounded" />
-        <div className="flex gap-4">
-          <div className="h-4 w-16 bg-neutral-900 rounded hidden sm:block" />
-          <div className="h-4 w-16 bg-neutral-900 rounded hidden sm:block" />
-          <div className="h-8 w-24 bg-neutral-800 rounded-full" />
+    <div className="flex min-h-screen w-full items-center justify-center bg-black text-white">
+      <div className="flex flex-col items-center gap-4">
+        <div className="relative flex h-12 w-12 items-center justify-center">
+          <div className="absolute inset-0 rounded-2xl bg-white/5 animate-ping" />
+          <div className="h-10 w-10 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-white font-mono font-bold text-sm shadow-2xl">
+            W
+          </div>
         </div>
-      </div>
-
-      {/* Hero section skeleton */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-24 text-center space-y-8 relative overflow-hidden">
-        <div className="h-6 w-48 bg-neutral-900 rounded-full" />
-
-        <div className="space-y-4 w-full max-w-4xl">
-          <div className="h-14 w-full bg-neutral-900 rounded-lg" />
-          <div className="h-14 w-5/6 bg-neutral-900 rounded-lg mx-auto" />
+        <div className="flex items-center gap-2">
+          <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-xs font-mono uppercase tracking-widest text-neutral-400">
+            Loading Workflow...
+          </span>
         </div>
-
-        <div className="space-y-2 w-full max-w-2xl">
-          <div className="h-5 w-full bg-neutral-900 rounded" />
-          <div className="h-5 w-3/4 bg-neutral-900 rounded mx-auto" />
-        </div>
-
-        <div className="flex items-center justify-center gap-4 pt-4">
-          <div className="h-12 w-40 bg-white/20 rounded-xl" />
-          <div className="h-12 w-32 bg-neutral-900 rounded-xl" />
-        </div>
-
-        {/* Dashboard Preview Skeleton */}
-        <div className="mt-16 w-full max-w-5xl rounded-2xl border border-neutral-800 bg-neutral-950/50 h-96" />
       </div>
     </div>
   );

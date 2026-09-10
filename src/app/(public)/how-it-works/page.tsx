@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { AnimatedFooter } from "@/components/layout/animated-footer";
 import { getCurrentUser } from "@/lib/auth/session";
-import { PublicNavbar } from "@/components/common/public-navbar";
 import {
   ArrowRight,
   CheckCircle2,
@@ -20,10 +19,10 @@ import {
 
 export default async function HowItWorksPage() {
   const user = await getCurrentUser();
-
   const userWorkspaceUrl = user?.workspaceMembers[0]?.workspace?.organization
     ? `/${user.workspaceMembers[0].workspace.organization.slug}/${user.workspaceMembers[0].workspace.slug}`
     : null;
+
   const steps = [
     {
       number: "01",
@@ -102,10 +101,7 @@ export default async function HowItWorksPage() {
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
-      {/* 1. TOP NAVIGATION - PURE BLACK */}
-      <PublicNavbar theme="dark" workspaceUrl={userWorkspaceUrl} />
-
-      {/* 2. HERO HEADER - PURE BLACK */}
+      {/* HERO HEADER */}
       <section className="border-b border-neutral-900 bg-black px-6 pt-20 pb-16 text-center space-y-6">
         <div className="mx-auto max-w-4xl space-y-4">
           <div className="inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900 px-3.5 py-1 text-xs text-neutral-300 font-mono">

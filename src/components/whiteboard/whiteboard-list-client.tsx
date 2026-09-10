@@ -23,6 +23,7 @@ export function WhiteboardListClient({
     <>
       <button
         onClick={() => setIsOpen(true)}
+        data-tour="create-whiteboard-btn"
         className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white shadow-lg shadow-blue-500/20 transition-all hover:bg-blue-500 hover:shadow-blue-500/30 active:scale-95"
       >
         <Plus className="h-4 w-4" />

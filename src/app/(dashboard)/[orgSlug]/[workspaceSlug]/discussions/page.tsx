@@ -1,6 +1,8 @@
 import { getCurrentUser } from "@/lib/auth/session";
 import { redirect, notFound } from "next/navigation";
 import { MessageSquare } from "lucide-react";
+import { prisma } from "@/lib/db/prisma";
+import { OnboardingTour, TourReplayButton } from "@/components/onboarding/onboarding-tour";
 
 interface DiscussionsPageProps {
   params: Promise<{ orgSlug: string; workspaceSlug: string }>;
@@ -25,7 +27,10 @@ export default async function DiscussionsPage({ params }: DiscussionsPageProps) 
   }
 
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center bg-black p-8 text-center">
+    <div className="relative flex h-full w-full flex-col items-center justify-center bg-black p-8 text-center" data-tour="disc-header">
+      <div className="absolute top-6 right-6">
+        <TourReplayButton tourId="discussions" />
+      </div>
       <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-neutral-900 border border-neutral-800 text-white shadow-inner mb-6">
         <MessageSquare className="h-10 w-10 text-neutral-400" />
       </div>
@@ -33,6 +38,7 @@ export default async function DiscussionsPage({ params }: DiscussionsPageProps) 
       <p className="text-neutral-400 max-w-md text-sm">
         Select a server, group, or channel from the sidebar to start collaborating. You can participate in threads or convert discussions directly into tracked issues.
       </p>
+      <OnboardingTour tourId="discussions" />
     </div>
   );
 }

@@ -79,37 +79,42 @@ export async function createWorkspace(orgIdOrSlug: string, input: CreateWorkspac
  * Retrieves all workspaces the current user is a member of
  */
 export async function getUserWorkspaces() {
-  const user = await requireAuth();
+  try {
+    const user = await requireAuth();
 
-  const memberships = await prisma.workspaceMember.findMany({
-    where: { userId: user.id },
-    include: {
-      workspace: {
-        include: {
-          organization: true,
-          _count: {
-            select: {
-              projects: true,
-              members: true,
-              discussionChannels: true,
+    const memberships = await prisma.workspaceMember.findMany({
+      where: { userId: user.id },
+      include: {
+        workspace: {
+          include: {
+            organization: true,
+            _count: {
+              select: {
+                projects: true,
+                members: true,
+                discussionChannels: true,
+              },
             },
-          },
-          banners: {
-            select: { id: true, imageUrl: true },
-            orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+            banners: {
+              select: { id: true, imageUrl: true },
+              orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+            },
           },
         },
       },
-    },
-    orderBy: {
-      joinedAt: "asc",
-    },
-  });
+      orderBy: {
+        joinedAt: "asc",
+      },
+    });
 
-  return memberships.map((m) => ({
-    ...m.workspace,
-    role: m.role,
-  }));
+    return memberships.map((m) => ({
+      ...m.workspace,
+      role: m.role,
+    }));
+  } catch (err) {
+    console.error("Failed to load user workspaces:", err);
+    return [];
+  }
 }
 
 /**

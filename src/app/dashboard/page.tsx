@@ -19,13 +19,22 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const [workspaces, discussionsData] = await Promise.all([
-    getUserWorkspaces(),
-    getActiveDiscussionsOverview(),
-  ]);
+  let workspaces: any[] = [];
+  let discussionsData = { channels: [] as any[] };
+
+  try {
+    const [wsRes, discRes] = await Promise.all([
+      getUserWorkspaces().catch(() => []),
+      getActiveDiscussionsOverview().catch(() => ({ channels: [] })),
+    ]);
+    workspaces = wsRes;
+    discussionsData = discRes;
+  } catch (err) {
+    console.error("Error fetching dashboard data:", err);
+  }
 
   // Retrieve user's primary organization
-  let orgData = user.workspaceMembers[0]?.workspace?.organization
+  let orgData = user.workspaceMembers?.[0]?.workspace?.organization
     ? {
         id: user.workspaceMembers[0].workspace.organization.id,
         name: user.workspaceMembers[0].workspace.organization.name,
@@ -34,18 +43,24 @@ export default async function DashboardPage() {
     : null;
 
   if (!orgData) {
-    const ownedOrg = await prisma.organization.findFirst({
-      where: { ownerId: user.id },
-    });
-    if (ownedOrg) {
-      orgData = { id: ownedOrg.id, name: ownedOrg.name, slug: ownedOrg.slug };
-    } else {
-      orgData = {
-        id: "default",
-        name: user.name ? `${user.name}'s Org` : "Workflow Org",
-        slug: user.name ? user.name.toLowerCase().replace(/\s+/g, "-") : "my-org",
-      };
+    try {
+      const ownedOrg = await prisma.organization.findFirst({
+        where: { ownerId: user.id },
+      });
+      if (ownedOrg) {
+        orgData = { id: ownedOrg.id, name: ownedOrg.name, slug: ownedOrg.slug };
+      }
+    } catch (err) {
+      console.error("Error fetching owned organization:", err);
     }
+  }
+
+  if (!orgData) {
+    orgData = {
+      id: "default",
+      name: user.name ? `${user.name}'s Org` : "Workflow Org",
+      slug: user.name ? user.name.toLowerCase().replace(/\s+/g, "-") : "my-org",
+    };
   }
 
   return (

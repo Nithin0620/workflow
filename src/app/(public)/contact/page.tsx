@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { AnimatedFooter } from "@/components/layout/animated-footer";
-import { PublicNavbar } from "@/components/common/public-navbar";
 import { BackgroundVideo } from "@/components/common/background-video";
 import {
   Send,
@@ -64,9 +63,6 @@ export default function ContactPage() {
       </div>
 
       <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Unified Public Navbar */}
-        <PublicNavbar theme="dark" />
-
         {/* Main Container */}
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24 flex-1">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">

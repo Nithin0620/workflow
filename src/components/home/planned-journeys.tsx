@@ -90,6 +90,7 @@ const active: Journey[] = [
   { icon: MessagesSquare, name: "Discussions", tag: "Channels · Threads · Live Sync", desc: "Real-time threads with connected servers, team members, and all workspaces.", hue: 28 },
   { icon: Users, name: "Workspace Collaboration", tag: "Boards · Live Cursors · Roles", desc: "Shared boards, live cursors, and roles for seamless team collaboration.", hue: 250 },
   { icon: PenTool, name: "Collaborative Whiteboards", tag: "Excalidraw · Multi-cursor · Diagrams", desc: "Infinite canvas for real-time architecture, flowcharts, and visual brainstorming.", hue: 170 },
+  { icon: Clock, name: "Scheduled Automation & Cron", tag: "Cron · AI Scans · Run Logs", desc: "Automate recurring AI codebase audits, scheduled endpoint scans, and maintenance jobs.", hue: 45 },
   { icon: GitBranch, name: "Git Integrations", tag: "Commits · PRs · Branches", desc: "Link every push straight to issues and projects.", hue: 210 },
   { icon: BarChart3, name: "Analytics & Insights", tag: "Velocity · Cycle · Bottlenecks", desc: "See where time goes and where flow breaks.", hue: 330 },
 ];

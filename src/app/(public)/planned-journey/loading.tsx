@@ -1,18 +1,6 @@
-import { Loader2 } from "lucide-react";
-
 export default function PlannedJourneyLoading() {
   return (
     <div className="min-h-screen bg-black text-white flex flex-col animate-pulse">
-      {/* Navbar skeleton */}
-      <div className="h-16 border-b border-neutral-900 bg-black px-6 flex items-center justify-between">
-        <div className="h-6 w-24 bg-neutral-900 rounded" />
-        <div className="flex gap-4">
-          <div className="h-4 w-16 bg-neutral-900 rounded hidden sm:block" />
-          <div className="h-4 w-16 bg-neutral-900 rounded hidden sm:block" />
-          <div className="h-8 w-24 bg-neutral-800 rounded-full" />
-        </div>
-      </div>
-
       <div className="flex-1 max-w-5xl mx-auto w-full px-6 py-20 space-y-16">
         {/* Hero section skeleton */}
         <div className="space-y-6 max-w-2xl">

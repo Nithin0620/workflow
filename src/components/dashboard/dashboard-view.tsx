@@ -327,7 +327,7 @@ export function DashboardView({
         </div>
 
         {/* Section 2: Active Discussion Groups */}
-        <div className="space-y-4 pt-6 border-t border-neutral-900">
+        <div className="space-y-4 pt-6 border-t border-neutral-900" data-tour="dash-discussions">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-400 font-mono">
@@ -439,13 +439,22 @@ export function DashboardView({
 
         {/* Section 3: Platform & Capabilities (Hub for upcoming features) */}
         <div className="space-y-8 pt-6 border-t border-neutral-900" data-tour="infra">
-          <div>
-            <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-400 font-mono">
-              Platform & Capabilities
-            </h2>
-            <p className="text-xs text-neutral-500 mt-0.5">
-              Everything Workflow ships — what&apos;s live today and what&apos;s coming next.
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-400 font-mono">
+                Platform & Capabilities
+              </h2>
+              <p className="text-xs text-neutral-500 mt-0.5">
+                Everything Workflow ships — what&apos;s live today and what&apos;s coming next on our planned journeys.
+              </p>
+            </div>
+            <Link
+              href="/planned-journey"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-400 hover:text-white transition self-start sm:self-auto"
+            >
+              <span>Explore Planned Journeys</span>
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </Link>
           </div>
 
           {/* Active */}
@@ -459,6 +468,24 @@ export function DashboardView({
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Active: Mobile Native App */}
+              <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-900 text-emerald-400">
+                    <Smartphone className="h-4 w-4" />
+                  </div>
+                  <span className="rounded-md border border-emerald-900/40 bg-emerald-950/30 px-2 py-0.5 text-[10px] font-mono font-bold text-emerald-400">
+                    Active
+                  </span>
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">Mobile Native App</h4>
+                  <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
+                    iOS and Android apps with live discussions, kanban boards, and push notifications.
+                  </p>
+                </div>
+              </div>
+
               {/* Active: Discussions */}
               <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 p-5 space-y-3">
                 <div className="flex items-center justify-between">
@@ -548,17 +575,35 @@ export function DashboardView({
                   </p>
                 </div>
               </div>
+
+              {/* Active: Scheduled Automation & Cron */}
+              <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-900 text-neutral-300">
+                    <Clock className="h-4 w-4" />
+                  </div>
+                  <span className="rounded-md border border-emerald-900/40 bg-emerald-950/30 px-2 py-0.5 text-[10px] font-mono font-bold text-emerald-400">
+                    Active
+                  </span>
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">Scheduled Automation & Cron</h4>
+                  <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
+                    Automate recurring AI codebase audits, scheduled endpoint scans, and maintenance jobs.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Infrastructure & Services */}
+          {/* Planned Journeys & Roadmap */}
           <div className="space-y-4">
             <div>
               <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 font-mono">
-                Infrastructure & Services
+                Planned Journeys & Capabilities
               </h3>
               <p className="text-xs text-neutral-500 mt-0.5">
-                Storage, security, and platform plumbing on the roadmap.
+                AI copilots, automation, and platform plumbing on our roadmap.
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -612,24 +657,6 @@ export function DashboardView({
                   <h4 className="text-sm font-bold text-white">Webhooks & API</h4>
                   <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
                     Connect Workflow with external services and build custom integrations using APIs and webhooks.
-                  </p>
-                </div>
-              </div>
-
-              {/* Coming Soon: Mobile Native App */}
-              <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 p-5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-900 text-neutral-300">
-                    <Smartphone className="h-4 w-4" />
-                  </div>
-                  <span className="rounded-md bg-neutral-900 border border-neutral-800 px-2 py-0.5 text-[10px] font-mono text-neutral-400">
-                    Coming Soon
-                  </span>
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-white">Mobile Native App</h4>
-                  <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
-                    Native iOS and Android apps to manage workspaces, tasks, and updates from anywhere.
                   </p>
                 </div>
               </div>

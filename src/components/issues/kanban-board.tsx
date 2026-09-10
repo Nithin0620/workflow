@@ -536,10 +536,11 @@ export function KanbanBoard({
             </button>
           )}
 
-{/* Sprint Planning */}
+          {/* Sprint Planning */}
           <button
             onClick={() => setSprintsDialogOpen(true)}
             title="Plan sprints & manage the backlog"
+            data-tour="board-sprints"
             className="cursor-pointer flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
           >
             <Flag className="h-3.5 w-3.5 text-neutral-400" />

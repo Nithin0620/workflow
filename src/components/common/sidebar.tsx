@@ -187,6 +187,7 @@ export function Sidebar({
               {/* Search Discussions button */}
               <button
                 onClick={() => setSearchDialogOpen(true)}
+                data-tour="disc-search"
                 className="flex items-center justify-between w-full rounded-xl border border-neutral-800 bg-neutral-900/80 px-3 py-2 text-xs text-neutral-400 hover:border-neutral-700 hover:text-white transition shadow-sm mb-4"
               >
                 <div className="flex items-center gap-2">
@@ -199,7 +200,7 @@ export function Sidebar({
               </button>
 
               {/* Discussions Tree - High Priority Section */}
-              <div className="flex-1 space-y-4 overflow-y-auto pr-1">
+              <div className="flex-1 space-y-4 overflow-y-auto pr-1" data-tour="disc-sidebar">
                 {/* General Channels */}
                 <div>
                   <div className="flex items-center justify-between px-2 py-1">

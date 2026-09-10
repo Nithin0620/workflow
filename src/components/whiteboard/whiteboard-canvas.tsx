@@ -44,6 +44,7 @@ import {
 import { updateWhiteboard } from "@/actions/whiteboards";
 import { useWhiteboardRealtime } from "@/hooks/use-whiteboard-realtime";
 import { ConvertToIssueDialog } from "./convert-to-issue-dialog";
+import { OnboardingTour, TourReplayButton } from "@/components/onboarding/onboarding-tour";
 
 interface WhiteboardCanvasProps {
   whiteboardId: string;
@@ -1156,7 +1157,7 @@ export function WhiteboardCanvas({
       >
         {/* Row 1 — Title + save status + project chips + chrome (theme/pages/zoom/export) */}
         <div className="flex items-center gap-1.5">
-          <div className="flex min-w-0 shrink-0 items-center gap-1.5">
+          <div data-tour="wb-header" className="flex min-w-0 shrink-0 items-center gap-1.5">
             <input
               type="text"
               value={title}
@@ -1203,6 +1204,7 @@ export function WhiteboardCanvas({
           <div className="flex min-w-0 flex-1 items-center justify-end gap-1">
             {/* Theme */}
             <button
+              data-tour="wb-theme"
               onClick={() => setThemePanelOpen(true)}
               title="Themes"
               className={`flex h-10 w-10 items-center justify-center rounded-xl transition-colors ${
@@ -1218,7 +1220,7 @@ export function WhiteboardCanvas({
             </button>
 
             {/* Pages */}
-            <div className="flex items-center gap-1">
+            <div data-tour="wb-pages" className="flex items-center gap-1">
               <button
                 onClick={goPrevPage}
                 title="Previous page"
@@ -1256,62 +1258,71 @@ export function WhiteboardCanvas({
             </div>
 
             {/* Zoom + export */}
-            <div
-              className="flex items-center gap-0.5 rounded-lg border p-0.5"
-              style={{ borderColor: themeStyle.border }}
-            >
-              <button
-                onClick={() => setZoom(doc.appState.zoom - 0.1)}
-                className="rounded p-1 text-(--wb-muted) hover:text-(--wb-fg)"
+            <div data-tour="wb-export" className="flex items-center gap-1">
+              <div
+                className="flex items-center gap-0.5 rounded-lg border p-0.5"
+                style={{ borderColor: themeStyle.border }}
               >
-                <ZoomOut className="h-4 w-4" />
-              </button>
-              <span className="w-11 text-center text-xs font-mono font-medium text-(--wb-fg)">
-                {Math.round(doc.appState.zoom * 100)}%
-              </span>
-              <button
-                onClick={() => setZoom(doc.appState.zoom + 0.1)}
-                className="rounded p-1 text-(--wb-muted) hover:text-(--wb-fg)"
-              >
-                <ZoomIn className="h-4 w-4" />
-              </button>
-            </div>
+                <button
+                  onClick={() => setZoom(doc.appState.zoom - 0.1)}
+                  className="rounded p-1 text-(--wb-muted) hover:text-(--wb-fg)"
+                >
+                  <ZoomOut className="h-4 w-4" />
+                </button>
+                <span className="w-11 text-center text-xs font-mono font-medium text-(--wb-fg)">
+                  {Math.round(doc.appState.zoom * 100)}%
+                </span>
+                <button
+                  onClick={() => setZoom(doc.appState.zoom + 0.1)}
+                  className="rounded p-1 text-(--wb-muted) hover:text-(--wb-fg)"
+                >
+                  <ZoomIn className="h-4 w-4" />
+                </button>
+              </div>
 
-            <div className="flex items-center gap-0.5">
-              <button
-                onClick={handleExportSVG}
-                title="Download as SVG"
-                className="flex h-9 w-9 items-center justify-center rounded-lg border text-(--wb-muted) hover:bg-white/10 hover:text-(--wb-fg) transition-colors"
-                style={{ borderColor: themeStyle.border }}
-              >
-                <Download className="h-4 w-4" />
-              </button>
-              <button
-                onClick={handleExportJSON}
-                title="Download JSON state"
-                className="flex h-9 w-9 items-center justify-center rounded-lg border text-(--wb-muted) hover:bg-white/10 hover:text-(--wb-fg) transition-colors"
-                style={{ borderColor: themeStyle.border }}
-              >
-                <FileCode className="h-4 w-4" />
-              </button>
-              {canEdit && (
-                <label
-                  title="Upload Whiteboard JSON"
-                  className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border text-(--wb-muted) hover:bg-white/10 hover:text-(--wb-fg) transition-colors"
+              <div className="flex items-center gap-0.5">
+                <button
+                  onClick={handleExportSVG}
+                  title="Download as SVG"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border text-(--wb-muted) hover:bg-white/10 hover:text-(--wb-fg) transition-colors"
                   style={{ borderColor: themeStyle.border }}
                 >
-                  <Upload className="h-4 w-4" />
-                  <input type="file" accept=".json" onChange={handleImportJSON} className="hidden" />
-                </label>
-              )}
+                  <Download className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={handleExportJSON}
+                  title="Download JSON state"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border text-(--wb-muted) hover:bg-white/10 hover:text-(--wb-fg) transition-colors"
+                  style={{ borderColor: themeStyle.border }}
+                >
+                  <FileCode className="h-4 w-4" />
+                </button>
+                {canEdit && (
+                  <label
+                    title="Upload Whiteboard JSON"
+                    className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border text-(--wb-muted) hover:bg-white/10 hover:text-(--wb-fg) transition-colors"
+                    style={{ borderColor: themeStyle.border }}
+                  >
+                    <Upload className="h-4 w-4" />
+                    <input type="file" accept=".json" onChange={handleImportJSON} className="hidden" />
+                  </label>
+                )}
+              </div>
             </div>
+
+            <div className="mx-0.5 h-6 w-px shrink-0" style={{ backgroundColor: themeStyle.border }} />
+
+            <TourReplayButton
+              tourId="whiteboard-canvas"
+              className="h-9 w-9 shrink-0 !border-white/10 !bg-white/5 !text-neutral-300 hover:!bg-white/10 hover:!text-white"
+            />
           </div>
         </div>
 
         {/* Row 2 — Tools + undo/redo + stroke/sticky colors */}
         <div className="flex min-w-0 items-center gap-1">
           {/* Tools + undo/redo (scrolls horizontally if the window is narrow) */}
-          <div className="flex min-w-0 flex-1 items-center justify-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div data-tour="wb-tools" className="flex min-w-0 flex-1 items-center justify-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {tools
               .filter((t) => TOOL_GROUPS.inline.includes(t.tool))
               .map(({ tool, icon: Icon, label }) => (
@@ -1395,83 +1406,85 @@ export function WhiteboardCanvas({
           <div className="h-6 w-px shrink-0" style={{ backgroundColor: themeStyle.border }} />
 
           {/* Stroke colors + width */}
-          <div className="flex shrink-0 items-center gap-1">
-            {STROKE_COLORS.slice(0, 3).map((c) =>
-              strokeSwatch(c, "h-5 w-5", () => pickStrokeColor(c))
-            )}
-            <Popover
-              trigger={
-                <button
-                  title="More stroke colors"
-                  className="flex h-6 w-6 items-center justify-center rounded-full border border-dashed border-white/40 text-(--wb-muted) hover:text-(--wb-fg)"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                </button>
-              }
-              panelClass="grid grid-cols-4 gap-1.5"
-            >
-              {(close) =>
-                STROKE_COLORS.slice(3).map((c) =>
-                  strokeSwatch(c, "h-6 w-6", () => {
-                    pickStrokeColor(c);
-                    close();
-                  })
-                )
-              }
-            </Popover>
-          </div>
-
-          <div
-            className="flex shrink-0 items-center gap-0.5 rounded-lg border p-0.5"
-            style={{ borderColor: themeStyle.border }}
-          >
-            {[1, 2, 4].map((w) => (
-              <button
-                key={w}
-                onClick={() => setSelectedStrokeWidth(w)}
-                className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
-                  selectedStrokeWidth === w ? "text-white" : "text-(--wb-muted) hover:text-(--wb-fg)"
-                }`}
-                style={selectedStrokeWidth === w ? { backgroundColor: themeStyle.accent } : {}}
+          <div data-tour="wb-styling" className="flex shrink-0 items-center gap-1">
+            <div className="flex shrink-0 items-center gap-1">
+              {STROKE_COLORS.slice(0, 3).map((c) =>
+                strokeSwatch(c, "h-5 w-5", () => pickStrokeColor(c))
+              )}
+              <Popover
+                trigger={
+                  <button
+                    title="More stroke colors"
+                    className="flex h-6 w-6 items-center justify-center rounded-full border border-dashed border-white/40 text-(--wb-muted) hover:text-(--wb-fg)"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </button>
+                }
+                panelClass="grid grid-cols-4 gap-1.5"
               >
-                {w}px
-              </button>
-            ))}
-          </div>
+                {(close) =>
+                  STROKE_COLORS.slice(3).map((c) =>
+                    strokeSwatch(c, "h-6 w-6", () => {
+                      pickStrokeColor(c);
+                      close();
+                    })
+                  )
+                }
+              </Popover>
+            </div>
 
-          {hasStickyContext && (
-            <>
-              <div
-                className="h-6 w-px shrink-0"
-                style={{ backgroundColor: themeStyle.border }}
-              />
-              <div className="flex shrink-0 items-center gap-1">
-                {STICKY_BG_COLORS.slice(0, 3).map((c) =>
-                  stickySwatch(c, "h-5 w-5", () => pickStickyColor(c))
-                )}
-                <Popover
-                  trigger={
-                    <button
-                      title="More sticky colors"
-                      className="flex h-6 w-6 items-center justify-center rounded border border-dashed border-white/40 text-(--wb-muted) hover:text-(--wb-fg)"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                    </button>
-                  }
-                  panelClass="grid grid-cols-4 gap-1.5"
+            <div
+              className="flex shrink-0 items-center gap-0.5 rounded-lg border p-0.5"
+              style={{ borderColor: themeStyle.border }}
+            >
+              {[1, 2, 4].map((w) => (
+                <button
+                  key={w}
+                  onClick={() => setSelectedStrokeWidth(w)}
+                  className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
+                    selectedStrokeWidth === w ? "text-white" : "text-(--wb-muted) hover:text-(--wb-fg)"
+                  }`}
+                  style={selectedStrokeWidth === w ? { backgroundColor: themeStyle.accent } : {}}
                 >
-                  {(close) =>
-                    STICKY_BG_COLORS.slice(3).map((c) =>
-                      stickySwatch(c, "h-6 w-6", () => {
-                        pickStickyColor(c);
-                        close();
-                      })
-                    )
-                  }
-                </Popover>
-              </div>
-            </>
-          )}
+                  {w}px
+                </button>
+              ))}
+            </div>
+
+            {hasStickyContext && (
+              <>
+                <div
+                  className="h-6 w-px shrink-0"
+                  style={{ backgroundColor: themeStyle.border }}
+                />
+                <div className="flex shrink-0 items-center gap-1">
+                  {STICKY_BG_COLORS.slice(0, 3).map((c) =>
+                    stickySwatch(c, "h-5 w-5", () => pickStickyColor(c))
+                  )}
+                  <Popover
+                    trigger={
+                      <button
+                        title="More sticky colors"
+                        className="flex h-6 w-6 items-center justify-center rounded border border-dashed border-white/40 text-(--wb-muted) hover:text-(--wb-fg)"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                      </button>
+                    }
+                    panelClass="grid grid-cols-4 gap-1.5"
+                  >
+                    {(close) =>
+                      STICKY_BG_COLORS.slice(3).map((c) =>
+                        stickySwatch(c, "h-6 w-6", () => {
+                          pickStickyColor(c);
+                          close();
+                        })
+                      )
+                    }
+                  </Popover>
+                </div>
+              </>
+            )}
+          </div>
 
           {selectedElementIds.length === 1 && linkedProjects.length > 0 && (
             <button
@@ -1494,6 +1507,7 @@ export function WhiteboardCanvas({
       <div className="flex min-h-0 flex-1 gap-3">
       {/* Card 1 — Board */}
       <section
+        data-tour="wb-canvas-area"
         className="relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-2xl border"
         style={{
           backgroundColor: themeStyle.bg,
@@ -1711,6 +1725,8 @@ export function WhiteboardCanvas({
         whiteboardTitle={title}
         projects={linkedProjects}
       />
+
+      <OnboardingTour tourId="whiteboard-canvas" />
     </div>
   );
 }
