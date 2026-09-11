@@ -30,7 +30,8 @@ vi.mock("next-auth/jwt", () => ({
 }));
 
 describe("API Auth Helper & Mobile Auth Endpoints", () => {
-  const secret = process.env.NEXTAUTH_SECRET || "default-secret";
+  const secret = "test-secret";
+  process.env.NEXTAUTH_SECRET = secret;
 
   beforeEach(() => {
     vi.clearAllMocks();
