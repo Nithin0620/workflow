@@ -5,6 +5,12 @@ import { prisma } from "@/lib/db/prisma";
 
 const JWT_SECRET = process.env.NEXTAUTH_SECRET || "default-secret";
 
+// Only enforce JWT_SECRET in production or if explicitly requested, to not break unit tests that don't load .env
+// Note: security requirement - DO NOT hardcode a fallback that is used for real hashing.
+if (process.env.NODE_ENV === "production" && (!process.env.NEXTAUTH_SECRET || process.env.NEXTAUTH_SECRET === "default-secret")) {
+  throw new Error("NEXTAUTH_SECRET must be explicitly configured in production environment.");
+}
+
 export type ApiTokenPayload = {
   id: string;
   email: string;
