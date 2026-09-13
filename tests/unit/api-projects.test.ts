@@ -1,3 +1,4 @@
+process.env.NEXTAUTH_SECRET = "test-secret";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GET as listProjectsRoute, POST as createProjectRoute } from "@/app/api/v1/workspaces/[workspaceId]/projects/route";
 import {

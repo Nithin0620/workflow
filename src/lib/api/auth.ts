@@ -5,11 +5,27 @@ import { prisma } from "@/lib/db/prisma";
 
 const JWT_SECRET = process.env.NEXTAUTH_SECRET || "default-secret";
 
+// Only enforce JWT_SECRET in production or if explicitly requested, to not break unit tests that don't load .env
+// Note: security requirement - DO NOT hardcode a fallback that is used for real hashing.
+// Skip the error if Next is running a build step (some environments don't provide runtime secrets during build)
+const isBuildStep = process.env.npm_lifecycle_event === "build" || process.env.NEXT_PHASE === "phase-production-build";
+if (!isBuildStep && process.env.NODE_ENV === "production" && (!process.env.NEXTAUTH_SECRET || process.env.NEXTAUTH_SECRET === "default-secret")) {
+  throw new Error("NEXTAUTH_SECRET must be explicitly configured in production environment.");
+}
+
 export type ApiTokenPayload = {
   id: string;
   email: string;
   name?: string | null;
 };
+
+function getJwtSecret() {
+  const secret = process.env.NEXTAUTH_SECRET;
+  if (!secret) {
+    throw new Error("NEXTAUTH_SECRET is not configured");
+  }
+  return secret;
+}
 
 /**
  * Signs a JWT token with 30-day expiration for mobile/API clients.
@@ -21,7 +37,7 @@ export function signApiToken(payload: ApiTokenPayload): string {
       email: payload.email,
       name: payload.name ?? undefined,
     },
-    JWT_SECRET,
+    getJwtSecret(),
     { expiresIn: "30d" }
   );
 }
@@ -40,7 +56,7 @@ export async function getApiUser(req: Request) {
   if (authHeader?.startsWith("Bearer ")) {
     const token = authHeader.substring(7).trim();
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as {
+      const decoded = jwt.verify(token, getJwtSecret()) as {
         id?: string;
         sub?: string;
         email?: string;
@@ -59,7 +75,7 @@ export async function getApiUser(req: Request) {
     try {
       const nextAuthToken = await getToken({
         req: req as any,
-        secret: JWT_SECRET,
+        secret: process.env.NEXTAUTH_SECRET || "", // getToken gracefully handles missing secret if cookie name matches
       });
 
       if (nextAuthToken) {

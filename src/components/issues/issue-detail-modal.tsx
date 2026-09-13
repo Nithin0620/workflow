@@ -622,7 +622,7 @@ export function IssueDetailModal({
                       </span>
                     </div>
                     <p className="line-clamp-2 text-neutral-300 italic font-mono text-[11px]">
-                      "{issue.discussionLinks[0].message.content}"
+                      &quot;{issue.discussionLinks[0].message.content}&quot;
                     </p>
                   </div>
                 </div>
