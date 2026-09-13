@@ -108,15 +108,24 @@ export async function triggerAiIssueTriage(
           issue.description
         );
 
+        // 💡 What: Replaced sequential `for` loop with `Promise.all` for concurrent file content fetching.
+        // 🎯 Why: Sequential API calls for N files blocked thread and scaled latency as O(N).
+        // 📊 Impact: Significantly faster execution when fetching multiple relevant files from GitHub API by running requests concurrently.
         const fileSnippets: Array<{ path: string; content: string }> = [];
-        for (const filePath of relevantPaths) {
-          const contentRes = await fetchRepositoryFileContent(
-            repo.repoOwner,
-            repo.repoName,
-            filePath,
-            repo.defaultBranch,
-            repo.accessToken
-          );
+        const contentResults = await Promise.all(
+          relevantPaths.map(async (filePath) => {
+            const contentRes = await fetchRepositoryFileContent(
+              repo.repoOwner,
+              repo.repoName,
+              filePath,
+              repo.defaultBranch,
+              repo.accessToken
+            );
+            return { filePath, contentRes };
+          })
+        );
+
+        for (const { filePath, contentRes } of contentResults) {
           if (contentRes.success && contentRes.content) {
             fileSnippets.push({ path: filePath, content: contentRes.content });
           }
