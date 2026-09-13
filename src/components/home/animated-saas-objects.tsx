@@ -123,6 +123,58 @@ export function AnimatedSaasObjects() {
           </div>
         </motion.div>
 
+        {/* Whiteboard Node */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{
+            opacity: [0.3, 0.7, 0.3],
+            x: [10, -5, 10],
+            rotate: [-2, 2, -2],
+          }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1.5,
+          }}
+          className="absolute top-[40%] right-[30%] rounded-xl border border-neutral-700 bg-neutral-900/80 p-3 shadow-lg backdrop-blur-md w-36"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <div className="h-2 w-2 rounded-full bg-orange-400" />
+            <span className="text-[10px] font-medium text-neutral-300">Whiteboard Session</span>
+          </div>
+          <div className="flex justify-between items-end gap-1 mt-3">
+             <div className="w-6 h-6 rounded-md bg-orange-500/20 border border-orange-500/30" />
+             <div className="w-8 h-8 rounded-md bg-orange-500/40 border border-orange-500/50 transform rotate-12" />
+             <div className="w-5 h-5 rounded-full bg-blue-500/30 border border-blue-500/50" />
+          </div>
+        </motion.div>
+
+        {/* Real-time Discussion Bubble */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{
+            opacity: [0, 0.9, 0],
+            y: [-10, -30, -50],
+            scale: [0.9, 1.05, 0.95],
+          }}
+          transition={{
+            duration: 9,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 4,
+          }}
+          className="absolute bottom-[45%] left-[30%] rounded-2xl rounded-bl-sm border border-neutral-700 bg-neutral-800/90 px-3 py-2 shadow-xl backdrop-blur-md flex items-center gap-2 max-w-[200px]"
+        >
+          <div className="h-5 w-5 rounded-full bg-indigo-500 flex items-center justify-center shrink-0">
+             <span className="text-[8px] font-bold text-white">JD</span>
+          </div>
+          <div className="space-y-1 w-full">
+            <div className="h-1.5 w-full bg-neutral-600 rounded-full" />
+            <div className="h-1.5 w-2/3 bg-neutral-600 rounded-full" />
+          </div>
+        </motion.div>
+
         {/* Notification Bubble */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
