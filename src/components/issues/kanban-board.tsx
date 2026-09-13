@@ -241,23 +241,29 @@ export function KanbanBoard({
     },
   });
 
-  const filteredIssues = issues.filter((i) => {
-    const matchesSearch =
-      i.title.toLowerCase().includes(search.toLowerCase()) ||
-      `${i.projectKey}-${i.issueNumber}`.toLowerCase().includes(search.toLowerCase());
+  // ⚡ Bolt Optimization: Memoize filtered issues to avoid expensive re-calculations on every render
+  // This reduces unnecessary string operations and array iterations when typing in search or updating unrelated state.
+  const filteredIssues = useMemo(() => {
+    const lowerSearch = search.toLowerCase();
 
-    const matchesPriority =
-      selectedPriority === "ALL" || i.priority === selectedPriority;
+    return issues.filter((i) => {
+      const matchesSearch =
+        i.title.toLowerCase().includes(lowerSearch) ||
+        `${i.projectKey}-${i.issueNumber}`.toLowerCase().includes(lowerSearch);
 
-    const matchesStatus =
-      selectedStatusFilter === "ALL" || i.status === selectedStatusFilter;
+      const matchesPriority =
+        selectedPriority === "ALL" || i.priority === selectedPriority;
 
-    const matchesAssignee = !onlyMyIssues || (currentUserId && i.assignee?.id === currentUserId);
+      const matchesStatus =
+        selectedStatusFilter === "ALL" || i.status === selectedStatusFilter;
 
-    const matchesUrgent = !onlyUrgent || (i.priority === "URGENT" || i.priority === "HIGH");
+      const matchesAssignee = !onlyMyIssues || (currentUserId && i.assignee?.id === currentUserId);
 
-    return matchesSearch && matchesPriority && matchesStatus && matchesAssignee && matchesUrgent;
-  });
+      const matchesUrgent = !onlyUrgent || (i.priority === "URGENT" || i.priority === "HIGH");
+
+      return matchesSearch && matchesPriority && matchesStatus && matchesAssignee && matchesUrgent;
+    });
+  }, [issues, search, selectedPriority, selectedStatusFilter, onlyMyIssues, onlyUrgent, currentUserId]);
 
   const handleDropIssue = async (issueId: string, targetStatusKey: string) => {
     // Optimistic UI update
