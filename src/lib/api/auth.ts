@@ -19,6 +19,14 @@ export type ApiTokenPayload = {
   name?: string | null;
 };
 
+function getJwtSecret() {
+  const secret = process.env.NEXTAUTH_SECRET;
+  if (!secret) {
+    throw new Error("NEXTAUTH_SECRET is not configured");
+  }
+  return secret;
+}
+
 /**
  * Signs a JWT token with 30-day expiration for mobile/API clients.
  */
@@ -29,7 +37,7 @@ export function signApiToken(payload: ApiTokenPayload): string {
       email: payload.email,
       name: payload.name ?? undefined,
     },
-    JWT_SECRET,
+    getJwtSecret(),
     { expiresIn: "30d" }
   );
 }
@@ -48,7 +56,7 @@ export async function getApiUser(req: Request) {
   if (authHeader?.startsWith("Bearer ")) {
     const token = authHeader.substring(7).trim();
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as {
+      const decoded = jwt.verify(token, getJwtSecret()) as {
         id?: string;
         sub?: string;
         email?: string;
@@ -67,7 +75,7 @@ export async function getApiUser(req: Request) {
     try {
       const nextAuthToken = await getToken({
         req: req as any,
-        secret: JWT_SECRET,
+        secret: process.env.NEXTAUTH_SECRET || "", // getToken gracefully handles missing secret if cookie name matches
       });
 
       if (nextAuthToken) {
