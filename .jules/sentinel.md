@@ -12,3 +12,8 @@
 **Vulnerability:** Timing Attack (Length leak in timingSafeEqual)
 **Learning:** Using `crypto.timingSafeEqual` with buffers of different lengths throws an error immediately, causing an early return. This short-circuits the comparison, allowing attackers to perform a timing attack to determine the expected length of the secret.
 **Prevention:** Always compare lengths first. If the lengths do not match, perform a dummy `crypto.timingSafeEqual` using the expected buffer against itself to maintain constant time execution before returning false.
+
+## 2024-03-24 - [Enforce Explicit JWT Secret]
+**Vulnerability:** The application used a hardcoded fallback "default-secret" for JWT signing and verification (`NEXTAUTH_SECRET`) when the environment variable was missing. This is a critical security risk as it allows anyone to sign and forge valid JWT tokens if the environment variable is accidentally omitted or misconfigured in production.
+**Learning:** Never rely on default hardcoded secrets for cryptographic functions or token generation. It provides a false sense of security and leads to catastrophic vulnerabilities if deployed to production without proper configuration.
+**Prevention:** Fail securely by throwing an error during initialization or execution if required cryptographic secrets are missing from the environment. This ensures the application cannot run in an insecure state.
