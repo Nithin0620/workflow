@@ -13,14 +13,12 @@ import {
   ShieldCheck,
   Command,
   ArrowRight,
-  CheckCircle2,
-  Users,
-  Sparkles,
   BarChart3,
-  Layers,
-  ChevronRight,
-  Laptop,
   FolderKanban,
+  MessageSquare,
+  PenTool,
+  Clock,
+  Smartphone,
 } from "lucide-react";
 
 export default async function LandingPage() {
@@ -192,7 +190,7 @@ export default async function LandingPage() {
                 <BarChart3 className="h-5 w-5" />
               </div>
               <h3 className="text-base font-bold text-black">
-                Velocity & Analytics
+                Project Analytics
               </h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
                 Live metrics on sprint throughput, completion rates, bottleneck
@@ -212,6 +210,58 @@ export default async function LandingPage() {
                 accents, and dedicated lead assignments.
               </p>
             </div>
+
+            <div className="rounded-2xl border border-neutral-200 bg-white p-6 space-y-3 hover:border-black transition hover:shadow-md">
+              <div className="h-10 w-10 rounded-xl bg-black text-white flex items-center justify-center">
+                <MessageSquare className="h-5 w-5" />
+              </div>
+              <h3 className="text-base font-bold text-black">
+                Real-time Discussions
+              </h3>
+              <p className="text-xs text-neutral-600 leading-relaxed">
+                Collaborate with context using channels, threaded replies,
+                markdown support, and direct @mentions.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-neutral-200 bg-white p-6 space-y-3 hover:border-black transition hover:shadow-md">
+              <div className="h-10 w-10 rounded-xl bg-black text-white flex items-center justify-center">
+                <Clock className="h-5 w-5" />
+              </div>
+              <h3 className="text-base font-bold text-black">
+                Scheduled Cron Jobs
+              </h3>
+              <p className="text-xs text-neutral-600 leading-relaxed">
+                Automate background tasks, trigger workflows, and run custom
+                scripts with built-in cron scheduling.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-neutral-200 bg-white p-6 space-y-3 hover:border-black transition hover:shadow-md">
+              <div className="h-10 w-10 rounded-xl bg-black text-white flex items-center justify-center">
+                <PenTool className="h-5 w-5" />
+              </div>
+              <h3 className="text-base font-bold text-black">
+                Infinite Whiteboards
+              </h3>
+              <p className="text-xs text-neutral-600 leading-relaxed">
+                Brainstorm architectures and map out logic flows with freeform
+                drawing and interactive sticky notes.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-neutral-200 bg-white p-6 space-y-3 hover:border-black transition hover:shadow-md">
+              <div className="h-10 w-10 rounded-xl bg-black text-white flex items-center justify-center">
+                <Smartphone className="h-5 w-5" />
+              </div>
+              <h3 className="text-base font-bold text-black">
+                Mobile Functionality
+              </h3>
+              <p className="text-xs text-neutral-600 leading-relaxed">
+                Stay productive on the go with a fully responsive interface
+                tailored for mobile and tablet devices.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -219,11 +269,9 @@ export default async function LandingPage() {
       {/* 5b. PLANNED JOURNEYS SHOWCASE */}
       <PlannedJourneysShowcase />
 
-
       {/* 6. PAID SERVICES & ENTERPRISE ENQUIRY BANNER */}
       <section className="relative overflow-hidden bg-black text-white px-6 py-20 border-t border-neutral-900">
         <div className="relative mx-auto max-w-5xl rounded-3xl border border-neutral-800 bg-neutral-950/80 backdrop-blur-sm p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden">
-
           <div className="space-y-4 max-w-xl text-left">
             <div className="inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900 px-3 py-1 text-xs font-mono text-neutral-300">
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -277,7 +325,6 @@ export default async function LandingPage() {
           </div>
         </div>
       </section>
-
 
       <AnimatedFooter />
     </div>
