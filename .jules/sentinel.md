@@ -16,3 +16,8 @@
 **Vulnerability:** The application was configured to fallback to a hardcoded string ("default-secret") for signing and verifying JSON Web Tokens (JWT) if the `NEXTAUTH_SECRET` environment variable was missing. This permitted an attacker to trivially forge access tokens for arbitrary users and fully compromise the application by bypassing authentication.
 **Learning:** Hardcoding a generic fallback for a cryptographic secret is a severe vulnerability. If an environment variable for a key secret is omitted by mistake, the application should fail securely rather than proceed with a guessable secret.
 **Prevention:** Remove the static fallback and enforce configuration validation. If `NEXTAUTH_SECRET` is unset, the application must immediately throw an Error to safely halt execution rather than use an insecure default.
+
+## 2024-03-24 - [Enforce Explicit JWT Secret]
+**Vulnerability:** The application used a hardcoded fallback "default-secret" for JWT signing and verification (`NEXTAUTH_SECRET`) when the environment variable was missing. This is a critical security risk as it allows anyone to sign and forge valid JWT tokens if the environment variable is accidentally omitted or misconfigured in production.
+**Learning:** Never rely on default hardcoded secrets for cryptographic functions or token generation. It provides a false sense of security and leads to catastrophic vulnerabilities if deployed to production without proper configuration.
+**Prevention:** Fail securely by throwing an error during initialization or execution if required cryptographic secrets are missing from the environment. This ensures the application cannot run in an insecure state.
