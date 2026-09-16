@@ -13,3 +13,6 @@
 ## 2024-05-14 - Parallelizing External Service Calls (AI Scans)
 **Learning:** Iterating over items and calling external services (like LLM generations or external API bug scans) sequentially inside a `for...of` loop causes latency to grow linearly, $O(N)$, resulting in massive perceived bottlenecks.
 **Action:** For independent processing of items involving external network boundaries, aggregate the requests and execute them concurrently via `await Promise.all(...)`.
+## 2024-03-24 - [AI Triage Performance Optimization]
+**Learning:** Sequential network calls inside `for...of` loops when building AI context (like fetching file contents from GitHub) can quickly become a significant bottleneck as the number of relevant files increases. This causes external API latency to scale as O(N).
+**Action:** Always check loop structures where network or external API calls are made. Prefer `Promise.all` mapping to concurrently resolve independent asynchronous dependencies whenever possible to keep latency bound to `O(max(latency))`.
