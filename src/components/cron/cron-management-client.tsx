@@ -27,6 +27,7 @@ import {
 } from "@/actions/cron-jobs";
 import { CreateCronJobDialog } from "./create-cron-job-dialog";
 import { useRouter } from "next/navigation";
+import { OnboardingTour, TourReplayButton } from "@/components/onboarding/onboarding-tour";
 
 interface CronManagementClientProps {
   workspaceId: string;
@@ -175,7 +176,7 @@ export function CronManagementClient({
   return (
     <div className="max-w-6xl mx-auto space-y-8 text-white pb-16">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-900 pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-900 pb-6" data-tour="cron-header">
         <div>
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
@@ -205,6 +206,7 @@ export function CronManagementClient({
 
           <button
             onClick={() => setCreateOpen(true)}
+            data-tour="create-cron-btn"
             className="flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
           >
             <Plus className="h-3.5 w-3.5" />
@@ -221,6 +223,8 @@ export function CronManagementClient({
               <span>{runningAll ? "Running Jobs..." : "Run All Jobs"}</span>
             </button>
           )}
+
+          <TourReplayButton tourId="cron" />
         </div>
       </div>
 
@@ -289,7 +293,7 @@ export function CronManagementClient({
       </div>
 
       {/* Cron Jobs */}
-      <div className="space-y-4">
+      <div className="space-y-4" data-tour="cron-jobs-list">
         <div className="flex items-center justify-between">
           <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-400 font-mono">
             CRON JOBS
@@ -409,7 +413,7 @@ export function CronManagementClient({
       </div>
 
       {/* Combined Run History */}
-      <div className="space-y-4">
+      <div className="space-y-4" data-tour="cron-history">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-400 font-mono">
@@ -473,7 +477,10 @@ export function CronManagementClient({
         ) : filteredLogs.length === 0 ? (
           <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-12 text-center text-neutral-400">
             <Clock className="h-8 w-8 mx-auto text-neutral-600" />
-            <p className="text-sm font-semibold text-white mt-2">No runs match these filters</p>
+            <p className="text-sm font-semibold text-white mt-2">No execution logs recorded yet.</p>
+            <p className="text-xs text-neutral-500 mt-1">
+              Runs will appear here automatically when triggered.
+            </p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -526,6 +533,8 @@ export function CronManagementClient({
           loadAll(true);
         }}
       />
+
+      <OnboardingTour tourId="cron" />
     </div>
   );
 }

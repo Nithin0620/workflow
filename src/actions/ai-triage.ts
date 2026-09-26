@@ -108,17 +108,28 @@ export async function triggerAiIssueTriage(
           issue.description
         );
 
+        // ⚡ Bolt: Parallelize fetching file contents
+        // 💡 What: Replaced sequential `for` loop with `Promise.all` for concurrent file fetching.
+        // 🎯 Why: Fetching multiple files from an external repository API sequentially causes total time to scale linearly with the number of files (O(N) network latency).
+        // 📊 Impact: Reduces total latency of retrieving codebase snippets from ~N * latency to ~1 * max(latency).
+        // 🔬 Measurement: Observe response time of `triggerAiIssueTriage` server action when processing AI scan with multiple files.
         const fileSnippets: Array<{ path: string; content: string }> = [];
-        for (const filePath of relevantPaths) {
-          const contentRes = await fetchRepositoryFileContent(
-            repo.repoOwner,
-            repo.repoName,
-            filePath,
-            repo.defaultBranch,
-            repo.accessToken
-          );
-          if (contentRes.success && contentRes.content) {
-            fileSnippets.push({ path: filePath, content: contentRes.content });
+        const contentResults = await Promise.all(
+          relevantPaths.map(async (filePath) => {
+            const res = await fetchRepositoryFileContent(
+              repo.repoOwner,
+              repo.repoName,
+              filePath,
+              repo.defaultBranch,
+              repo.accessToken
+            );
+            return { filePath, res };
+          })
+        );
+
+        for (const { filePath, res } of contentResults) {
+          if (res.success && res.content) {
+            fileSnippets.push({ path: filePath, content: res.content });
           }
         }
 

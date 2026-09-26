@@ -13,6 +13,7 @@ import {
   Share2,
 } from "lucide-react";
 import { WhiteboardListClient } from "@/components/whiteboard/whiteboard-list-client";
+import { OnboardingTour, TourReplayButton } from "@/components/onboarding/onboarding-tour";
 
 interface WhiteboardsPageProps {
   params: Promise<{
@@ -47,7 +48,7 @@ export default async function WhiteboardsPage({ params }: WhiteboardsPageProps) 
   return (
     <div className="flex h-screen flex-1 flex-col bg-black text-white overflow-y-auto">
       {/* Page Header */}
-      <header className="border-b border-neutral-900 px-8 py-6">
+      <header className="border-b border-neutral-900 px-8 py-6" data-tour="whiteboards-header">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 text-sm text-neutral-400 mb-1">
@@ -64,17 +65,20 @@ export default async function WhiteboardsPage({ params }: WhiteboardsPageProps) 
             </p>
           </div>
 
-          <WhiteboardListClient
-            workspaceId={workspace.id}
-            orgSlug={orgSlug}
-            workspaceSlug={workspaceSlug}
-            projects={workspace.projects}
-          />
+          <div className="flex items-center gap-2">
+            <WhiteboardListClient
+              workspaceId={workspace.id}
+              orgSlug={orgSlug}
+              workspaceSlug={workspaceSlug}
+              projects={workspace.projects}
+            />
+            <TourReplayButton tourId="whiteboards" />
+          </div>
         </div>
       </header>
 
       {/* Whiteboards Grid */}
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-8" data-tour="whiteboards-grid">
         {whiteboards.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-neutral-800 bg-neutral-950/50 p-12 text-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600/10 text-blue-500 border border-blue-500/20 mb-4">
@@ -139,6 +143,8 @@ export default async function WhiteboardsPage({ params }: WhiteboardsPageProps) 
           </div>
         )}
       </main>
+
+      <OnboardingTour tourId="whiteboards" />
     </div>
   );
 }

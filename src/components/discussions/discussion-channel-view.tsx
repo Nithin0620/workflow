@@ -21,6 +21,7 @@ import {
   Info,
 } from "lucide-react";
 import Link from "next/link";
+import { OnboardingTour, TourReplayButton } from "@/components/onboarding/onboarding-tour";
 
 interface DiscussionChannelViewProps {
   channel: {
@@ -249,7 +250,7 @@ export function DiscussionChannelView({
       {/* Main Channel Column */}
       <div className="flex flex-1 flex-col h-full overflow-hidden">
         {/* Channel Header */}
-        <div className="flex h-14 shrink-0 items-center justify-between border-b border-neutral-900 px-6 bg-black">
+        <div className="flex h-14 shrink-0 items-center justify-between border-b border-neutral-900 px-6 bg-black" data-tour="disc-header">
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-300">
               {isAnnouncement ? (
@@ -286,24 +287,28 @@ export function DiscussionChannelView({
               <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>Live Sync</span>
             </div>
+            <TourReplayButton tourId="discussions" />
           </div>
         </div>
 
         {/* Message Stream */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+        <div className="flex-1 overflow-y-auto p-4 flex flex-col" data-tour="disc-feed">
+          {/* Spacer to push content to bottom if few messages */}
+          <div className="flex-1 min-h-0 shrink-0"></div>
+          <div className="flex flex-col justify-end space-y-2 mt-auto">
           {/* Welcome Banner at start of stream */}
-          <div className="mb-6 rounded-2xl border border-neutral-900 bg-neutral-950/60 p-6 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-neutral-900 border border-neutral-800 text-white shadow-inner mb-3">
+          <div className="mb-6 px-2 pt-10 shrink-0">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-neutral-900 border border-neutral-800 text-white shadow-inner mb-4">
               {isAnnouncement ? (
-                <Megaphone className="h-6 w-6 text-amber-400" />
+                <Megaphone className="h-8 w-8 text-amber-400" />
               ) : (
-                <Hash className="h-6 w-6" />
+                <Hash className="h-8 w-8 text-neutral-300" />
               )}
             </div>
-            <h2 className="text-base font-bold text-white">
+            <h2 className="text-3xl font-bold text-white mb-2">
               Welcome to #{channel.name}!
             </h2>
-            <p className="mt-1 text-xs text-neutral-400 max-w-md mx-auto">
+            <p className="text-neutral-400 max-w-2xl">
               {channel.topic ||
                 (channel.project
                   ? `This is the dedicated discussion channel for ${channel.project.name}. Turn any thread into an issue anytime.`
@@ -323,10 +328,11 @@ export function DiscussionChannelView({
             />
           ))}
           <div ref={messagesEndRef} />
+          </div>
         </div>
 
         {/* Channel Composer */}
-        <div className="p-4 border-t border-neutral-900 bg-black relative">
+        <div className="p-4 border-t border-neutral-900 bg-black relative" data-tour="disc-composer">
           {typingUser && (
             <div className="absolute -top-6 left-6 flex items-center gap-1.5 text-[11px] text-neutral-400 font-mono animate-in fade-in duration-200">
               <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping" />
@@ -342,6 +348,8 @@ export function DiscussionChannelView({
           />
         </div>
       </div>
+
+      <OnboardingTour tourId="discussions" />
 
       {/* Slide-out Thread Drawer */}
       {activeThreadId && (

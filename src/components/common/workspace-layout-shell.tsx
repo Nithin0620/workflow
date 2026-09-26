@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Sidebar } from "./sidebar";
 import { Header } from "./header";
+import { BackgroundVideo } from "./background-video";
 
 interface WorkspaceLayoutShellProps {
   children: React.ReactNode;
@@ -98,15 +99,18 @@ export function WorkspaceLayoutShell({
           workspaceSlug={workspaceSlug}
           workspaceId={workspaceId}
         />
-        <main
-          className={
-            isFullBleed
-              ? "flex-1 overflow-hidden bg-black text-white"
-              : "flex-1 overflow-y-auto p-6 bg-black text-white"
-          }
-          data-lenis-prevent
-        >
-          {children}
+        <main className="relative flex-1 overflow-hidden bg-black text-white">
+          <BackgroundVideo src="/tech-bg-2.mp4" overlayClassName="bg-black/60" />
+          <div
+            className={
+              isFullBleed
+                ? "relative z-10 h-full overflow-hidden"
+                : "relative z-10 h-full overflow-y-auto p-6"
+            }
+            data-lenis-prevent
+          >
+            {children}
+          </div>
         </main>
       </div>
     </div>

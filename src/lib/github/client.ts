@@ -228,3 +228,54 @@ export async function fetchRepositoryFileContent(
     return { success: false, error: err.message };
   }
 }
+
+/**
+ * Extracts unique issue keys (e.g., "PROJ-123", "WORK-42") from commit messages, branch names, or PR titles/bodies.
+ */
+export function extractIssueKeys(text: string, projectKey?: string): { projectKey: string; issueNumber: number; fullKey: string }[] {
+  if (!text || typeof text !== "string") return [];
+
+  // Match pattern like [A-Z]{2,10}-\d+ (e.g. PROJ-102, WORK-4, ENG-999)
+  const regex = /\b([A-Z]{2,10})-(\d+)\b/gi;
+  const matches = Array.from(text.matchAll(regex));
+  
+  const results: { projectKey: string; issueNumber: number; fullKey: string }[] = [];
+  const seen = new Set<string>();
+
+  for (const match of matches) {
+    const rawProjectKey = match[1].toUpperCase();
+    const issueNum = parseInt(match[2], 10);
+    const fullKey = `${rawProjectKey}-${issueNum}`;
+
+    if (projectKey && rawProjectKey !== projectKey.toUpperCase()) {
+      continue;
+    }
+
+    if (!seen.has(fullKey) && !isNaN(issueNum) && issueNum > 0) {
+      seen.add(fullKey);
+      results.push({
+        projectKey: rawProjectKey,
+        issueNumber: issueNum,
+        fullKey,
+      });
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Helper to generate suggested Git branch name for an issue
+ */
+export function generateSuggestedBranchName(projectKey: string, issueNumber: number, title: string): string {
+  const cleanTitle = title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .slice(0, 40)
+    .replace(/-+$/, "");
+  
+  return `feat/${projectKey.toUpperCase()}-${issueNumber}-${cleanTitle || "task"}`;
+}
+

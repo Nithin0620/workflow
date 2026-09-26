@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { IssueStatus, IssuePriority } from "@prisma/client";
 import { KanbanColumn } from "./kanban-column";
 import { IssueListView } from "./issue-list-view";
@@ -20,11 +21,13 @@ import { reorderBoardColumns } from "@/actions/columns";
 import { exportProjectIssues } from "@/actions/export";
 import { useProjectRealtime } from "@/hooks/use-project-realtime";
 import { TourReplayButton } from "@/components/onboarding/onboarding-tour";
+import { CodebaseGraphView } from "@/components/code-graph/codebase-graph-view";
 import {
   Plus,
   Search,
   Kanban,
   List,
+  Network,
   Shield,
   LayoutGrid,
   Download,
@@ -55,6 +58,14 @@ export interface IssueItem {
   priority: IssuePriority;
   estimate?: number | null;
   assignee?: { id: string; name?: string | null; image?: string | null } | null;
+  gitLinks?: Array<{
+    id: string;
+    type: "BRANCH" | "COMMIT" | "PULL_REQUEST";
+    status: "OPEN" | "MERGED" | "CLOSED";
+    refNumber?: number | null;
+    title: string;
+    url: string;
+  }>;
   _count?: { comments: number; attachments: number };
 }
 
@@ -85,6 +96,7 @@ export function KanbanBoard({
   banners = [],
   initialRepository = null,
 }: KanbanBoardProps) {
+  const searchInputRef = useRef<HTMLInputElement>(null);
   // Ensure default 6 columns fallback if initialColumns is empty
   const defaultCols: BoardColumnItem[] = ISSUE_STATUSES.map((s, idx) => ({
     id: `default_${s.id}`,
@@ -99,7 +111,7 @@ export function KanbanBoard({
   );
   const [draggedOverColumnId, setDraggedOverColumnId] = useState<string | null>(null);
   const [issues, setIssues] = useState<IssueItem[]>(initialIssues);
-  const [viewMode, setViewMode] = useState<"board" | "list">("board");
+  const [viewMode, setViewMode] = useState<"board" | "list" | "graph">("board");
   const [search, setSearch] = useState("");
   const [selectedPriority, setSelectedPriority] = useState<string>("ALL");
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("ALL");
@@ -231,23 +243,29 @@ export function KanbanBoard({
     },
   });
 
-  const filteredIssues = issues.filter((i) => {
-    const matchesSearch =
-      i.title.toLowerCase().includes(search.toLowerCase()) ||
-      `${i.projectKey}-${i.issueNumber}`.toLowerCase().includes(search.toLowerCase());
+  // ⚡ Bolt Optimization: Memoize filtered issues to avoid expensive re-calculations on every render
+  // This reduces unnecessary string operations and array iterations when typing in search or updating unrelated state.
+  const filteredIssues = useMemo(() => {
+    const lowerSearch = search.toLowerCase();
 
-    const matchesPriority =
-      selectedPriority === "ALL" || i.priority === selectedPriority;
+    return issues.filter((i) => {
+      const matchesSearch =
+        i.title.toLowerCase().includes(lowerSearch) ||
+        `${i.projectKey}-${i.issueNumber}`.toLowerCase().includes(lowerSearch);
 
-    const matchesStatus =
-      selectedStatusFilter === "ALL" || i.status === selectedStatusFilter;
+      const matchesPriority =
+        selectedPriority === "ALL" || i.priority === selectedPriority;
 
-    const matchesAssignee = !onlyMyIssues || (currentUserId && i.assignee?.id === currentUserId);
+      const matchesStatus =
+        selectedStatusFilter === "ALL" || i.status === selectedStatusFilter;
 
-    const matchesUrgent = !onlyUrgent || (i.priority === "URGENT" || i.priority === "HIGH");
+      const matchesAssignee = !onlyMyIssues || (currentUserId && i.assignee?.id === currentUserId);
 
-    return matchesSearch && matchesPriority && matchesStatus && matchesAssignee && matchesUrgent;
-  });
+      const matchesUrgent = !onlyUrgent || (i.priority === "URGENT" || i.priority === "HIGH");
+
+      return matchesSearch && matchesPriority && matchesStatus && matchesAssignee && matchesUrgent;
+    });
+  }, [issues, search, selectedPriority, selectedStatusFilter, onlyMyIssues, onlyUrgent, currentUserId]);
 
   const handleDropIssue = async (issueId: string, targetStatusKey: string) => {
     // Optimistic UI update
@@ -425,12 +443,30 @@ export function KanbanBoard({
           <div className="relative" data-tour="board-search">
             <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-neutral-500" />
             <input
+              ref={searchInputRef}
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search issues..."
-              className="w-full sm:w-32 sm:w-44 rounded-xl border border-neutral-800 bg-neutral-950 py-1.5 pl-8 pr-3 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+              className="w-full sm:w-32 sm:w-44 rounded-xl border border-neutral-800 bg-neutral-950 py-1.5 pl-8 pr-8 text-xs text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
             />
+            <AnimatePresence>
+              {search.length > 0 && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.15 }}
+                  onClick={() => {
+                    setSearch("");
+                    searchInputRef.current?.focus();
+                  }}
+                  className="absolute right-2.5 top-2.5 text-neutral-500 hover:text-white cursor-pointer"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </motion.button>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Quick Filter Pills */}
@@ -508,10 +544,11 @@ export function KanbanBoard({
             </button>
           )}
 
-{/* Sprint Planning */}
+          {/* Sprint Planning */}
           <button
             onClick={() => setSprintsDialogOpen(true)}
             title="Plan sprints & manage the backlog"
+            data-tour="board-sprints"
             className="cursor-pointer flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs font-semibold text-neutral-300 hover:border-neutral-700 hover:text-white transition"
           >
             <Flag className="h-3.5 w-3.5 text-neutral-400" />
@@ -583,14 +620,26 @@ export function KanbanBoard({
               <List className="h-3.5 w-3.5" />
               <span>List</span>
             </button>
+            <button
+              onClick={() => setViewMode("graph")}
+              title="Interactive Codebase Knowledge Graph"
+              className={`cursor-pointer flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
+                viewMode === "graph"
+                  ? "bg-white text-black shadow-sm"
+                  : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              <Network className="h-3.5 w-3.5" />
+              <span>Graph</span>
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-      {/* Main Content Area: Board or List */}
+      {/* Main Content Area: Board, List, or Codebase Graph */}
       {viewMode === "board" ? (
-        <div className="flex flex-1 gap-4 overflow-x-auto pb-4 items-start" data-tour="board-columns">
+        <div className="flex flex-1 gap-4 overflow-x-auto pb-4 items-start scrollbar-thin scrollbar-thumb-neutral-800 hover:scrollbar-thumb-neutral-700 scrollbar-track-transparent" data-tour="board-columns">
           {columns.map((col) => (
             <KanbanColumn
               key={col.id}
@@ -629,13 +678,17 @@ export function KanbanBoard({
             </button>
           )}
         </div>
-      ) : (
+      ) : viewMode === "list" ? (
         <div className="flex-1 pb-4">
           <IssueListView
             issues={filteredIssues}
             onSelectIssue={(issue) => setSelectedIssueId(issue.id)}
             onStatusChange={(id, status) => handleDropIssue(id, status)}
           />
+        </div>
+      ) : (
+        <div className="flex-1 pb-4">
+          <CodebaseGraphView projectId={projectId} projectKey={projectKey} />
         </div>
       )}
 

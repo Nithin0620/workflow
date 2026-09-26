@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { searchWorkspace, SearchResultItem } from "@/actions/search";
 import { nlSearch } from "@/actions/nl-search";
@@ -32,6 +33,7 @@ export function CommandPalette({
   workspaceSlug,
   workspaceId = "",
 }: CommandPaletteProps) {
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResultItem[]>([]);
@@ -203,13 +205,31 @@ export function CommandPalette({
         <div className="flex items-center gap-3 border-b border-neutral-900 px-4 py-3.5 bg-black">
           <Search className="h-4 w-4 text-neutral-400 shrink-0" />
           <input
+            ref={searchInputRef}
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDownInput}
             placeholder="Type a command, project, or issue key..."
-            className="w-full bg-transparent text-sm text-white placeholder:text-neutral-500 focus:outline-none"
+            className="w-full bg-transparent text-sm text-white placeholder:text-neutral-500 focus:outline-none pr-8"
           />
+          <AnimatePresence>
+            {query.length > 0 && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.15 }}
+                onClick={() => {
+                  setQuery("");
+                  searchInputRef.current?.focus();
+                }}
+                className="text-neutral-500 hover:text-white shrink-0 -ml-8 mr-2 cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </motion.button>
+            )}
+          </AnimatePresence>
           {/* AI processing indicator */}
           {isNLPending && (
             <div className="flex items-center gap-1 shrink-0">

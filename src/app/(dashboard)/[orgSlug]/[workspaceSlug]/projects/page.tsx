@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { FolderKanban, ArrowUpRight, Plus } from "lucide-react";
 import { BannerStrip } from "@/components/banners/banner-strip";
+import { OnboardingTour, TourReplayButton } from "@/components/onboarding/onboarding-tour";
 
 interface ProjectsPageProps {
   params: Promise<{ orgSlug: string; workspaceSlug: string }>;
@@ -39,7 +40,7 @@ export default async function ProjectsPage({ params }: ProjectsPageProps) {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 text-white">
-      <div className="flex items-center justify-between border-b border-neutral-900 pb-4">
+      <div className="flex items-center justify-between border-b border-neutral-900 pb-4" data-tour="projects-header">
         <div>
           <h1 className="text-xl font-bold tracking-tight text-white">
             Projects
@@ -48,9 +49,10 @@ export default async function ProjectsPage({ params }: ProjectsPageProps) {
             Manage codebases, roadmaps, and teams in {workspace.name}
           </p>
         </div>
+        <TourReplayButton tourId="projects" />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" data-tour="projects-grid">
         {workspace.projects.map((p) => (
           <Link
             key={p.id}
@@ -90,6 +92,8 @@ export default async function ProjectsPage({ params }: ProjectsPageProps) {
           </Link>
         ))}
       </div>
+
+      <OnboardingTour tourId="projects" />
     </div>
   );
 }

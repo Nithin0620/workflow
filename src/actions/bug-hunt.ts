@@ -74,12 +74,17 @@ export async function runWorkspaceBugHunts(
     (p) => p.repository && p.repository.status === "ACTIVE" && p.repository.aiScanEnabled
   );
 
-  const results: BugHuntResult[] = [];
-  let totalIssuesCreated = 0;
+  // ⚡ Bolt: Parallelize bug hunts across projects
+  // 💡 What: Replaced sequential `for` loop with `Promise.all` for concurrent AI scan processing.
+  // 🎯 Why: AI scans involve significant external API / network latency. Running them sequentially caused O(N) waiting time.
+  // 📊 Impact: Reduces total workspace bug hunt duration from ~N * 10s to ~10s total, significantly improving responsiveness.
+  // 🔬 Measurement: Observe response time of `runWorkspaceBugHunts` server action.
+  const results = await Promise.all(
+    activeProjects.map((project) => runProjectBugHunt(project.id, "MANUAL", customApiKey))
+  );
 
-  for (const project of activeProjects) {
-    const res = await runProjectBugHunt(project.id, "MANUAL", customApiKey);
-    results.push(res);
+  let totalIssuesCreated = 0;
+  for (const res of results) {
     if (res.success) {
       totalIssuesCreated += res.issuesCreated;
     }

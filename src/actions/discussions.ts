@@ -1027,72 +1027,77 @@ export async function sendTypingIndicator(channelId: string) {
  * Fetches active discussion channels across all user workspaces for dashboard display
  */
 export async function getActiveDiscussionsOverview() {
-  const user = await requireAuth();
+  try {
+    const user = await requireAuth();
 
-  const userWorkspaceIds = user.workspaceMembers.map((wm) => wm.workspace.id);
+    const userWorkspaceIds = user.workspaceMembers?.map((wm) => wm.workspace.id) || [];
 
-  if (userWorkspaceIds.length === 0) {
+    if (userWorkspaceIds.length === 0) {
+      return { channels: [] };
+    }
+
+    const channels = await prisma.discussionChannel.findMany({
+      where: {
+        workspaceId: { in: userWorkspaceIds },
+      },
+      include: {
+        workspace: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            organization: { select: { slug: true } },
+          },
+        },
+        project: {
+          select: {
+            id: true,
+            name: true,
+            key: true,
+          },
+        },
+        _count: {
+          select: {
+            messages: true,
+          },
+        },
+        messages: {
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          include: {
+            author: { select: { id: true, name: true, image: true } },
+          },
+        },
+      },
+      orderBy: { updatedAt: "desc" },
+      take: 6,
+    });
+
+    return {
+      channels: channels.map((c) => ({
+        id: c.id,
+        name: c.name,
+        topic: c.topic,
+        type: c.type,
+        workspaceName: c.workspace.name,
+        workspaceSlug: c.workspace.slug,
+        orgSlug: c.workspace.organization.slug,
+        projectName: c.project?.name || null,
+        projectKey: c.project?.key || null,
+        messageCount: c._count.messages,
+        lastMessage: c.messages[0]
+          ? {
+              content: c.messages[0].content,
+              authorName: c.messages[0].author.name,
+              createdAt: c.messages[0].createdAt.toISOString(),
+            }
+          : null,
+      })),
+    };
+  } catch (err) {
+    console.error("Failed to fetch active discussions overview:", err);
     return { channels: [] };
   }
-
-  const channels = await prisma.discussionChannel.findMany({
-    where: {
-      workspaceId: { in: userWorkspaceIds },
-    },
-    include: {
-      workspace: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          organization: { select: { slug: true } },
-        },
-      },
-      project: {
-        select: {
-          id: true,
-          name: true,
-          key: true,
-        },
-      },
-      _count: {
-        select: {
-          messages: true,
-        },
-      },
-      messages: {
-        orderBy: { createdAt: "desc" },
-        take: 1,
-        include: {
-          author: { select: { id: true, name: true, image: true } },
-        },
-      },
-    },
-    orderBy: { updatedAt: "desc" },
-    take: 6,
-  });
-
-  return {
-    channels: channels.map((c) => ({
-      id: c.id,
-      name: c.name,
-      topic: c.topic,
-      type: c.type,
-      workspaceName: c.workspace.name,
-      workspaceSlug: c.workspace.slug,
-      orgSlug: c.workspace.organization.slug,
-      projectName: c.project?.name || null,
-      projectKey: c.project?.key || null,
-      messageCount: c._count.messages,
-      lastMessage: c.messages[0]
-        ? {
-            content: c.messages[0].content,
-            authorName: c.messages[0].author.name,
-            createdAt: c.messages[0].createdAt.toISOString(),
-          }
-        : null,
-    })),
-  };
 }
 
 /**

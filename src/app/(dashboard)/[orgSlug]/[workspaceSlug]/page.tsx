@@ -187,7 +187,7 @@ export default async function WorkspaceOverviewPage({ params }: WorkspacePagePro
       </div>
 
       {/* Discussions & Collaboration Row */}
-      <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-xl relative overflow-hidden">
+      <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-xl relative overflow-hidden" data-tour="ws-discussions">
         <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-white/[0.02] to-transparent pointer-events-none" />
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-start gap-4">

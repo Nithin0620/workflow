@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Bot,
   Sparkles,
@@ -35,18 +35,31 @@ export function WorkspaceAiScanner({
   const [items, setItems] = useState<WorkspaceRepoOverviewItem[]>([]);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  const loadData = async () => {
-    setLoading(true);
+  const fetchOverview = useCallback(async () => {
     const res = await getWorkspaceRepositoriesOverview(workspaceId);
-    if (res.success) {
-      setItems(res.overview);
-    }
-    setLoading(false);
-  };
+    return res;
+  }, [workspaceId]);
 
   useEffect(() => {
+    let mounted = true;
+
+    const loadData = async () => {
+      setLoading(true);
+      const res = await fetchOverview();
+      if (mounted) {
+        if (res.success) {
+          setItems(res.overview);
+        }
+        setLoading(false);
+      }
+    };
+
     loadData();
-  }, [workspaceId]);
+
+    return () => {
+      mounted = false;
+    };
+  }, [fetchOverview]);
 
   const handleRunAllScans = async () => {
     setRunningAll(true);
@@ -57,7 +70,10 @@ export function WorkspaceAiScanner({
 
     if (res.success) {
       setMessage({ type: "success", text: res.summary });
-      loadData();
+      const refreshedRes = await fetchOverview();
+      if (refreshedRes.success) {
+        setItems(refreshedRes.overview);
+      }
       router.refresh();
     } else {
       setMessage({ type: "error", text: "Failed to complete workspace bug hunts." });

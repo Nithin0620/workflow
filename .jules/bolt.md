@@ -1,3 +1,18 @@
 ## 2024-05-14 - Batching Prisma Issue Counts in Sprint Actions
 **Learning:** In Prisma, calling `model.count()` multiple times in sequence with different `where` clauses causes N+1 (or 1+1) synchronous queries. The standard user directive says: always look for optimization opportunities such as adding necessary indexes in the schema and using aggregations (e.g., groupBy) instead of multiple sequential counting queries.
 **Action:** Used `prisma.issue.groupBy` to get multiple counts with one roundtrip instead of doing consecutive `.count()` queries.
+
+## 2026-09-08 - Parallelizing DB Queries and Optimizing Select in Search
+**Learning:** Running multiple independent Prisma queries sequentially increases latency unnecessarily. Furthermore, returning entire nested relations when only specific fields are needed increases database payload size and memory usage.
+**Action:** Use `Promise.all()` to execute independent `findMany` queries concurrently, and use `select` to retrieve only the required fields from nested relations.
+
+## 2024-05-14 - Optimize Search Query Payloads
+**Learning:** Search query payload endpoints returning full database records implicitly fetched via `findMany` calls without explicitly defined projections (e.g. `select: { ... }`) significantly bloat memory usage and introduce unwanted network transfer latencies.
+**Action:** When querying for search suggestions or autocomplete results, always use a `select` statement that retrieves exactly the subset of properties required for rendering the UI items, instead of fetching the complete entity state (e.g., descriptions or metadata).
+
+## 2024-05-14 - Parallelizing External Service Calls (AI Scans)
+**Learning:** Iterating over items and calling external services (like LLM generations or external API bug scans) sequentially inside a `for...of` loop causes latency to grow linearly, $O(N)$, resulting in massive perceived bottlenecks.
+**Action:** For independent processing of items involving external network boundaries, aggregate the requests and execute them concurrently via `await Promise.all(...)`.
+## 2024-03-24 - [AI Triage Performance Optimization]
+**Learning:** Sequential network calls inside `for...of` loops when building AI context (like fetching file contents from GitHub) can quickly become a significant bottleneck as the number of relevant files increases. This causes external API latency to scale as O(N).
+**Action:** Always check loop structures where network or external API calls are made. Prefer `Promise.all` mapping to concurrently resolve independent asynchronous dependencies whenever possible to keep latency bound to `O(max(latency))`.

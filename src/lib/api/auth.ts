@@ -1,0 +1,150 @@
+import { NextResponse } from "next/server";
+import jwt from "jsonwebtoken";
+import { getToken } from "next-auth/jwt";
+import { prisma } from "@/lib/db/prisma";
+
+const JWT_SECRET = process.env.NEXTAUTH_SECRET || "default-secret";
+
+// Only enforce JWT_SECRET in production or if explicitly requested, to not break unit tests that don't load .env
+// Note: security requirement - DO NOT hardcode a fallback that is used for real hashing.
+// Skip the error if Next is running a build step (some environments don't provide runtime secrets during build)
+const isBuildStep = process.env.npm_lifecycle_event === "build" || process.env.NEXT_PHASE === "phase-production-build";
+if (!isBuildStep && process.env.NODE_ENV === "production" && (!process.env.NEXTAUTH_SECRET || process.env.NEXTAUTH_SECRET === "default-secret")) {
+  throw new Error("NEXTAUTH_SECRET must be explicitly configured in production environment.");
+}
+
+export type ApiTokenPayload = {
+  id: string;
+  email: string;
+  name?: string | null;
+};
+
+function getJwtSecret() {
+  const secret = process.env.NEXTAUTH_SECRET;
+  if (!secret) {
+    throw new Error("NEXTAUTH_SECRET is not configured");
+  }
+  return secret;
+}
+
+/**
+ * Signs a JWT token with 30-day expiration for mobile/API clients.
+ */
+export function signApiToken(payload: ApiTokenPayload): string {
+  return jwt.sign(
+    {
+      id: payload.id,
+      email: payload.email,
+      name: payload.name ?? undefined,
+    },
+    getJwtSecret(),
+    { expiresIn: "30d" }
+  );
+}
+
+/**
+ * Extracts authentication from either `Authorization: Bearer <token>` (JWT)
+ * OR NextAuth session cookies (via next-auth/jwt getToken).
+ * Looks up the user in `prisma.user` with `workspaceMembers: { include: { workspace: true } }`.
+ */
+export async function getApiUser(req: Request) {
+  let userId: string | null = null;
+  let userEmail: string | null = null;
+
+  // 1. Check Authorization header: Bearer <token>
+  const authHeader = req.headers.get("authorization") || req.headers.get("Authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.substring(7).trim();
+    try {
+      const decoded = jwt.verify(token, getJwtSecret()) as {
+        id?: string;
+        sub?: string;
+        email?: string;
+      };
+      if (decoded.id) userId = decoded.id;
+      else if (decoded.sub) userId = decoded.sub;
+      if (decoded.email) userEmail = decoded.email;
+    } catch {
+      // Invalid / expired bearer token
+      return null;
+    }
+  }
+
+  // 2. If no valid bearer token found, attempt NextAuth session extraction from cookies
+  if (!userId && !userEmail) {
+    try {
+      const nextAuthToken = await getToken({
+        req: req as any,
+        secret: process.env.NEXTAUTH_SECRET || "", // getToken gracefully handles missing secret if cookie name matches
+      });
+
+      if (nextAuthToken) {
+        if (nextAuthToken.id) userId = nextAuthToken.id as string;
+        if (nextAuthToken.sub && !userId) userId = nextAuthToken.sub;
+        if (nextAuthToken.email) userEmail = nextAuthToken.email;
+      }
+    } catch {
+      // Ignore NextAuth cookie parsing errors
+    }
+  }
+
+  if (!userId && !userEmail) {
+    return null;
+  }
+
+  // Look up user in prisma
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [
+        ...(userId ? [{ id: userId }] : []),
+        ...(userEmail ? [{ email: userEmail.toLowerCase() }] : []),
+      ],
+    },
+    include: {
+      workspaceMembers: {
+        include: {
+          workspace: true,
+        },
+      },
+    },
+  });
+
+  return user;
+}
+
+/**
+ * Enforces API authentication. Returns user and workspaceMembers, or throws an error.
+ */
+export async function requireApiAuth(req: Request) {
+  const user = await getApiUser(req);
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+  return {
+    user,
+    workspaceMembers: user.workspaceMembers,
+  };
+}
+
+/**
+ * Standard API Response Helpers
+ */
+export function apiSuccess<T>(data: T, status = 200) {
+  return NextResponse.json(data, { status });
+}
+
+export function apiError(message: string, status = 400) {
+  return NextResponse.json({ error: message }, { status });
+}
+
+export function apiUnauthorized(message = "Unauthorized") {
+  return NextResponse.json({ error: message }, { status: 401 });
+}
+
+export function apiForbidden(message = "Forbidden") {
+  return NextResponse.json({ error: message }, { status: 403 });
+}
+
+export function apiNotFound(message = "Not found") {
+  return NextResponse.json({ error: message }, { status: 404 });
+}

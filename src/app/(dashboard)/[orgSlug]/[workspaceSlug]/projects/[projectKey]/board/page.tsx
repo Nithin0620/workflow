@@ -31,6 +31,9 @@ export default async function ProjectBoardPage({ params }: BoardPageProps) {
         issues: {
           include: {
             assignee: { select: { id: true, name: true, image: true, email: true } },
+            gitLinks: {
+              select: { id: true, type: true, status: true, refNumber: true, title: true, url: true },
+            },
             _count: { select: { comments: true, attachments: true } },
           },
           orderBy: { order: "asc" },

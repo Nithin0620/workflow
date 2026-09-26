@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import {
   motion,
 } from "framer-motion";
@@ -22,8 +22,11 @@ import {
   PenTool,
   MessagesSquare,
   Users,
+  Network,
+  ChevronRight,
   type LucideIcon,
 } from "lucide-react";
+import { MobileAppModal } from "./mobile-app-modal";
 
 type Journey = {
   icon: LucideIcon;
@@ -31,6 +34,8 @@ type Journey = {
   tag: string;
   desc: string;
   hue: number;
+  actionText?: string;
+  isModalTrigger?: boolean;
 };
 
 const categories: { name: string; blurb: string; items: Journey[] }[] = [
@@ -40,7 +45,6 @@ const categories: { name: string; blurb: string; items: Journey[] }[] = [
     items: [
       { icon: Sparkles, name: "AI Workspace Assistant", tag: "Ask · Summarize · Generate", desc: "Context-aware copilot that surfaces blockers and drafts tasks.", hue: 262 },
       { icon: ClipboardCheck, name: "Decision Log", tag: "Decisions · Context", desc: "Capture the why behind every big call.", hue: 315 },
-      { icon: BarChart3, name: "Analytics & Insights", tag: "Velocity · Cycle · Bottlenecks", desc: "See where time goes and where flow breaks.", hue: 330 },
       { icon: Clock, name: "Time Tracking", tag: "Work logs · Estimates", desc: "Activity-based logs with zero manual timing.", hue: 25 },
     ],
   },
@@ -48,7 +52,6 @@ const categories: { name: string; blurb: string; items: Journey[] }[] = [
     name: "Integrations & Automation",
     blurb: "Connect your tools and let the busywork run itself.",
     items: [
-      { icon: GitBranch, name: "Git Integrations", tag: "Commits · PRs · Branches", desc: "Link every push straight to issues and projects.", hue: 210 },
       { icon: Webhook, name: "Webhooks & API", tag: "Integrate · Extend", desc: "Wire Workflow into any external service.", hue: 280 },
       { icon: Workflow, name: "Workflow Automation", tag: "Triggers · Conditions · Actions", desc: "Automate the busywork across your whole workspace.", hue: 160 },
       { icon: Calendar, name: "Calendar & Scheduling", tag: "Deadlines · Meetings", desc: "Sync every milestone with your calendar.", hue: 130 },
@@ -69,7 +72,6 @@ const categories: { name: string; blurb: string; items: Journey[] }[] = [
       { icon: HardDrive, name: "Storage Services", tag: "Files · Assets · Backups", desc: "Versioned object storage with shared links.", hue: 10 },
       { icon: KeyRound, name: "Secret Services", tag: "Keys · Tokens · Vault", desc: "Encrypted credentials shared safely.", hue: 350 },
       { icon: Shield, name: "Audit & Security", tag: "Activity · Permissions", desc: "Full visibility into who touched what.", hue: 200 },
-      { icon: Smartphone, name: "Mobile Native App", tag: "iOS · Android", desc: "Your workspace in your pocket, everywhere.", hue: 95 },
     ],
   },
 ];
@@ -77,9 +79,22 @@ const categories: { name: string; blurb: string; items: Journey[] }[] = [
 const total = categories.reduce((n, c) => n + c.items.length, 0);
 
 const active: Journey[] = [
+  {
+    icon: Smartphone,
+    name: "Mobile Native App",
+    tag: "iOS · Android · Active",
+    desc: "Your full workspace in your pocket with real-time discussions, kanban boards, whiteboards & push alerts.",
+    hue: 142,
+    actionText: "Click to know more for now",
+    isModalTrigger: true,
+  },
   { icon: MessagesSquare, name: "Discussions", tag: "Channels · Threads · Live Sync", desc: "Real-time threads with connected servers, team members, and all workspaces.", hue: 28 },
   { icon: Users, name: "Workspace Collaboration", tag: "Boards · Live Cursors · Roles", desc: "Shared boards, live cursors, and roles for seamless team collaboration.", hue: 250 },
   { icon: PenTool, name: "Collaborative Whiteboards", tag: "Excalidraw · Multi-cursor · Diagrams", desc: "Infinite canvas for real-time architecture, flowcharts, and visual brainstorming.", hue: 170 },
+  { icon: Network, name: "Codebase Architecture Graph", tag: "Force 2D · AST Dependencies · Active", desc: "Interactive 2D force-directed architecture explorer with hierarchical directory zoom, AST import maps, and Kanban issue linking.", hue: 195 },
+  { icon: Clock, name: "Scheduled Automation & Cron", tag: "Cron · AI Scans · Run Logs", desc: "Automate recurring AI codebase audits, scheduled endpoint scans, and maintenance jobs.", hue: 45 },
+  { icon: GitBranch, name: "Git Integrations", tag: "Commits · PRs · Branches", desc: "Link every push straight to issues and projects.", hue: 210 },
+  { icon: BarChart3, name: "Analytics & Insights", tag: "Velocity · Cycle · Bottlenecks", desc: "See where time goes and where flow breaks.", hue: 330 },
 ];
 
 function GlowOrb({ hue, size, delay, style }: { hue: number; size: number; delay: number; style?: CSSProperties }) {
@@ -99,17 +114,30 @@ function GlowOrb({ hue, size, delay, style }: { hue: number; size: number; delay
   );
 }
 
-function JourneyCard({ j, i }: { j: Journey; i: number }) {
+function JourneyCard({ j, i, onClick }: { j: Journey; i: number; onClick?: () => void }) {
   const Icon = j.icon;
+  const isClickable = !!onClick || !!j.isModalTrigger;
+
   return (
     <motion.div
+      role={isClickable ? "button" : undefined}
+      tabIndex={isClickable ? 0 : undefined}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (isClickable && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.5, delay: (i % 4) * 0.08 }}
       animate={{ y: [0, -10, 0] }}
       whileHover={{ y: 0, scale: 1.04, transition: { duration: 0.3 } }}
-      className="group relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.02] p-5 overflow-hidden transition-colors duration-300 hover:border-transparent"
+      className={`group relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.02] p-5 overflow-hidden transition-colors duration-300 hover:border-transparent ${
+        isClickable ? "cursor-pointer select-none" : ""
+      }`}
       style={{ boxShadow: `0 0 0 1px hsl(${j.hue} 80% 60% / 0) inset` }}
     >
       {/* colored border glow on hover */}
@@ -145,8 +173,24 @@ function JourneyCard({ j, i }: { j: Journey; i: number }) {
         </span>
       </div>
 
-      <h3 className="relative mt-4 text-[15px] font-bold text-white">{j.name}</h3>
+      <h3 className="relative mt-4 text-[15px] font-bold text-white flex items-center justify-between">
+        <span>{j.name}</span>
+        {j.isModalTrigger && (
+          <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+        )}
+      </h3>
       <p className="relative mt-1.5 text-xs text-neutral-400 leading-relaxed">{j.desc}</p>
+
+      {/* Action Prompt Pill if specified */}
+      {j.actionText && (
+        <div className="relative mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-semibold text-emerald-400 group-hover:text-emerald-300 transition-colors">
+          <span className="flex items-center gap-1.5">
+            <Sparkles className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
+            <span>{j.actionText}</span>
+          </span>
+          <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+        </div>
+      )}
 
       {/* shimmer bar on hover */}
       <div
@@ -159,6 +203,8 @@ function JourneyCard({ j, i }: { j: Journey; i: number }) {
 }
 
 export function PlannedJourneys() {
+  const [isMobileModalOpen, setIsMobileModalOpen] = useState(false);
+
   return (
     <section id="planned-journeys" className="relative overflow-hidden bg-black text-white">
       <video
@@ -166,7 +212,7 @@ export function PlannedJourneys() {
         loop
         muted
         playsInline
-        className="absolute inset-0 h-full w-full object-cover opacity-40 pointer-events-none"
+        className="fixed inset-0 h-full w-full object-cover opacity-40 pointer-events-none"
       >
         <source src="/tech-bg.mp4" type="video/mp4" />
       </video>
@@ -225,9 +271,14 @@ export function PlannedJourneys() {
           <span className="text-[11px] font-mono text-neutral-500">Live in your workspace now</span>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {active.map((j, i) => (
-            <JourneyCard key={j.name} j={j} i={i} />
+            <JourneyCard
+              key={j.name}
+              j={j}
+              i={i}
+              onClick={j.isModalTrigger ? () => setIsMobileModalOpen(true) : undefined}
+            />
           ))}
         </div>
       </div>
@@ -248,7 +299,7 @@ export function PlannedJourneys() {
               <span className="text-[11px] font-mono text-neutral-500">{cat.blurb}</span>
             </motion.div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {cat.items.map((j, i) => (
                 <JourneyCard key={j.name} j={j} i={i} />
               ))}
@@ -256,6 +307,12 @@ export function PlannedJourneys() {
           </div>
         ))}
       </div>
+
+      {/* Demonstrative Modal for Mobile App */}
+      <MobileAppModal
+        isOpen={isMobileModalOpen}
+        onClose={() => setIsMobileModalOpen(false)}
+      />
     </section>
   );
 }

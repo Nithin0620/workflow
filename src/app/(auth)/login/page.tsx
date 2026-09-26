@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { BackgroundVideo } from "@/components/common/background-video";
 import { Mail, Lock, AlertCircle, Loader2, ArrowLeft, CheckCircle2 } from "lucide-react";
 
 function safeCallbackUrl(raw: string | null): string {
@@ -61,8 +62,12 @@ function LoginForm() {
   return (
     <div className="flex min-h-screen w-full flex-col lg:flex-row bg-white">
       {/* Left Column: Pure Black Branding & Showcase */}
-      <div className="flex flex-col justify-between bg-black p-8 sm:p-12 text-white border-b lg:border-b-0 lg:border-r border-neutral-800 lg:w-1/2">
-        <div className="flex items-center justify-between">
+      <div className="relative flex flex-col justify-between overflow-hidden bg-black p-8 sm:p-12 text-white border-b lg:border-b-0 lg:border-r border-neutral-800 lg:w-1/2">
+        <BackgroundVideo
+          src="/tech-bg-2.mp4"
+          overlayClassName="bg-gradient-to-t from-black/85 via-black/40 to-black/20"
+        />
+        <div className="relative z-10 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white text-black font-black text-xs">
               W
@@ -80,7 +85,7 @@ function LoginForm() {
           </Link>
         </div>
 
-        <div className="my-10 lg:my-auto space-y-6 max-w-md">
+        <div className="relative z-10 my-10 lg:my-auto space-y-6 max-w-md">
           <div className="inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-950 px-3 py-1 text-[11px] text-neutral-400 font-mono">
             <span>Engineering Workspace</span>
           </div>
@@ -105,7 +110,7 @@ function LoginForm() {
           </div>
         </div>
 
-        <div className="hidden lg:block text-xs text-neutral-500 font-mono">
+        <div className="relative z-10 hidden lg:block text-xs text-neutral-500 font-mono">
           © 2026 Workflow. Built with Next.js & PostgreSQL.
         </div>
       </div>
