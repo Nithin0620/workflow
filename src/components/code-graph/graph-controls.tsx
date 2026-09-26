@@ -3,7 +3,7 @@
 import React from "react";
 import { CodeLayer, GraphFilterState } from "@/types/code-graph";
 import { LAYER_COLORS } from "@/lib/github/graph-builder";
-import { Layers, Folder, AlertCircle, ZoomIn, ZoomOut, Maximize2, RotateCcw } from "lucide-react";
+import { Layers, Folder, AlertCircle, ZoomIn, ZoomOut, RotateCcw, FilterX } from "lucide-react";
 
 interface GraphControlsProps {
   filter: GraphFilterState;
@@ -60,11 +60,11 @@ export function GraphControls({
   };
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-800 bg-neutral-950/80 px-4 py-2.5 backdrop-blur-md">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-800/80 bg-neutral-950/90 px-4 py-2.5 backdrop-blur-md">
       {/* Layer Filter Pills */}
       <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto py-0.5">
-        <div className="flex items-center gap-1 text-xs font-semibold text-neutral-400 mr-1.5">
-          <Layers className="h-3.5 w-3.5 text-neutral-400" />
+        <div className="flex items-center gap-1 text-xs font-bold text-neutral-400 mr-1.5 shrink-0">
+          <Layers className="h-3.5 w-3.5 text-indigo-400" />
           <span>Layers:</span>
         </div>
 
@@ -72,15 +72,15 @@ export function GraphControls({
           const count = layerCounts[key] || 0;
           if (count === 0) return null;
           const isSelected = filter.selectedLayers.includes(key);
-          const color = LAYER_COLORS[key];
+          const color = LAYER_COLORS[key] || "#94a3b8";
 
           return (
             <button
               key={key}
               onClick={() => toggleLayer(key)}
-              className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-all ${
+              className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-all cursor-pointer ${
                 isSelected
-                  ? "bg-neutral-800 text-white shadow-sm ring-1 ring-neutral-700"
+                  ? "bg-neutral-800/90 text-white shadow-md ring-1 ring-neutral-700/80 hover:bg-neutral-700"
                   : "bg-neutral-900/60 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-300"
               }`}
             >
@@ -88,34 +88,37 @@ export function GraphControls({
                 className="h-2 w-2 rounded-full"
                 style={{
                   backgroundColor: color,
-                  boxShadow: isSelected ? `0 0 6px ${color}` : "none",
+                  boxShadow: isSelected ? `0 0 8px ${color}` : "none",
                 }}
               />
               <span>{label}</span>
-              <span className="rounded-full bg-neutral-800/80 px-1 text-[10px] text-neutral-400">
+              <span className="rounded-full bg-neutral-800/80 px-1.5 py-0.2 text-[10px] text-neutral-400 font-mono">
                 {count}
               </span>
             </button>
           );
         })}
 
-        <button
-          onClick={selectAllLayers}
-          className="ml-1 text-[11px] text-neutral-400 hover:text-neutral-200 underline underline-offset-2"
-        >
-          All
-        </button>
-        <button
-          onClick={clearAllLayers}
-          className="ml-1 text-[11px] text-neutral-500 hover:text-neutral-300 underline underline-offset-2"
-        >
-          None
-        </button>
+        <div className="flex items-center gap-1.5 ml-1 text-[11px] font-medium">
+          <button
+            onClick={selectAllLayers}
+            className="text-neutral-400 hover:text-neutral-200 transition-colors cursor-pointer"
+          >
+            All
+          </button>
+          <span className="text-neutral-700">•</span>
+          <button
+            onClick={clearAllLayers}
+            className="text-neutral-500 hover:text-neutral-300 transition-colors cursor-pointer"
+          >
+            None
+          </button>
+        </div>
       </div>
 
-      {/* View & Display Options */}
-      <div className="flex items-center gap-2">
-        {/* Toggle Directories */}
+      {/* Display Options & Zoom Controls */}
+      <div className="flex items-center gap-2 shrink-0">
+        {/* Directory Nodes Toggle */}
         <button
           onClick={() =>
             onFilterChange({
@@ -123,18 +126,18 @@ export function GraphControls({
               hideDirectories: !filter.hideDirectories,
             })
           }
-          className={`flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-all ${
+          className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold transition-all cursor-pointer ${
             filter.hideDirectories
-              ? "bg-neutral-800 text-neutral-300 border border-neutral-700"
-              : "bg-neutral-900 text-neutral-400 hover:text-neutral-200"
+              ? "bg-neutral-800 text-neutral-200 border border-neutral-700 shadow-sm"
+              : "bg-neutral-900 text-neutral-400 hover:bg-neutral-800 hover:text-white"
           }`}
           title="Toggle directory folder nodes"
         >
-          <Folder className="h-3.5 w-3.5" />
+          <Folder className="h-3.5 w-3.5 text-indigo-400" />
           <span>{filter.hideDirectories ? "Files Only" : "Show Folders"}</span>
         </button>
 
-        {/* Show Issues Only Toggle */}
+        {/* Linked Issues Toggle */}
         <button
           onClick={() =>
             onFilterChange({
@@ -142,39 +145,39 @@ export function GraphControls({
               showIssuesOnly: !filter.showIssuesOnly,
             })
           }
-          className={`flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-all ${
+          className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold transition-all cursor-pointer ${
             filter.showIssuesOnly
-              ? "bg-red-500/20 text-red-300 border border-red-500/40"
-              : "bg-neutral-900 text-neutral-400 hover:text-neutral-200"
+              ? "bg-red-500/20 text-red-300 border border-red-500/40 shadow-sm"
+              : "bg-neutral-900 text-neutral-400 hover:bg-neutral-800 hover:text-white"
           }`}
           title="Filter files linked to active Kanban issues"
         >
-          <AlertCircle className="h-3.5 w-3.5" />
+          <AlertCircle className="h-3.5 w-3.5 text-red-400" />
           <span>Issues Only</span>
         </button>
 
         <div className="h-4 w-[1px] bg-neutral-800" />
 
-        {/* Zoom & View Controls */}
-        <div className="flex items-center gap-1 bg-neutral-900 rounded-lg p-0.5 border border-neutral-800">
+        {/* Zoom & View Reset Toolbar */}
+        <div className="flex items-center gap-0.5 bg-neutral-900/90 rounded-lg p-0.5 border border-neutral-800/80 shadow-sm">
           <button
             onClick={onZoomIn}
             title="Zoom In"
-            className="rounded p-1 text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors"
+            className="rounded p-1 text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors cursor-pointer"
           >
             <ZoomIn className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={onZoomOut}
             title="Zoom Out"
-            className="rounded p-1 text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors"
+            className="rounded p-1 text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors cursor-pointer"
           >
             <ZoomOut className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={onResetView}
             title="Reset View & Recenter"
-            className="rounded p-1 text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors"
+            className="rounded p-1 text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors cursor-pointer"
           >
             <RotateCcw className="h-3.5 w-3.5" />
           </button>
