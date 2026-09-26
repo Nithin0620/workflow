@@ -21,11 +21,13 @@ import { reorderBoardColumns } from "@/actions/columns";
 import { exportProjectIssues } from "@/actions/export";
 import { useProjectRealtime } from "@/hooks/use-project-realtime";
 import { TourReplayButton } from "@/components/onboarding/onboarding-tour";
+import { CodebaseGraphView } from "@/components/code-graph/codebase-graph-view";
 import {
   Plus,
   Search,
   Kanban,
   List,
+  Network,
   Shield,
   LayoutGrid,
   Download,
@@ -109,7 +111,7 @@ export function KanbanBoard({
   );
   const [draggedOverColumnId, setDraggedOverColumnId] = useState<string | null>(null);
   const [issues, setIssues] = useState<IssueItem[]>(initialIssues);
-  const [viewMode, setViewMode] = useState<"board" | "list">("board");
+  const [viewMode, setViewMode] = useState<"board" | "list" | "graph">("board");
   const [search, setSearch] = useState("");
   const [selectedPriority, setSelectedPriority] = useState<string>("ALL");
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("ALL");
@@ -618,12 +620,24 @@ export function KanbanBoard({
               <List className="h-3.5 w-3.5" />
               <span>List</span>
             </button>
+            <button
+              onClick={() => setViewMode("graph")}
+              title="Interactive Codebase Knowledge Graph"
+              className={`cursor-pointer flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
+                viewMode === "graph"
+                  ? "bg-white text-black shadow-sm"
+                  : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              <Network className="h-3.5 w-3.5" />
+              <span>Graph</span>
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-      {/* Main Content Area: Board or List */}
+      {/* Main Content Area: Board, List, or Codebase Graph */}
       {viewMode === "board" ? (
         <div className="flex flex-1 gap-4 overflow-x-auto pb-4 items-start scrollbar-thin scrollbar-thumb-neutral-800 hover:scrollbar-thumb-neutral-700 scrollbar-track-transparent" data-tour="board-columns">
           {columns.map((col) => (
@@ -664,13 +678,17 @@ export function KanbanBoard({
             </button>
           )}
         </div>
-      ) : (
+      ) : viewMode === "list" ? (
         <div className="flex-1 pb-4">
           <IssueListView
             issues={filteredIssues}
             onSelectIssue={(issue) => setSelectedIssueId(issue.id)}
             onStatusChange={(id, status) => handleDropIssue(id, status)}
           />
+        </div>
+      ) : (
+        <div className="flex-1 pb-4">
+          <CodebaseGraphView projectId={projectId} projectKey={projectKey} />
         </div>
       )}
 

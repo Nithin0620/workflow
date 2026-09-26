@@ -23,6 +23,7 @@ import {
   ArrowRight,
   Sparkles,
   PenTool,
+  Network,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -101,6 +102,7 @@ export function Sidebar({
   const navLinks = [
     { label: "Overview", href: baseUrl, icon: LayoutDashboard },
     { label: "Projects", href: `${baseUrl}/projects`, icon: FolderKanban },
+    { label: "Code Graph", href: `${baseUrl}/graph`, icon: Network },
     { label: "Whiteboards", href: `${baseUrl}/whiteboards`, icon: PenTool },
     { label: "Analytics", href: `${baseUrl}/analytics`, icon: BarChart3 },
     { label: "Cron Jobs & AI", href: `${baseUrl}/cron`, icon: Clock },
