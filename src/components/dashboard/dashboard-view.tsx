@@ -35,6 +35,7 @@ import {
   Shield,
   ClipboardCheck,
   PenTool,
+  Network,
 } from "lucide-react";
 
 interface WorkspaceData {
@@ -536,6 +537,24 @@ export function DashboardView({
                   <h4 className="text-sm font-bold text-white">Collaborative Whiteboards</h4>
                   <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
                     Infinite canvas for real-time architecture, flowcharts, and visual brainstorming.
+                  </p>
+                </div>
+              </div>
+
+              {/* Active: Codebase Architecture Graph */}
+              <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-900 text-neutral-300">
+                    <Network className="h-4 w-4" />
+                  </div>
+                  <span className="rounded-md border border-emerald-900/40 bg-emerald-950/30 px-2 py-0.5 text-[10px] font-mono font-bold text-emerald-400">
+                    Active
+                  </span>
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">Codebase Architecture Graph</h4>
+                  <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
+                    Interactive 2D force-directed architecture explorer with AST dependency maps and Kanban issue linking.
                   </p>
                 </div>
               </div>
