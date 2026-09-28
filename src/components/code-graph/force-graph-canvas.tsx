@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect, useState, useCallback } from "react";
-import { CodeNode, CodebaseGraphData, GraphFilterState } from "@/types/code-graph";
+import { CodeNode, CodebaseGraphData, GraphFilterState, CodeLayer } from "@/types/code-graph";
 import { LAYER_COLORS } from "@/lib/github/graph-builder";
 
 interface ForceGraphCanvasProps {
@@ -33,6 +33,56 @@ interface SimLink {
   type: string;
 }
 
+/**
+ * Calculates adaptive, proportional dimensions for a graph node card
+ * based on node type, title length, connection degree, and item counts.
+ */
+function getNodeDimensions(node: CodeNode): { width: number; height: number; radius: number } {
+  const isDir = node.type === "directory";
+  const nameLen = node.name.length;
+  const totalDegree = (node.inDegree || 0) + (node.outDegree || 0);
+
+  // Dynamic width calculation with smooth clamps
+  const baseWidth = isDir ? 165 : 145;
+  const charWidthExtra = Math.min(Math.max(0, nameLen - 10) * 7.5, 75);
+  const degreeExtra = Math.min(totalDegree * 3, 30);
+  const width = Math.round(Math.min(Math.max(baseWidth + charWidthExtra + degreeExtra, 140), 250));
+
+  const height = isDir ? 54 : 48;
+  const radius = Math.round(Math.hypot(width / 2, height / 2));
+
+  return { width, height, radius };
+}
+
+/**
+ * Returns a sleek icon emoji for a given node layer or directory.
+ */
+function getNodeIcon(node: CodeNode): string {
+  if (node.type === "directory") return "📁";
+  switch (node.layer as CodeLayer) {
+    case "db":
+      return "🗄️";
+    case "api":
+      return "🌐";
+    case "actions":
+      return "⚡";
+    case "ui":
+      return "🎨";
+    case "hooks":
+      return "⚓";
+    case "types":
+      return "🏷️";
+    case "tests":
+      return "🧪";
+    case "config":
+      return "⚙️";
+    case "docs":
+      return "📚";
+    default:
+      return "📄";
+  }
+}
+
 export function ForceGraphCanvas({
   data,
   filter,
@@ -44,17 +94,21 @@ export function ForceGraphCanvas({
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Simulation and view state
+  // Simulation & View Transform State
   const nodesRef = useRef<SimNode[]>([]);
   const linksRef = useRef<SimLink[]>([]);
   const transformRef = useRef({ x: 0, y: 0, k: 1 });
   const isDraggingRef = useRef(false);
+  const isPanningRef = useRef(false);
   const dragTargetRef = useRef<SimNode | null>(null);
   const dragStartPosRef = useRef({ x: 0, y: 0 });
+  const mouseMovedDistRef = useRef(0);
   const hoveredNodeRef = useRef<SimNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const alphaRef = useRef(1);
   const pulseAnimRef = useRef(0);
+  const [cursorStyle, setCursorStyle] = useState<"grab" | "grabbing" | "pointer">("grab");
+
   const lastClickTimeRef = useRef<{ time: number; nodeId: string | null }>({
     time: 0,
     nodeId: null,
@@ -67,7 +121,7 @@ export function ForceGraphCanvas({
     node: SimNode | null;
   }>({ visible: false, x: 0, y: 0, node: null });
 
-  // Filter nodes & links based on filter state
+  // Filter nodes & links based on current filter state
   const getFilteredGraph = useCallback(() => {
     const activeLayers = new Set(filter.selectedLayers);
     const searchLower = filter.search.trim().toLowerCase();
@@ -96,7 +150,7 @@ export function ForceGraphCanvas({
     return { filteredNodes, filteredLinks, searchLower };
   }, [data, filter]);
 
-  // Initialize nodes & links simulation
+  // Initialize nodes & links with calculated dynamic dimensions
   useEffect(() => {
     const { filteredNodes, filteredLinks } = getFilteredGraph();
     const width = containerRef.current?.clientWidth || 800;
@@ -105,26 +159,26 @@ export function ForceGraphCanvas({
     const existingMap = new Map(nodesRef.current.map((n) => [n.id, n]));
     const count = filteredNodes.length || 1;
 
-    // Harmonious spacing ring
-    const radiusDist = Math.max(140, Math.min(width, height) * 0.28);
-
+    // Harmonious multi-ring initial layout distribution
     const simNodes: SimNode[] = filteredNodes.map((node, i) => {
       const existing = existingMap.get(node.id);
-      const angle = (i / count) * 2 * Math.PI - Math.PI / 2;
-      const isDir = node.type === "directory";
+      const dims = getNodeDimensions(node);
 
-      const cardWidth = isDir ? 160 : 140;
-      const cardHeight = isDir ? 52 : 44;
+      const ringIndex = Math.floor(i / 12);
+      const ringCount = Math.min(count - ringIndex * 12, 12);
+      const ringPos = i % 12;
+      const angle = (ringPos / ringCount) * 2 * Math.PI - Math.PI / 2;
+      const ringRadius = 140 + ringIndex * 160;
 
       return {
         ...node,
-        x: existing ? existing.x : width / 2 + Math.cos(angle) * radiusDist,
-        y: existing ? existing.y : height / 2 + Math.sin(angle) * radiusDist,
+        x: existing ? existing.x : width / 2 + Math.cos(angle) * ringRadius,
+        y: existing ? existing.y : height / 2 + Math.sin(angle) * ringRadius,
         vx: 0,
         vy: 0,
-        width: cardWidth,
-        height: cardHeight,
-        radius: Math.hypot(cardWidth / 2, cardHeight / 2),
+        width: dims.width,
+        height: dims.height,
+        radius: dims.radius,
       };
     });
 
@@ -150,7 +204,7 @@ export function ForceGraphCanvas({
     alphaRef.current = 1.0;
   }, [getFilteredGraph]);
 
-  // Zoom and View Controls
+  // Zoom & Pan Action Handlers
   const zoomIn = useCallback(() => {
     transformRef.current.k = Math.min(4, transformRef.current.k * 1.25);
   }, []);
@@ -170,7 +224,7 @@ export function ForceGraphCanvas({
     }
   }, [zoomActionRef, zoomIn, zoomOut, resetView]);
 
-  // Physics Simulation Step & Canvas Render Loop
+  // Main Render Loop & Physics Simulation
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -182,7 +236,7 @@ export function ForceGraphCanvas({
     const render = () => {
       if (!isRunning) return;
 
-      pulseAnimRef.current = (pulseAnimRef.current + 0.02) % 1;
+      pulseAnimRef.current = (pulseAnimRef.current + 0.015) % 1;
 
       const width = containerRef.current?.clientWidth || 800;
       const height = containerRef.current?.clientHeight || 600;
@@ -196,17 +250,17 @@ export function ForceGraphCanvas({
       ctx.save();
       ctx.scale(dpr, dpr);
 
-      // Background Gradient
+      // Deep Cyberpunk Space Gradient
       const bgGrad = ctx.createRadialGradient(
         width / 2,
         height / 2,
-        50,
+        60,
         width / 2,
         height / 2,
-        Math.max(width, height)
+        Math.max(width, height) * 0.85
       );
-      bgGrad.addColorStop(0, "#080c14");
-      bgGrad.addColorStop(0.6, "#030712");
+      bgGrad.addColorStop(0, "#080d1a");
+      bgGrad.addColorStop(0.5, "#030712");
       bgGrad.addColorStop(1, "#000000");
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, width, height);
@@ -218,9 +272,9 @@ export function ForceGraphCanvas({
       ctx.scale(scale, scale);
       ctx.translate(-width / 2, -height / 2);
 
-      // Subtle Background Grid Dots
-      const gridSize = 40;
-      ctx.fillStyle = "rgba(255, 255, 255, 0.04)";
+      // Subtle Glowing Architectural Grid Dots
+      const gridSize = 48;
+      ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
       const startX = Math.floor((-width - panX) / gridSize) * gridSize;
       const endX = Math.ceil((2 * width - panX) / gridSize) * gridSize;
       const startY = Math.floor((-height - panY) / gridSize) * gridSize;
@@ -236,7 +290,7 @@ export function ForceGraphCanvas({
       const links = linksRef.current;
       const searchLower = filter.search.trim().toLowerCase();
 
-      // Physics calculation
+      // Physics Simulation Step
       if (alphaRef.current > 0.005) {
         const alpha = alphaRef.current;
         const centerX = width / 2;
@@ -244,8 +298,8 @@ export function ForceGraphCanvas({
 
         // 1. Centering Force
         for (const node of nodes) {
-          node.vx += (centerX - node.x) * 0.012 * alpha;
-          node.vy += (centerY - node.y) * 0.012 * alpha;
+          node.vx += (centerX - node.x) * 0.01 * alpha;
+          node.vy += (centerY - node.y) * 0.01 * alpha;
         }
 
         // 2. Anti-Overlap Box Collision Solver
@@ -257,23 +311,28 @@ export function ForceGraphCanvas({
             const dy = n2.y - n1.y;
             const dist = Math.hypot(dx, dy) || 1;
 
-            const minAllowedDist = (n1.width + n2.width) * 0.58;
-            if (dist < minAllowedDist) {
-              const overlap = (minAllowedDist - dist) * 0.5;
-              const ox = (dx / dist) * overlap;
-              const oy = (dy / dist) * overlap;
-              if (n1 !== dragTargetRef.current) {
-                n1.x -= ox;
-                n1.y -= oy;
-              }
-              if (n2 !== dragTargetRef.current) {
-                n2.x += ox;
-                n2.y += oy;
+            const minAllowedX = (n1.width + n2.width) * 0.5 + 24;
+            const minAllowedY = (n1.height + n2.height) * 0.5 + 20;
+
+            const overlapX = minAllowedX - Math.abs(dx);
+            const overlapY = minAllowedY - Math.abs(dy);
+
+            if (overlapX > 0 && overlapY > 0) {
+              if (overlapX < overlapY) {
+                const signX = dx >= 0 ? 1 : -1;
+                const shiftX = overlapX * 0.5 * signX;
+                if (n1 !== dragTargetRef.current) n1.x -= shiftX;
+                if (n2 !== dragTargetRef.current) n2.x += shiftX;
+              } else {
+                const signY = dy >= 0 ? 1 : -1;
+                const shiftY = overlapY * 0.5 * signY;
+                if (n1 !== dragTargetRef.current) n1.y -= shiftY;
+                if (n2 !== dragTargetRef.current) n2.y += shiftY;
               }
             }
 
-            // Repulsion
-            const force = (-900 * alpha) / Math.max(dist, 50);
+            // Smooth Node Repulsion
+            const force = (-1200 * alpha) / Math.max(dist, 40);
             const fx = (dx / dist) * force;
             const fy = (dy / dist) * force;
 
@@ -288,13 +347,13 @@ export function ForceGraphCanvas({
           }
         }
 
-        // 3. Link spring force
+        // 3. Link Spring Force
         for (const link of links) {
           const dx = link.target.x - link.source.x;
           const dy = link.target.y - link.source.y;
           const dist = Math.hypot(dx, dy) || 1;
-          const targetDist = 180;
-          const force = (dist - targetDist) * 0.035 * alpha;
+          const targetDist = Math.max(180, (link.source.width + link.target.width) * 0.85);
+          const force = (dist - targetDist) * 0.03 * alpha;
 
           const fx = (dx / dist) * force;
           const fy = (dy / dist) * force;
@@ -309,15 +368,16 @@ export function ForceGraphCanvas({
           }
         }
 
-        // 4. Damping
+        // 4. Damping & Integration
         for (const node of nodes) {
           if (node === dragTargetRef.current) {
             node.vx = 0;
             node.vy = 0;
             continue;
           }
-          node.vx *= 0.82;
-          node.vy *= 0.82;
+          node.vx *= 0.84;
+          node.vy *= 0.84;
+
           node.x += node.vx;
           node.y += node.vy;
         }
@@ -325,7 +385,7 @@ export function ForceGraphCanvas({
         alphaRef.current *= 0.985;
       }
 
-      // --- Draw Smooth Curved Links ---
+      // --- Draw Smooth Curved Link Connections ---
       for (const link of links) {
         const isHovered =
           hoveredNodeRef.current?.id === link.source.id ||
@@ -340,9 +400,10 @@ export function ForceGraphCanvas({
 
         const midX = (x1 + x2) / 2;
         const midY = (y1 + y2) / 2;
-        const curvature = 20;
-        const nx = -(y2 - y1) / (Math.hypot(x2 - x1, y2 - y1) || 1);
-        const ny = (x2 - x1) / (Math.hypot(x2 - x1, y2 - y1) || 1);
+        const curvature = 24;
+        const dist = Math.hypot(x2 - x1, y2 - y1) || 1;
+        const nx = -(y2 - y1) / dist;
+        const ny = (x2 - x1) / dist;
         const cx = midX + nx * curvature;
         const cy = midY + ny * curvature;
 
@@ -351,33 +412,33 @@ export function ForceGraphCanvas({
         ctx.quadraticCurveTo(cx, cy, x2, y2);
 
         if (isSelected) {
-          ctx.strokeStyle = "rgba(99, 102, 241, 1)";
+          ctx.strokeStyle = "#818cf8";
           ctx.lineWidth = 2.5;
         } else if (isHovered) {
           ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
-          ctx.lineWidth = 2;
+          ctx.lineWidth = 2.0;
         } else {
-          ctx.strokeStyle = "rgba(99, 102, 241, 0.35)";
-          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = "rgba(99, 102, 241, 0.3)";
+          ctx.lineWidth = 1.4;
         }
         ctx.stroke();
 
-        // Energy pulse traveling along link
+        // Animated Energy Particle Pulse
         const t = (pulseAnimRef.current + (link.source.x % 10) * 0.1) % 1;
         const px = (1 - t) * (1 - t) * x1 + 2 * (1 - t) * t * cx + t * t * x2;
         const py = (1 - t) * (1 - t) * y1 + 2 * (1 - t) * t * cy + t * t * y2;
 
         ctx.beginPath();
-        ctx.arc(px, py, isSelected || isHovered ? 3.5 : 2, 0, 2 * Math.PI);
+        ctx.arc(px, py, isSelected || isHovered ? 3.5 : 2.2, 0, 2 * Math.PI);
         ctx.fillStyle = isSelected
           ? "#38bdf8"
           : isHovered
           ? "#ffffff"
-          : "rgba(129, 140, 248, 0.8)";
+          : "rgba(129, 140, 248, 0.85)";
         ctx.fill();
       }
 
-      // --- Draw Sleek Glassmorphic Node Cards ---
+      // --- Draw Modern Glassmorphic Node Cards ---
       for (const node of nodes) {
         const isSelected = selectedNodeId === node.id;
         const isHovered = hoveredNodeRef.current?.id === node.id;
@@ -400,20 +461,20 @@ export function ForceGraphCanvas({
         const y = node.y - h / 2;
         const r = isDir ? 12 : 10;
 
-        // Outer Shadow / Glow
+        // Outer Shadow / Glow Effect
         if (isSelected || isHovered || isMatch) {
           ctx.shadowColor = isSelected
-            ? "rgba(59, 130, 246, 0.6)"
+            ? "rgba(99, 102, 241, 0.7)"
             : isMatch
-            ? "rgba(234, 179, 8, 0.5)"
-            : "rgba(99, 102, 241, 0.45)";
-          ctx.shadowBlur = 18;
+            ? "rgba(234, 179, 8, 0.6)"
+            : "rgba(99, 102, 241, 0.5)";
+          ctx.shadowBlur = isSelected ? 20 : 14;
         } else {
-          ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
+          ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
           ctx.shadowBlur = 8;
         }
 
-        // Card Background Fill (Glassmorphism Gradient)
+        // Card Fill (Glassmorphism Gradient)
         const cardGrad = ctx.createLinearGradient(x, y, x + w, y + h);
         if (isDir) {
           cardGrad.addColorStop(0, isSelected ? "#1e1b4b" : "#0f172a");
@@ -429,52 +490,41 @@ export function ForceGraphCanvas({
         ctx.fill();
 
         // Card Border
-        ctx.shadowBlur = 0; // reset shadow for stroke
+        ctx.shadowBlur = 0; // reset for crisp border stroke
         ctx.strokeStyle = isSelected
           ? "#60a5fa"
           : isHovered
           ? "#ffffff"
           : isDir
           ? "#4338ca"
-          : `${baseColor}60`;
+          : `${baseColor}65`;
         ctx.lineWidth = isSelected ? 2 : 1.2;
         ctx.stroke();
 
-        // Left Icon Badge
-        const iconSize = isDir ? 32 : 26;
-        const iconX = x + 10;
+        // Left Icon Badge Box
+        const iconSize = isDir ? 32 : 28;
+        const iconX = x + 8;
         const iconY = y + (h - iconSize) / 2;
 
         ctx.beginPath();
         ctx.roundRect(iconX, iconY, iconSize, iconSize, 8);
-        ctx.fillStyle = isDir ? "rgba(99, 102, 241, 0.2)" : `${baseColor}20`;
+        ctx.fillStyle = isDir ? "rgba(99, 102, 241, 0.22)" : `${baseColor}22`;
         ctx.fill();
-        ctx.strokeStyle = isDir ? "rgba(99, 102, 241, 0.4)" : `${baseColor}40`;
+        ctx.strokeStyle = isDir ? "rgba(99, 102, 241, 0.45)" : `${baseColor}45`;
         ctx.lineWidth = 1;
         ctx.stroke();
 
-        // Icon inside Badge
-        ctx.font = isDir ? "15px Inter, sans-serif" : "12px Inter, sans-serif";
+        // Emoji Icon Inside Badge
+        ctx.font = isDir ? "15px Inter, sans-serif" : "13px Inter, sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        const iconEmoji = isDir
-          ? "📁"
-          : node.layer === "db"
-          ? "🗄️"
-          : node.layer === "api"
-          ? "🌐"
-          : node.layer === "actions"
-          ? "⚡"
-          : node.layer === "ui"
-          ? "🎨"
-          : "📄";
-        ctx.fillText(iconEmoji, iconX + iconSize / 2, iconY + iconSize / 2);
+        ctx.fillText(getNodeIcon(node), iconX + iconSize / 2, iconY + iconSize / 2);
 
-        // Title and Subtitle
-        const textLeft = iconX + iconSize + 10;
-        const textMaxWidth = w - (iconSize + 24);
+        // Title and Subtitle Text Layout
+        const textLeft = iconX + iconSize + 9;
+        const textMaxWidth = w - (iconSize + 22);
 
-        // Primary Title
+        // Main Node Name
         ctx.font = isDir ? "bold 12px Inter, sans-serif" : "600 11px Inter, sans-serif";
         ctx.fillStyle = isSelected || isHovered ? "#ffffff" : "#f1f5f9";
         ctx.textAlign = "left";
@@ -482,20 +532,23 @@ export function ForceGraphCanvas({
 
         let displayName = node.name;
         if (ctx.measureText(displayName).width > textMaxWidth) {
-          while (displayName.length > 3 && ctx.measureText(displayName + "…").width > textMaxWidth) {
+          while (
+            displayName.length > 3 &&
+            ctx.measureText(displayName + "…").width > textMaxWidth
+          ) {
             displayName = displayName.slice(0, -1);
           }
           displayName += "…";
         }
         ctx.fillText(displayName, textLeft, isDir ? y + 11 : y + 9);
 
-        // Subtitle (item count for dir, layer for file)
+        // Subtitle (item count for directory, layer for file)
         ctx.font = "10px Inter, sans-serif";
         ctx.fillStyle = isDir ? "#a5b4fc" : "#94a3b8";
         const subText = isDir
           ? `${(node.childDirCount || 0) + (node.childFileCount || 0)} items`
           : node.layer;
-        ctx.fillText(subText, textLeft, isDir ? y + 27 : y + 24);
+        ctx.fillText(subText, textLeft, isDir ? y + 27 : y + 25);
 
         // Issue Indicator Badge (Top Right)
         if (node.issueCount && node.issueCount > 0) {
@@ -535,7 +588,7 @@ export function ForceGraphCanvas({
     };
   }, [selectedNodeId, filter.search]);
 
-  // Convert screen coords to graph coords
+  // Convert Screen Coordinates to Graph Canvas Coordinates
   const getGraphCoords = (clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0, mouseX: 0, mouseY: 0 };
@@ -553,7 +606,7 @@ export function ForceGraphCanvas({
     return { x: graphX, y: graphY, mouseX, mouseY };
   };
 
-  // Find node under mouse (box hit-testing)
+  // Find Node Under Mouse Coordinates (Exact Bounding Box Hit Testing)
   const getNodeAt = (graphX: number, graphY: number): SimNode | null => {
     for (let i = nodesRef.current.length - 1; i >= 0; i--) {
       const node = nodesRef.current[i];
@@ -569,19 +622,24 @@ export function ForceGraphCanvas({
     return null;
   };
 
-  // Mouse / Touch Event Handlers
+  // Mouse / Touch Event Handlers with Drag Threshold Detection
   const handleMouseDown = (e: React.MouseEvent) => {
     const { x: gx, y: gy, mouseX, mouseY } = getGraphCoords(e.clientX, e.clientY);
     const target = getNodeAt(gx, gy);
 
     isDraggingRef.current = true;
     dragStartPosRef.current = { x: mouseX, y: mouseY };
+    mouseMovedDistRef.current = 0;
 
     if (target) {
       dragTargetRef.current = target;
+      isPanningRef.current = false;
       alphaRef.current = 0.5;
+      setCursorStyle("grabbing");
     } else {
       dragTargetRef.current = null;
+      isPanningRef.current = true;
+      setCursorStyle("grabbing");
     }
   };
 
@@ -589,13 +647,15 @@ export function ForceGraphCanvas({
     const { x: gx, y: gy, mouseX, mouseY } = getGraphCoords(e.clientX, e.clientY);
 
     if (isDraggingRef.current) {
+      const dx = mouseX - dragStartPosRef.current.x;
+      const dy = mouseY - dragStartPosRef.current.y;
+      mouseMovedDistRef.current += Math.hypot(dx, dy);
+
       if (dragTargetRef.current) {
         dragTargetRef.current.x = gx;
         dragTargetRef.current.y = gy;
         alphaRef.current = 0.3;
-      } else {
-        const dx = mouseX - dragStartPosRef.current.x;
-        const dy = mouseY - dragStartPosRef.current.y;
+      } else if (isPanningRef.current) {
         transformRef.current.x += dx;
         transformRef.current.y += dy;
         dragStartPosRef.current = { x: mouseX, y: mouseY };
@@ -606,6 +666,7 @@ export function ForceGraphCanvas({
       hoveredNodeRef.current = hovered;
 
       if (hovered) {
+        setCursorStyle("pointer");
         setTooltip({
           visible: true,
           x: mouseX + 16,
@@ -613,6 +674,7 @@ export function ForceGraphCanvas({
           node: hovered,
         });
       } else {
+        setCursorStyle("grab");
         setTooltip((prev) => (prev.visible ? { ...prev, visible: false } : prev));
       }
     }
@@ -621,15 +683,14 @@ export function ForceGraphCanvas({
   const handleMouseUp = (e: React.MouseEvent) => {
     if (!isDraggingRef.current) return;
 
-    const { x: gx, y: gy, mouseX, mouseY } = getGraphCoords(e.clientX, e.clientY);
-    const moved =
-      Math.abs(mouseX - dragStartPosRef.current.x) + Math.abs(mouseY - dragStartPosRef.current.y);
+    const { x: gx, y: gy } = getGraphCoords(e.clientX, e.clientY);
+    const target = getNodeAt(gx, gy);
 
-    if (moved < 5) {
-      const target = getNodeAt(gx, gy);
+    // If mouse was dragged less than 6px total, treat as a intentional click
+    if (mouseMovedDistRef.current < 6) {
       const now = Date.now();
 
-      // Double-click check on directory to drill down
+      // Double-click check on directory node to drill down
       if (
         target &&
         target.type === "directory" &&
@@ -647,12 +708,14 @@ export function ForceGraphCanvas({
     }
 
     isDraggingRef.current = false;
+    isPanningRef.current = false;
     dragTargetRef.current = null;
+    setCursorStyle(target ? "pointer" : "grab");
   };
 
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
-    const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+    const zoomFactor = e.deltaY < 0 ? 1.12 : 0.88;
     const newScale = Math.max(0.2, Math.min(4, transformRef.current.k * zoomFactor));
     transformRef.current.k = newScale;
   };
@@ -660,7 +723,13 @@ export function ForceGraphCanvas({
   return (
     <div
       ref={containerRef}
-      className="relative h-full w-full select-none overflow-hidden bg-black cursor-grab active:cursor-grabbing"
+      className={`relative h-full w-full select-none overflow-hidden bg-black ${
+        cursorStyle === "grabbing"
+          ? "cursor-grabbing"
+          : cursorStyle === "pointer"
+          ? "cursor-pointer"
+          : "cursor-grab"
+      }`}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
@@ -668,7 +737,7 @@ export function ForceGraphCanvas({
     >
       <canvas ref={canvasRef} className="absolute inset-0 block h-full w-full" />
 
-      {/* Hover Tooltip */}
+      {/* Modern Sleek Hover Tooltip */}
       {tooltip.visible && tooltip.node && (
         <div
           className="pointer-events-none absolute z-30 rounded-xl border border-neutral-800 bg-neutral-950/95 px-4 py-2.5 text-xs shadow-2xl backdrop-blur-md"
@@ -678,14 +747,15 @@ export function ForceGraphCanvas({
           }}
         >
           <div className="font-bold text-white flex items-center gap-1.5">
-            <span>{tooltip.node.type === "directory" ? "📁" : "📄"}</span>
+            <span>{getNodeIcon(tooltip.node)}</span>
             <span>{tooltip.node.name}</span>
           </div>
           <div className="text-[11px] text-neutral-400 font-mono mt-0.5">{tooltip.node.path}</div>
           <div className="mt-1.5 flex items-center gap-2 text-[10px] border-t border-neutral-800/60 pt-1">
             {tooltip.node.type === "directory" ? (
               <span className="text-indigo-400 font-semibold">
-                Double-click to dive inside ({(tooltip.node.childDirCount || 0) + (tooltip.node.childFileCount || 0)} items)
+                Double-click to dive inside (
+                {(tooltip.node.childDirCount || 0) + (tooltip.node.childFileCount || 0)} items)
               </span>
             ) : (
               <span
