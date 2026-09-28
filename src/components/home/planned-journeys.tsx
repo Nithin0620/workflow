@@ -23,7 +23,9 @@ import {
   MessagesSquare,
   Users,
   Network,
+  Zap,
   ChevronRight,
+  ExternalLink,
   type LucideIcon,
 } from "lucide-react";
 import { MobileAppModal } from "./mobile-app-modal";
@@ -36,6 +38,8 @@ type Journey = {
   hue: number;
   actionText?: string;
   isModalTrigger?: boolean;
+  isExternalLink?: boolean;
+  externalUrl?: string;
 };
 
 const categories: { name: string; blurb: string; items: Journey[] }[] = [
@@ -95,6 +99,15 @@ const active: Journey[] = [
   { icon: Clock, name: "Scheduled Automation & Cron", tag: "Cron · AI Scans · Run Logs", desc: "Automate recurring AI codebase audits, scheduled endpoint scans, and maintenance jobs.", hue: 45 },
   { icon: GitBranch, name: "Git Integrations", tag: "Commits · PRs · Branches", desc: "Link every push straight to issues and projects.", hue: 210 },
   { icon: BarChart3, name: "Analytics & Insights", tag: "Velocity · Cycle · Bottlenecks", desc: "See where time goes and where flow breaks.", hue: 330 },
+  {
+    icon: Zap,
+    name: "Benchley",
+    tag: "Load Testing · k6 · Performance",
+    desc: "High-performance API load testing platform powered by k6 with real-time telemetry and performance benchmarks.",
+    hue: 45,
+    actionText: "Learn More",
+    isModalTrigger: false,
+  },
 ];
 
 function GlowOrb({ hue, size, delay, style }: { hue: number; size: number; delay: number; style?: CSSProperties }) {
@@ -116,19 +129,31 @@ function GlowOrb({ hue, size, delay, style }: { hue: number; size: number; delay
 
 function JourneyCard({ j, i, onClick }: { j: Journey; i: number; onClick?: () => void }) {
   const Icon = j.icon;
-  const isClickable = !!onClick || !!j.isModalTrigger;
+  const isClickable = !!onClick || !!j.isModalTrigger || !!j.isExternalLink;
+
+  const handleClick = () => {
+    if (j.name === "Benchley") {
+      window.location.href = "/planned-journey#benchley";
+    } else if (j.isExternalLink && j.externalUrl) {
+      window.open(j.externalUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      onClick?.();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (isClickable && (e.key === "Enter" || e.key === " ")) {
+      e.preventDefault();
+      handleClick();
+    }
+  };
 
   return (
     <motion.div
       role={isClickable ? "button" : undefined}
       tabIndex={isClickable ? 0 : undefined}
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (isClickable && (e.key === "Enter" || e.key === " ")) {
-          e.preventDefault();
-          onClick?.();
-        }
-      }}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={{ once: true, margin: "-40px" }}
@@ -185,7 +210,8 @@ function JourneyCard({ j, i, onClick }: { j: Journey; i: number; onClick?: () =>
       {j.actionText && (
         <div className="relative mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-semibold text-emerald-400 group-hover:text-emerald-300 transition-colors">
           <span className="flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
+            {j.isExternalLink && <ExternalLink className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />}
+            {!j.isExternalLink && <Sparkles className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />}
             <span>{j.actionText}</span>
           </span>
           <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

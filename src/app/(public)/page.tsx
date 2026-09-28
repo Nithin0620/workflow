@@ -6,6 +6,7 @@ import { MacKanbanMockup } from "@/components/home/mac-kanban-mockup";
 import { LiveKanbanDemo } from "@/components/home/live-kanban-demo";
 import { PlannedJourneysShowcase } from "@/components/home/planned-journeys-showcase";
 import { HeroContent } from "@/components/home/hero-content";
+import { BenchleyLaunchBanner } from "@/components/home/benchley-launch-banner";
 
 import {
   Kanban,
@@ -26,6 +27,9 @@ export default async function LandingPage() {
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
+      {/* Benchley Launch Banner */}
+      <BenchleyLaunchBanner />
+
       {/* HERO SECTION */}
       <section className="relative overflow-hidden bg-black px-6 pt-20 pb-16 md:pt-28 md:pb-24">
         <AnimatedSaasObjects />

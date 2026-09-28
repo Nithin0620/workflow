@@ -36,6 +36,7 @@ import {
   ClipboardCheck,
   PenTool,
   Network,
+  Zap,
 } from "lucide-react";
 
 interface WorkspaceData {
@@ -617,6 +618,31 @@ export function DashboardView({
                     Automate recurring AI codebase audits, scheduled endpoint scans, and maintenance jobs.
                   </p>
                 </div>
+              </div>
+
+              {/* Active: Benchley */}
+              <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-900 text-yellow-400">
+                    <Zap className="h-4 w-4" />
+                  </div>
+                  <span className="rounded-md border border-emerald-900/40 bg-emerald-950/30 px-2 py-0.5 text-[10px] font-mono font-bold text-emerald-400">
+                    Active
+                  </span>
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">Benchley</h4>
+                  <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
+                    High-performance API load testing platform powered by k6 with real-time telemetry and performance benchmarks.
+                  </p>
+                </div>
+                <Link
+                  href={`/${organization.slug}/${workspaces[0]?.slug}/benchley`}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-yellow-400 hover:text-yellow-300 transition-colors"
+                >
+                  <span>Learn More</span>
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
               </div>
             </div>
           </div>

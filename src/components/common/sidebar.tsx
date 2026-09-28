@@ -24,6 +24,7 @@ import {
   Sparkles,
   PenTool,
   Network,
+  Zap,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -106,6 +107,7 @@ export function Sidebar({
     { label: "Whiteboards", href: `${baseUrl}/whiteboards`, icon: PenTool },
     { label: "Analytics", href: `${baseUrl}/analytics`, icon: BarChart3 },
     { label: "Cron Jobs & AI", href: `${baseUrl}/cron`, icon: Clock },
+    { label: "Benchley", href: `${baseUrl}/benchley`, icon: Zap },
     { label: "Settings & Team", href: `${baseUrl}/settings`, icon: Settings },
   ];
 
