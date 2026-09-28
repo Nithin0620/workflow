@@ -68,7 +68,13 @@ export function Header({
             {session?.user?.name || session?.user?.email}
           </span>
           <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={async () => {
+              try {
+                await fetch("/api/v1/auth/logout", { method: "POST" });
+              } catch {}
+              await signOut({ redirect: false });
+              window.location.href = "/login";
+            }}
             title="Sign out"
             className="rounded p-1 text-neutral-400 hover:text-white transition"
           >

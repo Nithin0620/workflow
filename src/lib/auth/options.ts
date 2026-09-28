@@ -12,10 +12,28 @@ const credentialsSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
+const isProd = process.env.NODE_ENV === "production";
+const useSecureCookies = isProd;
+const cookiePrefix = useSecureCookies ? "__Secure-" : "";
+const hostName = process.env.NEXTAUTH_URL ? new URL(process.env.NEXTAUTH_URL).hostname : "localhost";
+const cookieDomain = isProd && (hostName.endsWith("ssh.net.in") || !hostName.includes("localhost")) ? ".ssh.net.in" : undefined;
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as NextAuthOptions["adapter"],
   session: {
     strategy: "jwt",
+  },
+  cookies: {
+    sessionToken: {
+      name: `${cookiePrefix}next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: useSecureCookies,
+        domain: cookieDomain,
+      },
+    },
   },
   pages: {
     signIn: "/login",
@@ -89,6 +107,25 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
       }
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      const cleanBaseUrl = (baseUrl || "https://workflow.ssh.net.in").replace(/["']/g, "").trim();
+      const cleanUrl = url.replace(/["']/g, "").trim();
+
+      if (cleanUrl.startsWith("/")) {
+        return `${cleanBaseUrl}${cleanUrl}`;
+      }
+      try {
+        const parsed = new URL(cleanUrl);
+        if (
+          parsed.origin === cleanBaseUrl ||
+          parsed.hostname.endsWith("ssh.net.in") ||
+          parsed.hostname === "localhost"
+        ) {
+          return cleanUrl;
+        }
+      } catch {}
+      return cleanBaseUrl;
     },
   },
 };

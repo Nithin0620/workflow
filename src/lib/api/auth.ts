@@ -127,24 +127,84 @@ export async function requireApiAuth(req: Request) {
 }
 
 /**
- * Standard API Response Helpers
+ * Standard API Response Helpers with CORS support
  */
-export function apiSuccess<T>(data: T, status = 200) {
-  return NextResponse.json(data, { status });
+export function getCorsHeaders(origin?: string | null) {
+  const allowed = [
+    "https://benchley.ssh.net.in",
+    "https://workflow.ssh.net.in",
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:3002",
+  ];
+  const isAllowed = origin && (allowed.includes(origin) || origin.endsWith(".ssh.net.in"));
+  return {
+    "Access-Control-Allow-Origin": isAllowed ? origin! : (origin || "*"),
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
+    "Access-Control-Allow-Credentials": "true",
+  };
 }
 
-export function apiError(message: string, status = 400) {
-  return NextResponse.json({ error: message }, { status });
+export function handleCorsOptions(req: Request) {
+  const origin = req.headers.get("origin");
+  return new NextResponse(null, {
+    status: 204,
+    headers: getCorsHeaders(origin),
+  });
 }
 
-export function apiUnauthorized(message = "Unauthorized") {
-  return NextResponse.json({ error: message }, { status: 401 });
+export function apiSuccess<T>(data: T, status = 200, req?: Request, extraHeaders?: HeadersInit) {
+  const origin = req?.headers?.get("origin");
+  return NextResponse.json(data, {
+    status,
+    headers: {
+      ...getCorsHeaders(origin),
+      ...(extraHeaders || {}),
+    },
+  });
 }
 
-export function apiForbidden(message = "Forbidden") {
-  return NextResponse.json({ error: message }, { status: 403 });
+export function apiError(message: string, status = 400, req?: Request) {
+  const origin = req?.headers?.get("origin");
+  return NextResponse.json(
+    { error: message },
+    {
+      status,
+      headers: getCorsHeaders(origin),
+    }
+  );
 }
 
-export function apiNotFound(message = "Not found") {
-  return NextResponse.json({ error: message }, { status: 404 });
+export function apiUnauthorized(message = "Unauthorized", req?: Request) {
+  const origin = req?.headers?.get("origin");
+  return NextResponse.json(
+    { error: message },
+    {
+      status: 401,
+      headers: getCorsHeaders(origin),
+    }
+  );
+}
+
+export function apiForbidden(message = "Forbidden", req?: Request) {
+  const origin = req?.headers?.get("origin");
+  return NextResponse.json(
+    { error: message },
+    {
+      status: 403,
+      headers: getCorsHeaders(origin),
+    }
+  );
+}
+
+export function apiNotFound(message = "Not found", req?: Request) {
+  const origin = req?.headers?.get("origin");
+  return NextResponse.json(
+    { error: message },
+    {
+      status: 404,
+      headers: getCorsHeaders(origin),
+    }
+  );
 }

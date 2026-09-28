@@ -149,7 +149,13 @@ export function DashboardView({
           </div>
 
           <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={async () => {
+              try {
+                await fetch("/api/v1/auth/logout", { method: "POST" });
+              } catch {}
+              await signOut({ redirect: false });
+              window.location.href = "/login";
+            }}
             title="Sign out"
             className="flex items-center gap-1 rounded-xl border border-neutral-800 bg-neutral-950 p-2 text-xs text-neutral-400 hover:border-neutral-700 hover:text-white transition"
           >
