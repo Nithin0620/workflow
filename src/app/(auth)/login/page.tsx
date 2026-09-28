@@ -9,8 +9,26 @@ import { Mail, Lock, AlertCircle, Loader2, ArrowLeft, CheckCircle2 } from "lucid
 
 function safeCallbackUrl(raw: string | null): string {
   if (!raw) return "/dashboard";
-  // Only internal, same-origin paths (blocks open redirects like "//evil.com" and "/\evil.com")
-  return raw.startsWith("/") && !raw.startsWith("//") && !raw.startsWith("/\\") ? raw : "/dashboard";
+  const trimmed = raw.trim();
+
+  // Internal relative paths
+  if (trimmed.startsWith("/") && !trimmed.startsWith("//") && !trimmed.startsWith("/\\")) {
+    return trimmed;
+  }
+
+  // Cross-subdomain & localhost redirects (e.g. Benchley, local testing)
+  try {
+    const parsed = new URL(trimmed);
+    if (
+      parsed.hostname === "localhost" ||
+      parsed.hostname === "127.0.0.1" ||
+      parsed.hostname.endsWith("ssh.net.in")
+    ) {
+      return trimmed;
+    }
+  } catch {}
+
+  return "/dashboard";
 }
 
 export default function LoginPage() {
@@ -24,7 +42,12 @@ export default function LoginPage() {
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"));
+  const rawParam =
+    searchParams.get("callbackUrl") ||
+    searchParams.get("redirect_to") ||
+    searchParams.get("redirect") ||
+    searchParams.get("returnTo");
+  const callbackUrl = safeCallbackUrl(rawParam);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -46,8 +69,12 @@ function LoginForm() {
         setError(res.error);
         setLoading(false);
       } else {
-        router.push(callbackUrl);
-        router.refresh();
+        if (callbackUrl.startsWith("http://") || callbackUrl.startsWith("https://")) {
+          window.location.href = callbackUrl;
+        } else {
+          router.push(callbackUrl);
+          router.refresh();
+        }
       }
     } catch {
       setError("An unexpected error occurred. Please try again.");

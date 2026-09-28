@@ -10,8 +10,24 @@ import { Mail, Lock, User, AlertCircle, Loader2, ArrowLeft, CheckCircle2 } from 
 
 function safeCallbackUrl(raw: string | null): string {
   if (!raw) return "/dashboard";
-  // Only internal, same-origin paths (blocks open redirects like "//evil.com" and "/\evil.com")
-  return raw.startsWith("/") && !raw.startsWith("//") && !raw.startsWith("/\\") ? raw : "/dashboard";
+  const trimmed = raw.trim();
+
+  if (trimmed.startsWith("/") && !trimmed.startsWith("//") && !trimmed.startsWith("/\\")) {
+    return trimmed;
+  }
+
+  try {
+    const parsed = new URL(trimmed);
+    if (
+      parsed.hostname === "localhost" ||
+      parsed.hostname === "127.0.0.1" ||
+      parsed.hostname.endsWith("ssh.net.in")
+    ) {
+      return trimmed;
+    }
+  } catch {}
+
+  return "/dashboard";
 }
 
 export default function RegisterPage() {
@@ -25,8 +41,13 @@ export default function RegisterPage() {
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"));
-  const fromInvite = searchParams.get("callbackUrl") !== null;
+  const rawParam =
+    searchParams.get("callbackUrl") ||
+    searchParams.get("redirect_to") ||
+    searchParams.get("redirect") ||
+    searchParams.get("returnTo");
+  const callbackUrl = safeCallbackUrl(rawParam);
+  const fromExternal = rawParam !== null;
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -57,9 +78,13 @@ function RegisterForm() {
       if (signInRes?.error) {
         setError("Account created, but error signing in. Please go to login.");
         setLoading(false);
-      } else if (fromInvite) {
-        router.push(callbackUrl);
-        router.refresh();
+      } else if (fromExternal) {
+        if (callbackUrl.startsWith("http://") || callbackUrl.startsWith("https://")) {
+          window.location.href = callbackUrl;
+        } else {
+          router.push(callbackUrl);
+          router.refresh();
+        }
       } else if (res.defaultOrgSlug && res.defaultWorkspaceSlug) {
         router.push(`/${res.defaultOrgSlug}/${res.defaultWorkspaceSlug}`);
         router.refresh();

@@ -15,8 +15,37 @@ const credentialsSchema = z.object({
 const isProd = process.env.NODE_ENV === "production";
 const useSecureCookies = isProd;
 const cookiePrefix = useSecureCookies ? "__Secure-" : "";
-const hostName = process.env.NEXTAUTH_URL ? new URL(process.env.NEXTAUTH_URL).hostname : "localhost";
-const cookieDomain = isProd && (hostName.endsWith("ssh.net.in") || !hostName.includes("localhost")) ? ".ssh.net.in" : undefined;
+
+function getCookieDomain(): string | undefined {
+  if (!isProd) {
+    return undefined;
+  }
+
+  const rawUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
+  const cleaned = rawUrl.replace(/["']/g, "").trim();
+
+  if (!cleaned) {
+    return ".ssh.net.in";
+  }
+
+  try {
+    const withProto = cleaned.startsWith("http://") || cleaned.startsWith("https://")
+      ? cleaned
+      : `https://${cleaned}`;
+    const hostname = new URL(withProto).hostname;
+
+    if (hostname === "localhost" || hostname === "127.0.0.1") {
+      return undefined;
+    }
+    if (hostname.endsWith("ssh.net.in")) {
+      return ".ssh.net.in";
+    }
+  } catch {
+    // If URL parsing fails, fall back to .ssh.net.in in production
+  }
+
+  return ".ssh.net.in";
+}
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as NextAuthOptions["adapter"],
@@ -31,7 +60,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: "lax",
         path: "/",
         secure: useSecureCookies,
-        domain: cookieDomain,
+        domain: getCookieDomain(),
       },
     },
   },
@@ -109,23 +138,31 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      const cleanBaseUrl = (baseUrl || "https://workflow.ssh.net.in").replace(/["']/g, "").trim();
-      const cleanUrl = url.replace(/["']/g, "").trim();
-
-      if (cleanUrl.startsWith("/")) {
-        return `${cleanBaseUrl}${cleanUrl}`;
-      }
       try {
-        const parsed = new URL(cleanUrl);
+        const cleanBaseUrl = (baseUrl || "https://workflow.ssh.net.in").replace(/["']/g, "").trim();
+        const cleanUrl = (url || "/dashboard").replace(/["']/g, "").trim();
+
+        if (cleanUrl.startsWith("/")) {
+          return `${cleanBaseUrl}${cleanUrl}`;
+        }
+
+        const withProto = cleanUrl.startsWith("http://") || cleanUrl.startsWith("https://")
+          ? cleanUrl
+          : `https://${cleanUrl}`;
+        const parsed = new URL(withProto);
+
         if (
           parsed.origin === cleanBaseUrl ||
           parsed.hostname.endsWith("ssh.net.in") ||
-          parsed.hostname === "localhost"
+          parsed.hostname === "localhost" ||
+          parsed.hostname === "127.0.0.1"
         ) {
           return cleanUrl;
         }
-      } catch {}
-      return cleanBaseUrl;
+        return cleanBaseUrl;
+      } catch {
+        return "https://workflow.ssh.net.in/dashboard";
+      }
     },
   },
 };
