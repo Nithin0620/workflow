@@ -23,19 +23,22 @@ export const getCurrentUser = cache(async () => {
     return null;
   }
 
-  let user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-    include: {
-      workspaceMembers: {
-        include: {
-          workspace: {
-            include: {
-              organization: true,
-            },
+  // Shared include shape — defined once to avoid duplication
+  const userInclude = {
+    workspaceMembers: {
+      include: {
+        workspace: {
+          include: {
+            organization: true,
           },
         },
       },
     },
+  } as const;
+
+  let user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    include: userInclude,
   });
 
   // If user signed up via OAuth (Google/GitHub) and doesn't have a workspace yet, auto-provision
@@ -44,19 +47,10 @@ export const getCurrentUser = cache(async () => {
       await provisionDefaultUserWorkspace(tx, user!);
     });
 
+    // Re-fetch after provisioning — must be sequential (transaction must complete first)
     user = await prisma.user.findUnique({
       where: { email: session.user.email },
-      include: {
-        workspaceMembers: {
-          include: {
-            workspace: {
-              include: {
-                organization: true,
-              },
-            },
-          },
-        },
-      },
+      include: userInclude,
     });
   }
 
@@ -133,6 +127,9 @@ export const requireProjectAccess = cache(
   ) => {
     const user = await requireAuth();
 
+    // Fetch the project record. requireWorkspaceMember below uses the user's
+    // already-cached workspaceMembers list for an in-memory lookup (0 extra RTTs
+    // in the common case), so the two calls are effectively parallel in cost.
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       select: {

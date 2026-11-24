@@ -188,53 +188,63 @@ export async function moveIssue(
 export async function getIssueDetails(issueId: string) {
   const user = await requireAuth();
 
-  const [issueCore, comments, activityLogs, discussionLinks] = await Promise.all([
-    prisma.issue.findUnique({
-      where: { id: issueId },
-      include: {
-        assignee: { select: { id: true, name: true, image: true, email: true } },
-        creator: { select: { id: true, name: true, image: true, email: true } },
-        sprint: true,
-        labels: true,
-        attachments: {
-          include: {
-            uploader: { select: { id: true, name: true, image: true } },
-          },
-          orderBy: { createdAt: "desc" },
+  // First fetch the issue core to get workspaceId — needed for the members query
+  const issueCore = await prisma.issue.findUnique({
+    where: { id: issueId },
+    include: {
+      assignee: { select: { id: true, name: true, image: true, email: true } },
+      creator: { select: { id: true, name: true, image: true, email: true } },
+      sprint: true,
+      labels: true,
+      attachments: {
+        include: {
+          uploader: { select: { id: true, name: true, image: true } },
         },
-        gitLinks: {
-          orderBy: { createdAt: "desc" },
-        },
-        project: {
-          select: {
-            id: true,
-            key: true,
-            workspaceId: true,
-            repository: {
-              select: {
-                id: true,
-                repoUrl: true,
-                repoOwner: true,
-                repoName: true,
-                defaultBranch: true,
-              },
+        orderBy: { createdAt: "desc" },
+      },
+      gitLinks: {
+        orderBy: { createdAt: "desc" },
+      },
+      project: {
+        select: {
+          id: true,
+          key: true,
+          workspaceId: true,
+          repository: {
+            select: {
+              id: true,
+              repoUrl: true,
+              repoOwner: true,
+              repoName: true,
+              defaultBranch: true,
             },
-            sprints: {
-              orderBy: { number: "desc" },
-              select: {
-                id: true,
-                name: true,
-                number: true,
-                goal: true,
-                startDate: true,
-                endDate: true,
-                isActive: true,
-              },
+          },
+          sprints: {
+            orderBy: { number: "desc" },
+            select: {
+              id: true,
+              name: true,
+              number: true,
+              goal: true,
+              startDate: true,
+              endDate: true,
+              isActive: true,
             },
           },
         },
       },
-    }),
+    },
+  });
+
+  if (!issueCore) {
+    return null;
+  }
+
+  // Verify access (re-uses cached membership in memory)
+  await requireWorkspaceMember(issueCore.project.workspaceId);
+
+  // Now fire all remaining queries in parallel — members joins the batch here
+  const [comments, activityLogs, discussionLinks, members] = await Promise.all([
     prisma.comment.findMany({
       where: { issueId },
       include: {
@@ -282,22 +292,14 @@ export async function getIssueDetails(issueId: string) {
       },
       orderBy: { createdAt: "asc" },
     }),
+    // Workspace members for assignee picker — now runs in parallel with the above
+    prisma.workspaceMember.findMany({
+      where: { workspaceId: issueCore.project.workspaceId },
+      select: {
+        user: { select: { id: true, name: true, image: true, email: true } },
+      },
+    }),
   ]);
-
-  if (!issueCore) {
-    return null;
-  }
-
-  // Verify access (re-uses cached membership in memory)
-  await requireWorkspaceMember(issueCore.project.workspaceId);
-
-  // Fetch workspace members for assignee selection
-  const members = await prisma.workspaceMember.findMany({
-    where: { workspaceId: issueCore.project.workspaceId },
-    select: {
-      user: { select: { id: true, name: true, image: true, email: true } },
-    },
-  });
 
   return {
     ...issueCore,
