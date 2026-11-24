@@ -6,10 +6,45 @@ import { WorkspaceAiScanner } from "@/components/settings/workspace-ai-scanner";
 import { WorkspaceDangerZone } from "@/components/settings/workspace-danger-zone";
 import { UserProfileSettings } from "@/components/settings/user-profile-settings";
 import { OnboardingTour, TourReplayButton } from "@/components/onboarding/onboarding-tour";
+import { unstable_cache } from "next/cache";
 
 interface SettingsPageProps {
   params: Promise<{ orgSlug: string; workspaceSlug: string }>;
 }
+
+/**
+ * Cached settings query — only fetches the fields settings page needs.
+ * The layout already handles workspace existence; we just need org details +
+ * members for the settings UI. 30 s revalidation matches the layout cache TTL.
+ */
+const getCachedSettingsData = unstable_cache(
+  async (orgSlug: string, workspaceSlug: string) => {
+    return prisma.workspace.findFirst({
+      where: {
+        slug: workspaceSlug,
+        organization: { slug: orgSlug },
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        organization: { select: { id: true, name: true, slug: true } },
+        members: {
+          select: {
+            id: true,
+            userId: true,
+            role: true,
+            joinedAt: true,
+            user: { select: { id: true, name: true, email: true, image: true } },
+          },
+          orderBy: { joinedAt: "asc" },
+        },
+      },
+    });
+  },
+  ["settings-workspace"],
+  { revalidate: 30, tags: ["workspace-layout", "settings-workspace"] }
+);
 
 export default async function SettingsPage({ params }: SettingsPageProps) {
   const { orgSlug, workspaceSlug } = await params;
@@ -17,21 +52,8 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
 
   if (!user) redirect("/login");
 
-  const workspace = await prisma.workspace.findFirst({
-    where: {
-      slug: workspaceSlug,
-      organization: { slug: orgSlug },
-    },
-    include: {
-      organization: true,
-      members: {
-        include: {
-          user: { select: { id: true, name: true, email: true, image: true } },
-        },
-        orderBy: { joinedAt: "asc" },
-      },
-    },
-  });
+  // Use the cached targeted query instead of a full uncached workspace fetch
+  const workspace = await getCachedSettingsData(orgSlug, workspaceSlug);
 
   if (!workspace) return null;
 

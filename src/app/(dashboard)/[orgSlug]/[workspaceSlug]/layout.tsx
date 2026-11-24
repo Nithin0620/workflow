@@ -2,11 +2,48 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import { redirect, notFound } from "next/navigation";
 import { WorkspaceLayoutShell } from "@/components/common/workspace-layout-shell";
+import { unstable_cache } from "next/cache";
 
 interface WorkspaceLayoutProps {
   children: React.ReactNode;
   params: Promise<{ orgSlug: string; workspaceSlug: string }>;
 }
+
+/**
+ * Cache the workspace projects query per (orgSlug, workspaceSlug, userId).
+ * Revalidates every 30 s — fast enough for navigation latency, fresh enough for
+ * project renames / new channels to show without a full reload.
+ */
+const getCachedWorkspace = unstable_cache(
+  async (orgSlug: string, workspaceSlug: string, userId: string) => {
+    return prisma.workspace.findFirst({
+      where: {
+        slug: workspaceSlug,
+        organization: { slug: orgSlug },
+        members: { some: { userId } },
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        projects: {
+          select: { id: true, name: true, key: true, color: true },
+        },
+      },
+    });
+  },
+  ["workspace-layout"],
+  { revalidate: 30, tags: ["workspace-layout"] }
+);
+
+const getCachedChannels = unstable_cache(
+  async (workspaceId: string) => {
+    const { getWorkspaceChannels } = await import("@/actions/discussions");
+    return getWorkspaceChannels(workspaceId);
+  },
+  ["workspace-channels"],
+  { revalidate: 30, tags: ["workspace-channels"] }
+);
 
 export default async function WorkspaceLayout({
   children,
@@ -26,27 +63,11 @@ export default async function WorkspaceLayout({
       m.workspace.organization.slug === orgSlug
   );
 
-  const { getWorkspaceChannels } = await import("@/actions/discussions");
-
-  // Fetch workspace projects and discussion channels in parallel
+  // Fetch workspace and channels in parallel using per-key cached functions
   const [workspace, discussionData] = await Promise.all([
-    prisma.workspace.findFirst({
-      where: {
-        slug: workspaceSlug,
-        organization: { slug: orgSlug },
-        members: { some: { userId: user.id } },
-      },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        projects: {
-          select: { id: true, name: true, key: true, color: true },
-        },
-      },
-    }),
+    getCachedWorkspace(orgSlug, workspaceSlug, user.id),
     currentMembership
-      ? getWorkspaceChannels(currentMembership.workspaceId)
+      ? getCachedChannels(currentMembership.workspaceId)
       : Promise.resolve({ workspaceChannels: [], projectGroups: [] }),
   ]);
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AnimatedFooter } from "@/components/layout/animated-footer";
-import { getCurrentUser } from "@/lib/auth/session";
+import { getSession } from "@/lib/auth/session";
 import {
   ArrowRight,
   CheckCircle2,
@@ -17,11 +17,13 @@ import {
   GitBranch,
 } from "lucide-react";
 
+// ISR — regenerate at most once per hour
+export const revalidate = 3600;
+
 export default async function HowItWorksPage() {
-  const user = await getCurrentUser();
-  const userWorkspaceUrl = user?.workspaceMembers[0]?.workspace?.organization
-    ? `/${user.workspaceMembers[0].workspace.organization.slug}/${user.workspaceMembers[0].workspace.slug}`
-    : null;
+  const session = await getSession();
+  // For the CTA button: if logged in, send to dashboard; we don't need their workspace slug here
+  const userWorkspaceUrl = session?.user ? "/dashboard" : null;
 
   const steps = [
     {

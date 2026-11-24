@@ -83,16 +83,17 @@ export async function createIssue(projectId: string, input: CreateIssueInput) {
     return newIssue;
   });
 
-  // Send notification if assigned to any user (including self)
+  // Send notification if assigned to any user (including self) — fire-and-forget, no need to await sequentially
   if (assigneeId) {
     const isSelf = assigneeId === user.id;
-    await createUserNotification({
+    // Does not need to block the response — notifications are best-effort
+    createUserNotification({
       userId: assigneeId,
       title: isSelf ? "Issue Assigned to You" : "New Issue Assigned",
       message: isSelf
         ? `You assigned yourself to ${project.key}-${issue.issueNumber}: ${issue.title}`
         : `${user.name || "A teammate"} assigned you to ${project.key}-${issue.issueNumber}: ${issue.title}`,
-    });
+    }).catch(() => {});
   }
 
   // Broadcast real-time event to all teammates on this board
@@ -379,19 +380,24 @@ export async function updateIssueDetails(issueId: string, input: UpdateIssueInpu
     return updatedIssue;
   });
 
-  // Send notification if newly assigned or reassigned (including self)
+  // Fire all notifications in parallel — they are independent and best-effort
+  const notificationJobs: Promise<unknown>[] = [];
+
+  // Notify newly assigned user (including self-assign)
   if (assigneeId && assigneeId !== issue.assigneeId) {
     const isSelf = assigneeId === user.id;
-    await createUserNotification({
-      userId: assigneeId,
-      title: "Issue Assigned to You",
-      message: isSelf
-        ? `You assigned yourself to ${issue.projectKey}-${issue.issueNumber}: ${updated.title}`
-        : `${user.name || "A teammate"} assigned you to ${issue.projectKey}-${issue.issueNumber}: ${updated.title}`,
-    });
+    notificationJobs.push(
+      createUserNotification({
+        userId: assigneeId,
+        title: "Issue Assigned to You",
+        message: isSelf
+          ? `You assigned yourself to ${issue.projectKey}-${issue.issueNumber}: ${updated.title}`
+          : `${user.name || "A teammate"} assigned you to ${issue.projectKey}-${issue.issueNumber}: ${updated.title}`,
+      })
+    );
   }
 
-  // Notify the assignee when their issue's status changes (skip when it's them acting)
+  // Notify assignee when their issue's status changes (skip when it's them acting)
   if (
     status &&
     status !== issue.status &&
@@ -399,21 +405,28 @@ export async function updateIssueDetails(issueId: string, input: UpdateIssueInpu
     issue.assigneeId === updated.assignee?.id
   ) {
     if (issue.assigneeId !== user.id) {
-      await createUserNotification({
-        userId: issue.assigneeId,
-        title: `Status update · ${issue.projectKey}-${issue.issueNumber}`,
-        message: `${user.name || "A teammate"} moved "${updated.title}" from ${issue.status.replace("_", " ")} to ${status.replace("_", " ")}`,
-      });
+      notificationJobs.push(
+        createUserNotification({
+          userId: issue.assigneeId,
+          title: `Status update · ${issue.projectKey}-${issue.issueNumber}`,
+          message: `${user.name || "A teammate"} moved "${updated.title}" from ${issue.status.replace("_", " ")} to ${status.replace("_", " ")}`,
+        })
+      );
     }
     // Notify the creator when their issue is completed
     if (status === "DONE" && issue.creatorId && issue.creatorId !== user.id) {
-      await createUserNotification({
-        userId: issue.creatorId,
-        title: `Issue completed 🎉 · ${issue.projectKey}-${issue.issueNumber}`,
-        message: `${user.name || "A teammate"} marked "${updated.title}" as Done`,
-      });
+      notificationJobs.push(
+        createUserNotification({
+          userId: issue.creatorId,
+          title: `Issue completed 🎉 · ${issue.projectKey}-${issue.issueNumber}`,
+          message: `${user.name || "A teammate"} marked "${updated.title}" as Done`,
+        })
+      );
     }
   }
+
+  // Run all notifications concurrently; ignore individual failures
+  await Promise.allSettled(notificationJobs);
 
   // Broadcast real-time issue update
   broadcastProjectEvent({
@@ -489,29 +502,38 @@ export async function addIssueComment(issueId: string, content: string) {
     return newComment;
   });
 
+  // Fire both notifications in parallel — they are independent
+  const commentNotifications: Promise<unknown>[] = [];
+
   // 1. Notify assignee on comment
   if (issue.assigneeId) {
     const isSelfAssignee = issue.assigneeId === user.id;
-    await createUserNotification({
-      userId: issue.assigneeId,
-      title: "New Comment on Assigned Issue",
-      message: isSelfAssignee
-        ? `You commented on your assigned issue ${issue.projectKey}-${issue.issueNumber}: "${content.slice(0, 60)}"`
-        : `${user.name || "A teammate"} commented on your assigned issue ${issue.projectKey}-${issue.issueNumber}: "${content.slice(0, 60)}"`,
-    });
+    commentNotifications.push(
+      createUserNotification({
+        userId: issue.assigneeId,
+        title: "New Comment on Assigned Issue",
+        message: isSelfAssignee
+          ? `You commented on your assigned issue ${issue.projectKey}-${issue.issueNumber}: "${content.slice(0, 60)}"`
+          : `${user.name || "A teammate"} commented on your assigned issue ${issue.projectKey}-${issue.issueNumber}: "${content.slice(0, 60)}"`,
+      })
+    );
   }
 
   // 2. Notify creator if creator is different from assignee
   if (issue.creatorId && issue.creatorId !== issue.assigneeId) {
     const isSelfCreator = issue.creatorId === user.id;
-    await createUserNotification({
-      userId: issue.creatorId,
-      title: "New Comment on Your Issue",
-      message: isSelfCreator
-        ? `You commented on your issue ${issue.projectKey}-${issue.issueNumber}: "${content.slice(0, 60)}"`
-        : `${user.name || "A teammate"} commented on your issue ${issue.projectKey}-${issue.issueNumber}: "${content.slice(0, 60)}"`,
-    });
+    commentNotifications.push(
+      createUserNotification({
+        userId: issue.creatorId,
+        title: "New Comment on Your Issue",
+        message: isSelfCreator
+          ? `You commented on your issue ${issue.projectKey}-${issue.issueNumber}: "${content.slice(0, 60)}"`
+          : `${user.name || "A teammate"} commented on your issue ${issue.projectKey}-${issue.issueNumber}: "${content.slice(0, 60)}"`,
+      })
+    );
   }
+
+  await Promise.allSettled(commentNotifications);
 
   // Broadcast real-time comment
   broadcastProjectEvent({

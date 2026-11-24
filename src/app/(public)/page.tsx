@@ -1,12 +1,30 @@
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { AnimatedFooter } from "@/components/layout/animated-footer";
-import { getCurrentUser } from "@/lib/auth/session";
-import { AnimatedSaasObjects } from "@/components/home/animated-saas-objects";
-import { MacKanbanMockup } from "@/components/home/mac-kanban-mockup";
-import { LiveKanbanDemo } from "@/components/home/live-kanban-demo";
+import { getSession } from "@/lib/auth/session";
+import { prisma } from "@/lib/db/prisma";
 import { PlannedJourneysShowcase } from "@/components/home/planned-journeys-showcase";
 import { HeroContent } from "@/components/home/hero-content";
 import { BenchleyLaunchBanner } from "@/components/home/benchley-launch-banner";
+
+// Lazy-load heavy animation components — excluded from SSR bundle
+const AnimatedSaasObjects = dynamic(
+  () => import("@/components/home/animated-saas-objects").then((m) => m.AnimatedSaasObjects),
+  { ssr: false }
+);
+const MacKanbanMockup = dynamic(
+  () => import("@/components/home/mac-kanban-mockup").then((m) => m.MacKanbanMockup),
+  { ssr: false }
+);
+const LiveKanbanDemo = dynamic(
+  () => import("@/components/home/live-kanban-demo").then((m) => m.LiveKanbanDemo),
+  { ssr: false }
+);
+
+// ISR: regenerate the page at most once every hour.
+// The only user-specific piece (workspace links in hero) is handled below
+// with a minimal targeted query, so the rest of the page is fully cacheable.
+export const revalidate = 3600;
 
 import {
   Kanban,
@@ -23,7 +41,52 @@ import {
 } from "lucide-react";
 
 export default async function LandingPage() {
-  const user = await getCurrentUser();
+  // Use only the JWT session — no DB round-trip for logged-out visitors.
+  // For logged-in users, fetch only the workspace links needed by HeroContent.
+  const session = await getSession();
+
+  let user: null | {
+    id: string;
+    name: string | null;
+    email: string | null;
+    image: string | null;
+    workspaceMembers: {
+      id: string;
+      workspace: {
+        id: string;
+        name: string;
+        slug: string;
+        organization: { name: string; slug: string };
+      };
+    }[];
+  } = null;
+
+  if (session?.user?.id) {
+    // Minimal targeted query — only the fields HeroContent actually renders
+    const dbUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        workspaceMembers: {
+          select: {
+            id: true,
+            workspace: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                organization: { select: { name: true, slug: true } },
+              },
+            },
+          },
+        },
+      },
+    });
+    user = dbUser;
+  }
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
