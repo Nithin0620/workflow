@@ -1,25 +1,16 @@
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import { AnimatedFooter } from "@/components/layout/animated-footer";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import { PlannedJourneysShowcase } from "@/components/home/planned-journeys-showcase";
 import { HeroContent } from "@/components/home/hero-content";
 import { BenchleyLaunchBanner } from "@/components/home/benchley-launch-banner";
-
-// Lazy-load heavy animation components — excluded from SSR bundle
-const AnimatedSaasObjects = dynamic(
-  () => import("@/components/home/animated-saas-objects").then((m) => m.AnimatedSaasObjects),
-  { ssr: false }
-);
-const MacKanbanMockup = dynamic(
-  () => import("@/components/home/mac-kanban-mockup").then((m) => m.MacKanbanMockup),
-  { ssr: false }
-);
-const LiveKanbanDemo = dynamic(
-  () => import("@/components/home/live-kanban-demo").then((m) => m.LiveKanbanDemo),
-  { ssr: false }
-);
+// Client wrapper owns the ssr:false dynamic imports (required by Next.js 16)
+import {
+  AnimatedSaasObjects,
+  MacKanbanMockup,
+  LiveKanbanDemo,
+} from "@/components/home/animated-sections";
 
 // ISR: regenerate the page at most once every hour.
 // The only user-specific piece (workspace links in hero) is handled below
