@@ -5,18 +5,20 @@ import { signOut, useSession } from "next-auth/react";
 import { CommandPalette } from "./command-palette";
 import { NotificationCenter } from "../notifications/notification-center";
 import { PushManager } from "../notifications/push-manager";
-import { Search, LogOut } from "lucide-react";
+import { Search, LogOut, Menu } from "lucide-react";
 
 interface HeaderProps {
   orgSlug: string;
   workspaceSlug: string;
   workspaceId?: string;
+  onMenuClick?: () => void;
 }
 
 export function Header({
   orgSlug,
   workspaceSlug,
   workspaceId = "",
+  onMenuClick,
 }: HeaderProps) {
   const { data: session } = useSession();
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
@@ -38,6 +40,15 @@ export function Header({
     <header className="flex h-14 items-center justify-between border-b border-neutral-900 bg-black px-4 sm:px-6 text-white">
       {/* Search Bar / Command Palette Trigger */}
       <div className="flex items-center gap-2.5">
+        {onMenuClick && (
+          <button
+            onClick={onMenuClick}
+            aria-label="Open navigation"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-neutral-800 bg-neutral-950 text-neutral-300 transition hover:border-neutral-700 hover:text-white md:hidden"
+          >
+            <Menu className="h-4 w-4" />
+          </button>
+        )}
         <button
           onClick={() => setCommandPaletteOpen(true)}
           className="flex items-center gap-2 rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-xs text-neutral-400 transition hover:border-neutral-700 hover:bg-neutral-900 hover:text-white"

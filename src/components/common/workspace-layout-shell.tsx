@@ -54,6 +54,7 @@ export function WorkspaceLayoutShell({
   projectChannelGroups = [],
 }: WorkspaceLayoutShellProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const pathname = usePathname();
   const isFullBleed = /\/whiteboards\/[^/]+$/.test(pathname);
 
@@ -66,6 +67,25 @@ export function WorkspaceLayoutShell({
     } catch {
       // ignore
     }
+  }, []);
+
+  useEffect(() => {
+    if (!isMobileNavOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsMobileNavOpen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isMobileNavOpen]);
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 768px)");
+    const handleChange = () => {
+      if (media.matches) setIsMobileNavOpen(false);
+    };
+    handleChange();
+    media.addEventListener("change", handleChange);
+    return () => media.removeEventListener("change", handleChange);
   }, []);
 
   const toggleCollapsed = () => {
@@ -82,12 +102,21 @@ export function WorkspaceLayoutShell({
 
   return (
     <div className="flex h-full w-full bg-black text-white selection:bg-white selection:text-black">
+      {isMobileNavOpen && (
+        <button
+          aria-label="Close navigation"
+          onClick={() => setIsMobileNavOpen(false)}
+          className="fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm md:hidden"
+        />
+      )}
       <Sidebar
         orgSlug={orgSlug}
         workspaceSlug={workspaceSlug}
         workspaceId={workspaceId}
         isCollapsed={isCollapsed}
         onToggleCollapse={toggleCollapsed}
+        isMobileOpen={isMobileNavOpen}
+        onCloseMobile={() => setIsMobileNavOpen(false)}
         projects={projects}
         workspaces={workspaces}
         workspaceChannels={workspaceChannels}
@@ -98,6 +127,7 @@ export function WorkspaceLayoutShell({
           orgSlug={orgSlug}
           workspaceSlug={workspaceSlug}
           workspaceId={workspaceId}
+          onMenuClick={() => setIsMobileNavOpen(true)}
         />
         <main className="relative flex-1 overflow-hidden bg-black text-white">
           <BackgroundVideo src="/tech-bg-2.mp4" overlayClassName="bg-black/60" />

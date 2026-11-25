@@ -21,10 +21,10 @@ import {
   Search,
   ArrowLeft,
   ArrowRight,
-  Sparkles,
   PenTool,
   Network,
   Zap,
+  X,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -52,6 +52,8 @@ interface SidebarProps {
   workspaceId: string;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  isMobileOpen?: boolean;
+  onCloseMobile?: () => void;
   projects?: Array<{ id: string; name: string; key: string; color?: string | null }>;
   workspaces?: Array<{
     id: string;
@@ -70,6 +72,8 @@ export function Sidebar({
   workspaceId,
   isCollapsed = false,
   onToggleCollapse,
+  isMobileOpen = false,
+  onCloseMobile,
   projects = [],
   workspaces = [],
   workspaceChannels = [],
@@ -77,6 +81,7 @@ export function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname();
   const isDiscussionsMode = pathname.includes("/discussions");
+  const isCompact = isCollapsed && !isMobileOpen;
 
   const [createProjectOpen, setCreateProjectOpen] = useState(false);
   const [createChannelOpen, setCreateChannelOpen] = useState(false);
@@ -118,16 +123,34 @@ export function Sidebar({
 
   return (
     <aside
-      className={`relative flex h-screen flex-col border-r border-neutral-900 bg-black text-white transition-all duration-300 ease-in-out ${
-        isCollapsed ? "w-16 p-2" : "w-64 p-4"
+      onClick={(event) => {
+        if (onCloseMobile && (event.target as HTMLElement).closest("a[href]")) {
+          onCloseMobile();
+        }
+      }}
+      className={`flex h-dvh flex-col border-r border-neutral-900 bg-black text-white ${
+        isMobileOpen
+          ? "fixed inset-y-0 left-0 z-[80] w-full p-4 shadow-2xl"
+          : "hidden"
+      } md:relative md:inset-auto md:z-auto md:flex md:h-screen md:shadow-none md:transition-all md:duration-300 md:ease-in-out ${
+        isCollapsed ? "md:w-16 md:p-2" : "md:w-64 md:p-4"
       }`}
     >
+      {onCloseMobile && (
+        <button
+          onClick={onCloseMobile}
+          aria-label="Close navigation"
+          className="absolute right-4 top-4 z-40 flex h-9 w-9 items-center justify-center rounded-lg border border-neutral-800 bg-neutral-950 text-neutral-300 transition hover:border-neutral-700 hover:text-white md:hidden"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      )}
       {/* Collapse / Expand Toggle Button */}
       {onToggleCollapse && (
         <button
           onClick={onToggleCollapse}
           title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className="group/btn absolute -right-3.5 top-6 z-30 flex h-7 w-7 items-center justify-center rounded-full border-2 border-neutral-800 bg-neutral-950 text-neutral-400 shadow-xl transition-all duration-200 transform hover:scale-115 active:scale-95 hover:border-red-500 hover:bg-black hover:text-red-400 hover:shadow-[0_0_16px_rgba(239,68,68,0.85)]"
+          className="group/btn absolute -right-3.5 top-6 z-30 hidden h-7 w-7 items-center justify-center rounded-full border-2 border-neutral-800 bg-neutral-950 text-neutral-400 shadow-xl transition-all duration-200 transform hover:scale-115 active:scale-95 hover:border-red-500 hover:bg-black hover:text-red-400 hover:shadow-[0_0_16px_rgba(239,68,68,0.85)] md:flex"
         >
           {isCollapsed ? (
             <ChevronRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-0.5" />
@@ -138,33 +161,33 @@ export function Sidebar({
       )}
 
       {/* Back / Forward Buttons */}
-      <div className={`relative z-10 flex justify-center gap-2 ${isCollapsed ? "" : "mb-2"}`}>
+      <div className={`relative z-10 flex justify-center gap-2 ${isCompact ? "" : "mb-2"}`}>
         <button
           onClick={() => window.history.back()}
           title="Go back"
           className={`flex items-center gap-2 rounded-xl border border-emerald-900/40 bg-emerald-950/30 text-emerald-400 transition hover:border-emerald-500/50 hover:bg-emerald-950/60 hover:text-emerald-300 ${
-            isCollapsed ? "h-10 w-10 justify-center" : "px-2.5 py-2 text-xs font-medium"
+            isCompact ? "h-10 w-10 justify-center" : "px-2.5 py-2 text-xs font-medium"
           }`}
         >
           <ArrowLeft className="h-4 w-4 shrink-0" />
-          {!isCollapsed && <span>Back</span>}
+          {!isCompact && <span>Back</span>}
         </button>
         <button
           onClick={() => window.history.forward()}
           title="Go forward"
           disabled={!canGoForward}
           className={`flex items-center gap-2 rounded-xl border border-amber-900/40 bg-amber-950/30 text-amber-400 transition hover:border-amber-500/50 hover:bg-amber-950/60 hover:text-amber-300 disabled:cursor-not-allowed disabled:opacity-30 ${
-            isCollapsed ? "h-10 w-10 justify-center" : "px-2.5 py-2 text-xs font-medium"
+            isCompact ? "h-10 w-10 justify-center" : "px-2.5 py-2 text-xs font-medium"
           }`}
         >
-          {!isCollapsed && <span>Forward</span>}
+          {!isCompact && <span>Forward</span>}
           <ArrowRight className="h-4 w-4 shrink-0" />
         </button>
       </div>
 
       {/* Workspace Switcher / Header */}
       <div className="relative z-20 flex items-center justify-between">
-        {!isCollapsed ? (
+        {!isCompact ? (
           <div className="flex-1">
             <WorkspaceSwitcher
               currentOrgSlug={orgSlug}
@@ -186,7 +209,7 @@ export function Sidebar({
       {/* DEDICATED DISCUSSIONS MODE SIDEBAR */}
       {isDiscussionsMode ? (
         <div className="mt-4 flex-1 flex flex-col min-h-0 overflow-hidden">
-          {!isCollapsed ? (
+          {!isCompact ? (
             <>
               {/* Search Discussions button */}
               <button
@@ -364,12 +387,12 @@ export function Sidebar({
         <div className="mt-5 flex-1 space-y-6 overflow-y-auto overflow-x-hidden pr-0.5">
           {/* Main Workspace Navigation */}
           <div>
-            {!isCollapsed && (
+            {!isCompact && (
               <span className="px-2 text-[10px] font-bold uppercase tracking-wider text-neutral-500 font-mono">
                 WORKSPACE
               </span>
             )}
-            <nav className={`space-y-1 ${!isCollapsed ? "mt-1.5" : ""}`}>
+            <nav className={`space-y-1 ${!isCompact ? "mt-1.5" : ""}`}>
               {navLinks.map((link) => {
                 const Icon = link.icon;
                 const isActive = pathname === link.href;
@@ -378,9 +401,9 @@ export function Sidebar({
                     key={link.href}
                     href={link.href}
                     prefetch={true}
-                    title={isCollapsed ? link.label : undefined}
+                    title={isCompact ? link.label : undefined}
                     className={`flex items-center rounded-xl transition ${
-                      isCollapsed
+                      isCompact
                         ? "justify-center p-2.5"
                         : "gap-2.5 px-2.5 py-2 text-xs font-medium"
                     } ${
@@ -390,7 +413,7 @@ export function Sidebar({
                     }`}
                   >
                     <Icon className="h-4 w-4 shrink-0" />
-                    {!isCollapsed && <span className="truncate">{link.label}</span>}
+                    {!isCompact && <span className="truncate">{link.label}</span>}
                   </Link>
                 );
               })}
@@ -399,18 +422,18 @@ export function Sidebar({
               <Link
                 href={`${baseUrl}/discussions`}
                 prefetch={true}
-                title={isCollapsed ? "Discussions" : undefined}
+                title={isCompact ? "Discussions" : undefined}
                 className={`flex items-center rounded-xl transition ${
-                  isCollapsed
+                  isCompact
                     ? "justify-center p-2.5"
                     : "justify-between px-2.5 py-2 text-xs font-medium"
                 } text-neutral-400 hover:bg-neutral-900 hover:text-white`}
               >
                 <div className="flex items-center gap-2.5 truncate">
                   <MessagesSquare className="h-4 w-4 shrink-0 text-amber-400" />
-                  {!isCollapsed && <span>Discussions</span>}
+                  {!isCompact && <span>Discussions</span>}
                 </div>
-                {!isCollapsed && (
+                {!isCompact && (
                   <span className="rounded bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 font-mono text-[9px] font-bold text-amber-400">
                     Live
                   </span>
@@ -421,7 +444,7 @@ export function Sidebar({
 
           {/* Projects Section */}
           <div>
-            {!isCollapsed ? (
+            {!isCompact ? (
               <div className="flex items-center justify-between px-2">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 font-mono">
                   PROJECTS
@@ -446,7 +469,7 @@ export function Sidebar({
               </div>
             )}
 
-            <div className={`space-y-1 ${!isCollapsed ? "mt-1.5" : ""}`}>
+            <div className={`space-y-1 ${!isCompact ? "mt-1.5" : ""}`}>
               {projects.map((p) => {
                 const boardHref = `${baseUrl}/projects/${p.key}/board`;
                 const isActive = pathname.startsWith(boardHref);
@@ -455,9 +478,9 @@ export function Sidebar({
                     key={p.id}
                     href={boardHref}
                     prefetch={true}
-                    title={isCollapsed ? `${p.name} (${p.key})` : undefined}
+                    title={isCompact ? `${p.name} (${p.key})` : undefined}
                     className={`flex items-center rounded-xl transition ${
-                      isCollapsed
+                      isCompact
                         ? "justify-center p-2.5"
                         : "justify-between px-2.5 py-2 text-xs font-medium"
                     } ${
@@ -466,7 +489,7 @@ export function Sidebar({
                         : "text-neutral-400 hover:bg-neutral-900 hover:text-white"
                     }`}
                   >
-                    {isCollapsed ? (
+                    {isCompact ? (
                       <span className="font-mono text-xs font-bold text-neutral-300">
                         {p.key.slice(0, 2)}
                       </span>
@@ -483,7 +506,7 @@ export function Sidebar({
                 );
               })}
 
-              {projects.length === 0 && !isCollapsed && (
+              {projects.length === 0 && !isCompact && (
                 <button
                   onClick={() => setCreateProjectOpen(true)}
                   className="w-full text-left rounded-lg px-2.5 py-2 text-xs text-neutral-500 hover:bg-neutral-900"
