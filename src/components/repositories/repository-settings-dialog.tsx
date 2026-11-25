@@ -31,6 +31,7 @@ import {
   ProjectRepoDetails,
 } from "@/actions/repositories";
 import { runManualBugHunt } from "@/actions/bug-hunt";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { BranchInfo, RepoMetadata } from "@/lib/github/client";
 import { useRouter } from "next/navigation";
 
@@ -71,6 +72,7 @@ export function RepositorySettingsDialog({
   const [hunting, setHunting] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [webhookCopied, setWebhookCopied] = useState(false);
+  const [disconnectConfirmOpen, setDisconnectConfirmOpen] = useState(false);
 
   const loadData = async () => {
     setLoading(true);
@@ -197,12 +199,12 @@ export function RepositorySettingsDialog({
   };
 
   const handleDisconnect = async () => {
-    if (!confirm("Are you sure you want to disconnect this repository from the project?")) return;
     setSubmitting(true);
     const res = await disconnectProjectRepository(projectId);
     setSubmitting(false);
 
     if (res.success) {
+      setDisconnectConfirmOpen(false);
       setRepo(null);
       setMetadata(null);
       setBranches([]);
@@ -329,7 +331,7 @@ export function RepositorySettingsDialog({
                         </button>
                         {canManage && (
                           <button
-                            onClick={handleDisconnect}
+                            onClick={() => setDisconnectConfirmOpen(true)}
                             disabled={submitting}
                             title="Disconnect repository"
                             className="cursor-pointer flex items-center gap-1 rounded-lg border border-rose-500/30 bg-rose-500/10 px-2.5 py-1.5 text-xs text-rose-400 hover:bg-rose-500 hover:text-white transition"
@@ -650,6 +652,28 @@ export function RepositorySettingsDialog({
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={disconnectConfirmOpen}
+        title="Disconnect repository?"
+        description={
+          <>
+            Remove{" "}
+            <span className="font-semibold text-white">
+              {repo ? `${repo.repoOwner}/${repo.repoName}` : "this repository"}
+            </span>{" "}
+            from this project? Automated scans and AI fix suggestions will be disabled.
+          </>
+        }
+        confirmLabel="Disconnect repository"
+        pending={submitting}
+        error={statusMessage?.type === "error" ? statusMessage.text : null}
+        onCancel={() => {
+          setDisconnectConfirmOpen(false);
+          setStatusMessage(null);
+        }}
+        onConfirm={handleDisconnect}
+      />
     </div>
   );
 }

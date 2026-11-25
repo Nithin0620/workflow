@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getProjectSprints, createSprint, setSprintActive, updateSprint, deleteSprint } from "@/actions/sprints";
 import { updateIssueDetails, type UpdateIssueInput } from "@/actions/issues";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { formatIssueKey, formatDate } from "@/lib/utils";
 import { X, Loader2, Play, CheckCircle2, Trash2, Flag, Plus, Layers } from "lucide-react";
 
@@ -59,6 +60,7 @@ export function SprintManagementDialog({
 
   const [renameId, setRenameId] = useState<string | null>(null);
   const [renameName, setRenameName] = useState("");
+  const [sprintToDelete, setSprintToDelete] = useState<SprintSummary | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -283,10 +285,7 @@ export function SprintManagementDialog({
                           </button>
                         )}
                         <button
-                          onClick={() => {
-                            if (!window.confirm(`Delete Sprint ${s.number} and move its issues to the backlog?`)) return;
-                            run(() => deleteSprint(s.id));
-                          }}
+                          onClick={() => setSprintToDelete(s)}
                           disabled={working}
                           className="cursor-pointer rounded-lg p-1.5 text-neutral-500 hover:bg-rose-950/50 hover:text-rose-400 transition disabled:opacity-50"
                         >
@@ -339,6 +338,26 @@ export function SprintManagementDialog({
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={!!sprintToDelete}
+        title="Delete this sprint?"
+        description={
+          sprintToDelete
+            ? `Delete Sprint ${sprintToDelete.number}${
+                sprintToDelete.name ? ` — ${sprintToDelete.name}` : ""
+              }? Its issues will be moved back to the backlog.`
+            : undefined
+        }
+        confirmLabel="Delete sprint"
+        pending={working}
+        onCancel={() => setSprintToDelete(null)}
+        onConfirm={async () => {
+          if (!sprintToDelete) return;
+          await run(() => deleteSprint(sprintToDelete.id));
+          setSprintToDelete(null);
+        }}
+      />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, Pencil, X, Plus, Loader2 } from "lucide-react";
 import { addBanner, deleteBanner } from "@/actions/banners";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 interface BannerSlide {
   id: string;
@@ -25,6 +26,7 @@ export function BannerCarousel({ banners, canEdit = false, workspaceId, projectI
   const [url, setUrl] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [paused, setPaused] = useState(false);
+  const [bannerToDelete, setBannerToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     if (banners.length <= 1 || editing || paused) return;
@@ -36,9 +38,12 @@ export function BannerCarousel({ banners, canEdit = false, workspaceId, projectI
 
   const current = index % banners.length;
 
-  const handleDelete = async (bannerId: string) => {
-    setBusy(bannerId);
-    await deleteBanner(bannerId);
+  const handleDelete = async () => {
+    if (!bannerToDelete) return;
+    setBusy(bannerToDelete);
+    await deleteBanner(bannerToDelete);
+    setBannerToDelete(null);
+    setBusy(null);
     router.refresh();
   };
 
@@ -76,7 +81,7 @@ export function BannerCarousel({ banners, canEdit = false, workspaceId, projectI
             />
             {canEdit && editing && (
               <button
-                onClick={() => handleDelete(b.id)}
+                onClick={() => setBannerToDelete(b.id)}
                 disabled={busy === b.id}
                 title="Remove banner image"
                 className="absolute right-2 top-12 flex h-7 w-7 items-center justify-center rounded-lg bg-black/70 text-white hover:bg-rose-600 transition"
@@ -171,6 +176,16 @@ export function BannerCarousel({ banners, canEdit = false, workspaceId, projectI
           </button>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!bannerToDelete}
+        title="Remove banner image?"
+        description="This banner image will be removed from this workspace or project."
+        confirmLabel="Remove banner"
+        pending={!!bannerToDelete && busy === bannerToDelete}
+        onCancel={() => setBannerToDelete(null)}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

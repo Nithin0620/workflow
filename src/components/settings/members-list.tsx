@@ -4,6 +4,7 @@ import { useState } from "react";
 import { UserRole } from "@prisma/client";
 import { updateMemberRole, removeMember } from "@/actions/members";
 import { InviteMemberDialog } from "./invite-member-dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { formatDate } from "@/lib/utils";
 import { UserPlus, Trash2, Shield, UserCheck, Eye, Crown, Loader2, AlertCircle } from "lucide-react";
 
@@ -59,6 +60,7 @@ export function MembersList({
   const [members, setMembers] = useState<MemberItem[]>(initialMembers);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [memberToRemove, setMemberToRemove] = useState<MemberItem | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const canManage = currentUserRole === "OWNER" || currentUserRole === "ADMIN";
@@ -84,11 +86,6 @@ export function MembersList({
   };
 
   const handleRemoveMember = async (member: MemberItem) => {
-    const name = member.user.name || member.user.email || "this user";
-    if (!window.confirm(`Are you sure you want to remove ${name} from this workspace?`)) {
-      return;
-    }
-
     setErrorMessage(null);
     setUpdatingId(member.id);
 
@@ -98,6 +95,7 @@ export function MembersList({
         setErrorMessage(res.error);
       } else {
         setMembers((prev) => prev.filter((m) => m.id !== member.id));
+        setMemberToRemove(null);
       }
     } catch {
       setErrorMessage("Failed to remove member.");
@@ -200,7 +198,7 @@ export function MembersList({
 
                 {canManage && !isMe && !isLastOwner && (
                   <button
-                    onClick={() => handleRemoveMember(m)}
+                    onClick={() => setMemberToRemove(m)}
                     disabled={updatingId === m.id}
                     title="Remove member"
                     className="rounded-xl border border-neutral-800 bg-neutral-900 p-2 text-neutral-400 hover:border-rose-900 hover:bg-rose-950/30 hover:text-rose-400 transition"
@@ -227,6 +225,28 @@ export function MembersList({
           // Trigger reload or state will be updated via page server action revalidation
           window.location.reload();
         }}
+      />
+
+      <ConfirmDialog
+        open={!!memberToRemove}
+        title="Remove workspace member?"
+        description={
+          <>
+            Are you sure you want to remove{" "}
+            <span className="font-semibold text-white">
+              {memberToRemove?.user.name || memberToRemove?.user.email || "this user"}
+            </span>{" "}
+            from this workspace? They will lose access to its projects and issues.
+          </>
+        }
+        confirmLabel="Remove member"
+        pending={!!memberToRemove && updatingId === memberToRemove.id}
+        error={errorMessage}
+        onCancel={() => {
+          setMemberToRemove(null);
+          setErrorMessage(null);
+        }}
+        onConfirm={() => memberToRemove ? handleRemoveMember(memberToRemove) : undefined}
       />
     </div>
   );

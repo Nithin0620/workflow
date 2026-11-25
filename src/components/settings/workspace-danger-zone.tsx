@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateWorkspaceDetails, deleteWorkspace, leaveWorkspace } from "@/actions/members";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Trash2, LogOut, Edit3, Loader2, AlertTriangle } from "lucide-react";
 
 interface WorkspaceDangerZoneProps {
@@ -21,6 +22,8 @@ export function WorkspaceDangerZone({
   const [renaming, setRenaming] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const isOwner = currentUserRole === "OWNER";
@@ -49,10 +52,6 @@ export function WorkspaceDangerZone({
   };
 
   const handleLeave = async () => {
-    if (!window.confirm("Are you sure you want to leave this workspace? You will lose access to its projects and issues.")) {
-      return;
-    }
-
     setLeaving(true);
     setMessage(null);
 
@@ -71,12 +70,6 @@ export function WorkspaceDangerZone({
   };
 
   const handleDelete = async () => {
-    const prompt = window.prompt(`This action is irreversible. Type "${initialWorkspaceName}" to permanently delete this workspace and all its data:`);
-    if (prompt !== initialWorkspaceName) {
-      if (prompt !== null) alert("Name did not match. Deletion cancelled.");
-      return;
-    }
-
     setDeleting(true);
     setMessage(null);
 
@@ -156,7 +149,7 @@ export function WorkspaceDangerZone({
               </p>
             </div>
             <button
-              onClick={handleLeave}
+              onClick={() => setLeaveConfirmOpen(true)}
               disabled={leaving}
               className="flex items-center gap-1.5 rounded-xl border border-neutral-800 bg-neutral-900 px-3.5 py-2 text-xs font-bold text-neutral-300 hover:border-rose-900 hover:bg-rose-950/40 hover:text-rose-400 transition disabled:opacity-50"
             >
@@ -175,7 +168,7 @@ export function WorkspaceDangerZone({
                 </p>
               </div>
               <button
-                onClick={handleDelete}
+                onClick={() => setDeleteConfirmOpen(true)}
                 disabled={deleting}
                 className="flex items-center gap-1.5 rounded-xl bg-rose-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-rose-700 transition disabled:opacity-50 shadow-lg shadow-rose-950"
               >
@@ -186,6 +179,41 @@ export function WorkspaceDangerZone({
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={leaveConfirmOpen}
+        title="Leave this workspace?"
+        description="You will lose access to its projects and issues. You can only rejoin if an admin invites you again."
+        confirmLabel="Leave workspace"
+        pending={leaving}
+        error={message?.type === "error" ? message.text : null}
+        onCancel={() => {
+          setLeaveConfirmOpen(false);
+          setMessage(null);
+        }}
+        onConfirm={handleLeave}
+      />
+
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        title="Delete this workspace?"
+        description={
+          <>
+            This action is irreversible. This will permanently delete{" "}
+            <span className="font-semibold text-white">{initialWorkspaceName}</span> and all of its
+            projects, issues, and activity logs.
+          </>
+        }
+        confirmLabel="Delete workspace"
+        requireText={initialWorkspaceName}
+        pending={deleting}
+        error={message?.type === "error" ? message.text : null}
+        onCancel={() => {
+          setDeleteConfirmOpen(false);
+          setMessage(null);
+        }}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

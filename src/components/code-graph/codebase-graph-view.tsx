@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useTransition, useMemo } from "react";
+import React, { useState, useEffect, useRef, useTransition, useMemo, useCallback } from "react";
 import {
   CodebaseGraphData,
   CodeNode,
@@ -28,7 +28,6 @@ import {
   LayoutGrid,
   ArrowRight,
   AlertCircle,
-  ExternalLink,
 } from "lucide-react";
 
 interface CodebaseGraphViewProps {
@@ -88,27 +87,33 @@ export function CodebaseGraphView({ projectId, projectKey }: CodebaseGraphViewPr
     resetView: () => void;
   } | null>(null);
 
-  const loadGraph = () => {
+  const loadGraph = useCallback(() => {
     setLoading(true);
     setError(null);
     startTransition(async () => {
-      const res = await getProjectCodebaseGraph(projectId);
-      if (res.success && res.graph) {
-        setFullGraphData(res.graph);
-        setRepository(res.repository || null);
-      } else if (res.repository === null) {
-        setFullGraphData(null);
-        setRepository(null);
-      } else {
-        setError(res.error || "Failed to load codebase graph.");
+      try {
+        const res = await getProjectCodebaseGraph(projectId);
+        if (res.success && res.graph) {
+          setFullGraphData(res.graph);
+          setRepository(res.repository || null);
+        } else if (res.repository === null) {
+          setFullGraphData(null);
+          setRepository(null);
+        } else {
+          setError(res.error || "Failed to load codebase graph.");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load codebase graph.");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
-  };
+  }, [projectId]);
 
   useEffect(() => {
-    loadGraph();
-  }, [projectId]);
+    const frame = requestAnimationFrame(() => loadGraph());
+    return () => cancelAnimationFrame(frame);
+  }, [loadGraph]);
 
   // Compute clean subgraph for the current directory level
   const activeSubgraph = useMemo(() => {
@@ -277,6 +282,30 @@ export function CodebaseGraphView({ projectId, projectKey }: CodebaseGraphViewPr
           <p className="text-xs font-medium text-neutral-400">
             Indexing repository files & structuring clean hierarchy...
           </p>
+        </div>
+      ) : error ? (
+        <div className="flex flex-1 flex-col items-center justify-center p-8 text-center bg-gradient-to-b from-neutral-950 to-black">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-red-900/50 bg-red-950/30 text-red-400 mb-4 shadow-xl">
+            <AlertCircle className="h-8 w-8" />
+          </div>
+          <h3 className="text-base font-semibold text-white">Could not load the code graph</h3>
+          <p className="mt-1.5 max-w-md text-xs text-neutral-400">{error}</p>
+          <div className="mt-5 flex items-center gap-2">
+            <button
+              onClick={loadGraph}
+              className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/20 transition-all"
+            >
+              <RefreshCw className="h-4 w-4" />
+              <span>Try again</span>
+            </button>
+            <button
+              onClick={() => setRepoSettingsOpen(true)}
+              className="inline-flex items-center gap-2 rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-2 text-xs font-semibold text-neutral-300 hover:bg-neutral-800 hover:text-white transition-all"
+            >
+              <FolderGit2 className="h-4 w-4" />
+              <span>Repository settings</span>
+            </button>
+          </div>
         </div>
       ) : !repository || !fullGraphData || !activeSubgraph ? (
         // Empty State: No Repo Connected

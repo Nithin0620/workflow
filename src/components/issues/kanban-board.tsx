@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { IssueStatus, IssuePriority } from "@prisma/client";
 import { KanbanColumn } from "./kanban-column";
@@ -21,7 +22,6 @@ import { reorderBoardColumns } from "@/actions/columns";
 import { exportProjectIssues } from "@/actions/export";
 import { useProjectRealtime } from "@/hooks/use-project-realtime";
 import { TourReplayButton } from "@/components/onboarding/onboarding-tour";
-import { CodebaseGraphView } from "@/components/code-graph/codebase-graph-view";
 import {
   Plus,
   Search,
@@ -30,7 +30,6 @@ import {
   Network,
   Shield,
   LayoutGrid,
-  Download,
   UserCheck,
   AlertCircle,
   X,
@@ -111,7 +110,7 @@ export function KanbanBoard({
   );
   const [draggedOverColumnId, setDraggedOverColumnId] = useState<string | null>(null);
   const [issues, setIssues] = useState<IssueItem[]>(initialIssues);
-  const [viewMode, setViewMode] = useState<"board" | "list" | "graph">("board");
+  const [viewMode, setViewMode] = useState<"board" | "list">("board");
   const [search, setSearch] = useState("");
   const [selectedPriority, setSelectedPriority] = useState<string>("ALL");
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("ALL");
@@ -620,18 +619,16 @@ export function KanbanBoard({
               <List className="h-3.5 w-3.5" />
               <span>List</span>
             </button>
-            <button
-              onClick={() => setViewMode("graph")}
+            <Link
+              href={`/${orgSlug}/${workspaceSlug}/graph?project=${encodeURIComponent(
+                projectKey.toLowerCase()
+              )}`}
               title="Interactive Codebase Knowledge Graph"
-              className={`cursor-pointer flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition ${
-                viewMode === "graph"
-                  ? "bg-white text-black shadow-sm"
-                  : "text-neutral-400 hover:text-white"
-              }`}
+              className="cursor-pointer flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition text-neutral-400 hover:text-white"
             >
               <Network className="h-3.5 w-3.5" />
               <span>Graph</span>
-            </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -678,17 +675,13 @@ export function KanbanBoard({
             </button>
           )}
         </div>
-      ) : viewMode === "list" ? (
+      ) : (
         <div className="flex-1 pb-4">
           <IssueListView
             issues={filteredIssues}
             onSelectIssue={(issue) => setSelectedIssueId(issue.id)}
             onStatusChange={(id, status) => handleDropIssue(id, status)}
           />
-        </div>
-      ) : (
-        <div className="flex-1 pb-4">
-          <CodebaseGraphView projectId={projectId} projectKey={projectKey} />
         </div>
       )}
 

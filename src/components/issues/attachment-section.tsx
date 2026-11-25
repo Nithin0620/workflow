@@ -5,6 +5,7 @@ import { uploadFileToCloudinary } from "@/lib/cloudinary-client";
 import { uploadIssueAttachment, deleteAttachment } from "@/actions/attachments";
 import { ATTACHMENT_MAX_BYTES } from "@/lib/validators";
 import { formatFileSize } from "@/lib/utils";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Paperclip, Trash2, ImagePlus, Loader2, UploadCloud } from "lucide-react";
 
 export interface AttachmentItem {
@@ -108,6 +109,9 @@ export function AttachmentGrid({
 export function AttachmentSection({ issueId, attachments, onAdded, onDeleted, compact, title = "ATTACHMENTS" }: AttachmentSectionProps) {
   const [uploading, setUploading] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const [attachmentToDelete, setAttachmentToDelete] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFiles = async (files: FileList | File[]) => {
@@ -137,11 +141,20 @@ export function AttachmentSection({ issueId, attachments, onAdded, onDeleted, co
     }
   };
 
-  const handleDelete = async (attachmentId: string) => {
-    if (!window.confirm("Delete this attachment?")) return;
-    const res = await deleteAttachment(attachmentId);
-    if (res.success) onDeleted(attachmentId);
-    else alert(res.error || "Could not delete attachment.");
+  const handleDelete = async () => {
+    if (!attachmentToDelete) return;
+
+    setDeleting(true);
+    setDeleteError(null);
+    const res = await deleteAttachment(attachmentToDelete);
+    setDeleting(false);
+
+    if (res.success) {
+      onDeleted(attachmentToDelete);
+      setAttachmentToDelete(null);
+    } else {
+      setDeleteError(res.error || "Could not delete attachment.");
+    }
   };
 
   return (
@@ -150,7 +163,7 @@ export function AttachmentSection({ issueId, attachments, onAdded, onDeleted, co
         {title}
       </label>
 
-      <AttachmentGrid attachments={attachments} onDelete={handleDelete} compact={compact} />
+      <AttachmentGrid attachments={attachments} onDelete={setAttachmentToDelete} compact={compact} />
 
       <div
         onDragOver={(e) => {
@@ -189,6 +202,28 @@ export function AttachmentSection({ issueId, attachments, onAdded, onDeleted, co
           onChange={(e) => e.target.files && handleFiles(e.target.files)}
         />
       </div>
+
+      <ConfirmDialog
+        open={!!attachmentToDelete}
+        title="Delete this attachment?"
+        description={
+          <>
+            Delete{" "}
+            <span className="font-semibold text-white">
+              {attachments.find((a) => a.id === attachmentToDelete)?.fileName || "this attachment"}
+            </span>
+            ? This cannot be undone.
+          </>
+        }
+        confirmLabel="Delete attachment"
+        pending={deleting}
+        error={deleteError}
+        onCancel={() => {
+          setAttachmentToDelete(null);
+          setDeleteError(null);
+        }}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

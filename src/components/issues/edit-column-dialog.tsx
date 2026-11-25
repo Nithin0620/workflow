@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { updateBoardColumn, deleteBoardColumn } from "@/actions/columns";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Settings, Trash2, X, Loader2 } from "lucide-react";
 
 interface EditColumnDialogProps {
@@ -40,6 +41,7 @@ export function EditColumnDialog({
   const [color, setColor] = useState(column.color || "#737373");
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   if (!isOpen) return null;
@@ -75,10 +77,6 @@ export function EditColumnDialog({
   };
 
   const handleDelete = async () => {
-    if (!window.confirm(`Are you sure you want to delete "${column.name}"? Any remaining cards will be safely moved to your primary column.`)) {
-      return;
-    }
-
     setDeleting(true);
     setError(null);
 
@@ -90,6 +88,7 @@ export function EditColumnDialog({
         return;
       }
 
+      setConfirmDeleteOpen(false);
       onColumnDeleted?.(column.id);
       onClose();
     } catch {
@@ -164,7 +163,7 @@ export function EditColumnDialog({
           <div className="flex items-center justify-between pt-4 border-t border-neutral-900">
             <button
               type="button"
-              onClick={handleDelete}
+              onClick={() => setConfirmDeleteOpen(true)}
               disabled={deleting || loading}
               className="cursor-pointer flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 transition disabled:opacity-50"
             >
@@ -191,6 +190,25 @@ export function EditColumnDialog({
           </div>
         </form>
       </div>
+
+      <ConfirmDialog
+        open={confirmDeleteOpen}
+        title="Delete this list?"
+        description={
+          <>
+            Are you sure you want to delete <span className="font-semibold text-white">{column.name}</span>?
+            Any remaining cards will be safely moved to your primary column.
+          </>
+        }
+        confirmLabel="Delete list"
+        pending={deleting}
+        error={error}
+        onCancel={() => {
+          setConfirmDeleteOpen(false);
+          setError(null);
+        }}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

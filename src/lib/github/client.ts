@@ -32,6 +32,12 @@ export interface FileTreeItem {
   sha: string;
 }
 
+const REQUEST_TIMEOUT_MS = 15_000;
+
+function errorMessage(err: unknown): string {
+  return err instanceof Error ? errorMessage(err) : String(err);
+}
+
 /**
  * Parses GitHub repository URL or "owner/repo" shorthand.
  */
@@ -114,8 +120,8 @@ export async function validateGithubConnection(
         htmlUrl: data.html_url || `https://github.com/${owner}/${name}`,
       },
     };
-  } catch (err: any) {
-    return { success: false, error: err.message || "Failed to connect to GitHub" };
+  } catch (err) {
+    return { success: false, error: errorMessage(err) || "Failed to connect to GitHub" };
   }
 }
 
@@ -140,15 +146,15 @@ export async function fetchRepositoryBranches(
 
     const data = await res.json();
     const branches: BranchInfo[] = Array.isArray(data)
-      ? data.map((b: any) => ({
-          name: b.name,
+      ? data.map((b: { name?: string }) => ({
+          name: b.name || "",
           isDefault: b.name === defaultBranch,
         }))
       : [];
 
     return { success: true, branches };
-  } catch (err: any) {
-    return { success: false, branches: [], error: err.message };
+  } catch (err) {
+    return { success: false, branches: [], error: errorMessage(err) };
   }
 }
 
@@ -167,6 +173,7 @@ export async function fetchRepositoryTree(
       {
         headers: getHeaders(token),
         next: { revalidate: 60 },
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       }
     );
 
@@ -177,19 +184,29 @@ export async function fetchRepositoryTree(
     const data = await res.json();
     const tree: FileTreeItem[] = Array.isArray(data.tree)
       ? data.tree
-          .filter((item: any) => item.type === "blob" || item.type === "tree")
-          .map((item: any) => ({
-            path: item.path,
-            mode: item.mode,
-            type: item.type,
-            size: item.size,
-            sha: item.sha,
-          }))
+          .filter(
+            (item: { type?: string }) => item.type === "blob" || item.type === "tree"
+          )
+          .map(
+            (item: {
+              path?: string;
+              mode?: string;
+              type?: string;
+              size?: number;
+              sha?: string;
+            }) => ({
+              path: item.path || "",
+              mode: item.mode || "",
+              type: item.type as "blob" | "tree",
+              size: item.size,
+              sha: item.sha || "",
+            })
+          )
       : [];
 
     return { success: true, tree };
-  } catch (err: any) {
-    return { success: false, tree: [], error: err.message };
+  } catch (err) {
+    return { success: false, tree: [], error: errorMessage(err) };
   }
 }
 
@@ -210,6 +227,7 @@ export async function fetchRepositoryFileContent(
       {
         headers: getHeaders(token),
         next: { revalidate: 0 },
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       }
     );
 
@@ -224,8 +242,8 @@ export async function fetchRepositoryFileContent(
     }
 
     return { success: false, error: "Unsupported file encoding or directory path" };
-  } catch (err: any) {
-    return { success: false, error: err.message };
+  } catch (err) {
+    return { success: false, error: errorMessage(err) };
   }
 }
 

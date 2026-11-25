@@ -15,6 +15,7 @@ import { ISSUE_STATUSES, ISSUE_PRIORITIES } from "@/lib/constants";
 import { formatIssueKey, formatDate } from "@/lib/utils";
 import { Markdown } from "@/components/markdown";
 import { AttachmentSection, AttachmentGrid, type AttachmentItem } from "./attachment-section";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import Link from "next/link";
 import {
   X,
@@ -178,6 +179,10 @@ export function IssueDetailModal({
 }: IssueDetailModalProps) {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<"issue" | "attachment" | null>(null);
+  const [attachmentToDelete, setAttachmentToDelete] = useState<string | null>(null);
+  const [deletingAttachmentId, setDeletingAttachmentId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [issue, setIssue] = useState<IssueDetailData | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -353,19 +358,20 @@ export function IssueDetailModal({
 
   const handleDeleteIssue = async () => {
     if (!issueId) return;
-    if (!window.confirm("Are you sure you want to delete this issue?")) return;
 
     setDeleting(true);
+    setDeleteError(null);
     const { deleteIssue } = await import("@/actions/issues");
     const res = await deleteIssue(issueId);
 
+    setDeleting(false);
     if (res?.success) {
+      setDeleteTarget(null);
       onIssueDeleted?.(issueId);
       onClose();
     } else {
-      alert(res?.error || "Could not delete issue.");
+      setDeleteError(res?.error || "Could not delete issue.");
     }
-    setDeleting(false);
   };
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
@@ -432,22 +438,32 @@ export function IssueDetailModal({
   };
 
   const handleDeleteCommentAttachment = async (attachmentId: string) => {
-    if (!window.confirm("Delete this attachment?")) return;
-    const res = await deleteAttachment(attachmentId);
-    if (res.success) {
-      setIssue((prev) =>
-        prev
-          ? {
-              ...prev,
-              comments: (prev.comments || []).map((c) => ({
-                ...c,
-                attachments: (c.attachments || []).filter((a) => a?.id !== attachmentId),
-              })),
-            }
-          : prev
-      );
-    } else {
-      alert(res.error || "Could not delete attachment.");
+    setDeletingAttachmentId(attachmentId);
+    setDeleteError(null);
+
+    try {
+      const res = await deleteAttachment(attachmentId);
+      if (res.success) {
+        setIssue((prev) =>
+          prev
+            ? {
+                ...prev,
+                comments: (prev.comments || []).map((c) => ({
+                  ...c,
+                  attachments: (c.attachments || []).filter((a) => a?.id !== attachmentId),
+                })),
+              }
+            : prev
+        );
+        setDeleteTarget(null);
+        setAttachmentToDelete(null);
+      } else {
+        setDeleteError(res.error || "Could not delete attachment.");
+      }
+    } catch {
+      setDeleteError("Could not delete attachment.");
+    } finally {
+      setDeletingAttachmentId(null);
     }
   };
 
@@ -550,7 +566,10 @@ export function IssueDetailModal({
 
           <div className="flex items-center gap-2">
             <button
-              onClick={handleDeleteIssue}
+              onClick={() => {
+                setDeleteError(null);
+                setDeleteTarget("issue");
+              }}
               disabled={deleting}
               title="Delete issue"
               className="cursor-pointer rounded-lg p-1.5 text-neutral-400 hover:bg-rose-950/50 hover:text-rose-400 transition disabled:opacity-50"
@@ -788,7 +807,11 @@ export function IssueDetailModal({
                                   <div className="pt-2">
                                     <AttachmentGrid
                                       attachments={c.attachments}
-                                      onDelete={handleDeleteCommentAttachment}
+                                      onDelete={(id) => {
+                                        setAttachmentToDelete(id);
+                                        setDeleteError(null);
+                                        setDeleteTarget("attachment");
+                                      }}
                                       compact
                                     />
                                   </div>
@@ -1192,6 +1215,32 @@ export function IssueDetailModal({
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title={deleteTarget === "issue" ? "Delete this issue?" : "Delete this attachment?"}
+        description={
+          deleteTarget === "issue"
+            ? "This will permanently delete the issue, its comments, and its activity log."
+            : "Delete this attachment? This cannot be undone."
+        }
+        confirmLabel={deleteTarget === "issue" ? "Delete issue" : "Delete attachment"}
+        pending={
+          deleteTarget === "issue" ? deleting : !!attachmentToDelete && deletingAttachmentId === attachmentToDelete
+        }
+        error={deleteError}
+        onCancel={() => {
+          setDeleteTarget(null);
+          setAttachmentToDelete(null);
+          setDeleteError(null);
+        }}
+        onConfirm={() => {
+          if (deleteTarget === "issue") return handleDeleteIssue();
+          if (deleteTarget === "attachment" && attachmentToDelete) {
+            return handleDeleteCommentAttachment(attachmentToDelete);
+          }
+        }}
+      />
     </div>
   );
 }

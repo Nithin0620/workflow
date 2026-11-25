@@ -26,6 +26,7 @@ import {
   CronRunItem,
 } from "@/actions/cron-jobs";
 import { CreateCronJobDialog } from "./create-cron-job-dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useRouter } from "next/navigation";
 import { OnboardingTour, TourReplayButton } from "@/components/onboarding/onboarding-tour";
 
@@ -57,6 +58,8 @@ export function CronManagementClient({
   const [refreshing, setRefreshing] = useState(false);
   const [runningAll, setRunningAll] = useState(false);
   const [runningJobId, setRunningJobId] = useState<string | null>(null);
+  const [jobToDelete, setJobToDelete] = useState<CronJobItem | null>(null);
+  const [deletingJobId, setDeletingJobId] = useState<string | null>(null);
   const [notification, setNotification] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const [jobs, setJobs] = useState<CronJobItem[]>(initialJobs);
@@ -126,8 +129,10 @@ export function CronManagementClient({
   };
 
   const handleDelete = async (job: CronJobItem) => {
-    if (!confirm(`Delete cron job "${job.name}"? Its run history will be kept.`)) return;
+    setDeletingJobId(job.id);
     const res = await deleteCronJob(job.id);
+    setDeletingJobId(null);
+    if (res.success) setJobToDelete(null);
     setNotification(res.success
       ? { type: "success", text: "Cron job deleted." }
       : { type: "error", text: res.error || "Delete failed." });
@@ -385,7 +390,7 @@ export function CronManagementClient({
 
                     {canManage && (
                       <button
-                        onClick={() => handleDelete(job)}
+                        onClick={() => setJobToDelete(job)}
                         title="Delete this cron job"
                         className="flex items-center gap-1 text-[11px] font-semibold text-neutral-500 hover:text-rose-400 transition"
                       >
@@ -535,6 +540,26 @@ export function CronManagementClient({
       />
 
       <OnboardingTour tourId="cron" />
+
+      <ConfirmDialog
+        open={!!jobToDelete}
+        title="Delete this cron job?"
+        description={
+          <>
+            Delete{" "}
+            <span className="font-semibold text-white">{jobToDelete?.name}</span>? Its run history
+            will be kept.
+          </>
+        }
+        confirmLabel="Delete cron job"
+        pending={!!jobToDelete && deletingJobId === jobToDelete.id}
+        error={notification?.type === "error" ? notification.text : null}
+        onCancel={() => {
+          setJobToDelete(null);
+          setNotification(null);
+        }}
+        onConfirm={() => jobToDelete ? handleDelete(jobToDelete) : undefined}
+      />
     </div>
   );
 }

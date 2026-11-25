@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect, useState, useCallback } from "react";
-import { CodeNode, CodebaseGraphData, GraphFilterState, CodeLayer } from "@/types/code-graph";
+import { CodeNode, CodebaseGraphData, GraphFilterState, CodeLayer, CodeLink } from "@/types/code-graph";
 import { LAYER_COLORS } from "@/lib/github/graph-builder";
 
 interface ForceGraphCanvasProps {
@@ -31,6 +31,10 @@ interface SimLink {
   source: SimNode;
   target: SimNode;
   type: string;
+}
+
+function getLinkNodeId(endpoint: CodeLink["source"]): string {
+  return typeof endpoint === "string" ? endpoint : endpoint.id;
 }
 
 /**
@@ -108,6 +112,8 @@ export function ForceGraphCanvas({
   const alphaRef = useRef(1);
   const pulseAnimRef = useRef(0);
   const [cursorStyle, setCursorStyle] = useState<"grab" | "grabbing" | "pointer">("grab");
+  const [zoomPercent, setZoomPercent] = useState(100);
+  const didInitialFitRef = useRef(false);
 
   const lastClickTimeRef = useRef<{ time: number; nodeId: string | null }>({
     time: 0,
@@ -120,6 +126,78 @@ export function ForceGraphCanvas({
     y: number;
     node: SimNode | null;
   }>({ visible: false, x: 0, y: 0, node: null });
+
+  const applyTransform = useCallback((patch: Partial<{ x: number; y: number; k: number }>) => {
+    transformRef.current = { ...transformRef.current, ...patch };
+    setZoomPercent(Math.round(transformRef.current.k * 100));
+  }, []);
+
+  const zoomAtPoint = useCallback(
+    (mouseX: number, mouseY: number, factor: number) => {
+      const width = containerRef.current?.clientWidth || 800;
+      const height = containerRef.current?.clientHeight || 600;
+      const { x: panX, y: panY, k: scale } = transformRef.current;
+      const nextScale = Math.max(0.15, Math.min(4, scale * factor));
+      if (nextScale === scale) return;
+
+      const graphX = (mouseX - (width / 2 + panX)) / scale + width / 2;
+      const graphY = (mouseY - (height / 2 + panY)) / scale + height / 2;
+
+      applyTransform({
+        k: nextScale,
+        x: mouseX - width / 2 - nextScale * (graphX - width / 2),
+        y: mouseY - height / 2 - nextScale * (graphY - height / 2),
+      });
+    },
+    [applyTransform]
+  );
+
+  const zoomBy = useCallback(
+    (factor: number) => {
+      const width = containerRef.current?.clientWidth || 800;
+      const height = containerRef.current?.clientHeight || 600;
+      zoomAtPoint(width / 2, height / 2, factor);
+    },
+    [zoomAtPoint]
+  );
+
+  const fitToView = useCallback(() => {
+    const nodes = nodesRef.current;
+    const width = containerRef.current?.clientWidth || 800;
+    const height = containerRef.current?.clientHeight || 600;
+
+    if (nodes.length === 0) {
+      applyTransform({ k: 1, x: 0, y: 0 });
+      return;
+    }
+
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (const node of nodes) {
+      minX = Math.min(minX, node.x - node.width / 2);
+      minY = Math.min(minY, node.y - node.height / 2);
+      maxX = Math.max(maxX, node.x + node.width / 2);
+      maxY = Math.max(maxY, node.y + node.height / 2);
+    }
+
+    const padding = Math.max(48, Math.min(96, Math.min(width, height) * 0.12));
+    const graphWidth = Math.max(maxX - minX, 1);
+    const graphHeight = Math.max(maxY - minY, 1);
+    const scale = Math.max(
+      0.15,
+      Math.min(1.75, (width - padding * 2) / graphWidth, (height - padding * 2) / graphHeight)
+    );
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+
+    applyTransform({
+      k: scale,
+      x: -(centerX - width / 2) * scale,
+      y: -(centerY - height / 2) * scale,
+    });
+  }, [applyTransform]);
 
   // Filter nodes & links based on current filter state
   const getFilteredGraph = useCallback(() => {
@@ -142,8 +220,8 @@ export function ForceGraphCanvas({
     const nodeIds = new Set(filteredNodes.map((n) => n.id));
 
     const filteredLinks = data.links.filter((link) => {
-      const srcId = typeof link.source === "object" ? (link.source as any).id : link.source;
-      const tgtId = typeof link.target === "object" ? (link.target as any).id : link.target;
+      const srcId = getLinkNodeId(link.source);
+      const tgtId = getLinkNodeId(link.target);
       return nodeIds.has(srcId) && nodeIds.has(tgtId);
     });
 
@@ -186,8 +264,8 @@ export function ForceGraphCanvas({
 
     const simLinks: SimLink[] = [];
     for (const link of filteredLinks) {
-      const srcId = typeof link.source === "object" ? (link.source as any).id : link.source;
-      const tgtId = typeof link.target === "object" ? (link.target as any).id : link.target;
+      const srcId = getLinkNodeId(link.source);
+      const tgtId = getLinkNodeId(link.target);
       const srcNode = simNodeMap.get(srcId);
       const tgtNode = simNodeMap.get(tgtId);
       if (srcNode && tgtNode) {
@@ -202,21 +280,33 @@ export function ForceGraphCanvas({
     nodesRef.current = simNodes;
     linksRef.current = simLinks;
     alphaRef.current = 1.0;
+    didInitialFitRef.current = false;
   }, [getFilteredGraph]);
 
   // Zoom & Pan Action Handlers
-  const zoomIn = useCallback(() => {
-    transformRef.current.k = Math.min(4, transformRef.current.k * 1.25);
-  }, []);
+  const zoomIn = useCallback(() => zoomBy(1.25), [zoomBy]);
 
-  const zoomOut = useCallback(() => {
-    transformRef.current.k = Math.max(0.2, transformRef.current.k / 1.25);
-  }, []);
+  const zoomOut = useCallback(() => zoomBy(0.8), [zoomBy]);
 
-  const resetView = useCallback(() => {
-    transformRef.current = { x: 0, y: 0, k: 1 };
-    alphaRef.current = 0.8;
-  }, []);
+  const resetView = useCallback(() => fitToView(), [fitToView]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      const rect = container.getBoundingClientRect();
+      zoomAtPoint(
+        event.clientX - rect.left,
+        event.clientY - rect.top,
+        event.deltaY < 0 ? 1.12 : 1 / 1.12
+      );
+    };
+
+    container.addEventListener("wheel", onWheel, { passive: false });
+    return () => container.removeEventListener("wheel", onWheel);
+  }, [zoomAtPoint]);
 
   useEffect(() => {
     if (zoomActionRef) {
@@ -383,6 +473,11 @@ export function ForceGraphCanvas({
         }
 
         alphaRef.current *= 0.985;
+      }
+
+      if (!didInitialFitRef.current && alphaRef.current <= 0.35) {
+        fitToView();
+        didInitialFitRef.current = true;
       }
 
       // --- Draw Smooth Curved Link Connections ---
@@ -586,7 +681,7 @@ export function ForceGraphCanvas({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [selectedNodeId, filter.search]);
+  }, [selectedNodeId, filter.search, fitToView]);
 
   // Convert Screen Coordinates to Graph Canvas Coordinates
   const getGraphCoords = (clientX: number, clientY: number) => {
@@ -713,17 +808,49 @@ export function ForceGraphCanvas({
     setCursorStyle(target ? "pointer" : "grab");
   };
 
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    const zoomFactor = e.deltaY < 0 ? 1.12 : 0.88;
-    const newScale = Math.max(0.2, Math.min(4, transformRef.current.k * zoomFactor));
-    transformRef.current.k = newScale;
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const panStep = 64;
+    switch (e.key) {
+      case "+":
+      case "=":
+        e.preventDefault();
+        zoomBy(1.25);
+        break;
+      case "-":
+      case "_":
+        e.preventDefault();
+        zoomBy(0.8);
+        break;
+      case "0":
+        e.preventDefault();
+        fitToView();
+        break;
+      case "ArrowLeft":
+        e.preventDefault();
+        applyTransform({ x: transformRef.current.x + panStep });
+        break;
+      case "ArrowRight":
+        e.preventDefault();
+        applyTransform({ x: transformRef.current.x - panStep });
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        applyTransform({ y: transformRef.current.y + panStep });
+        break;
+      case "ArrowDown":
+        e.preventDefault();
+        applyTransform({ y: transformRef.current.y - panStep });
+        break;
+    }
   };
 
   return (
     <div
       ref={containerRef}
-      className={`relative h-full w-full select-none overflow-hidden bg-black ${
+      tabIndex={0}
+      role="application"
+      aria-label="Interactive codebase graph. Use mouse wheel or plus and minus keys to zoom, arrow keys to pan, and zero to fit the graph."
+      className={`relative h-full w-full select-none overflow-hidden bg-black outline-none focus-visible:ring-1 focus-visible:ring-indigo-500 ${
         cursorStyle === "grabbing"
           ? "cursor-grabbing"
           : cursorStyle === "pointer"
@@ -733,9 +860,17 @@ export function ForceGraphCanvas({
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
-      onWheel={handleWheel}
+      onKeyDown={handleKeyDown}
     >
       <canvas ref={canvasRef} className="absolute inset-0 block h-full w-full" />
+
+      <div className="pointer-events-none absolute left-4 top-4 z-20 rounded-lg border border-neutral-800/80 bg-neutral-950/90 px-2.5 py-1 text-[11px] font-medium text-neutral-300 shadow-lg backdrop-blur-md">
+        Zoom {zoomPercent}%
+      </div>
+
+      <div className="pointer-events-none absolute bottom-3 right-4 z-20 rounded-lg border border-neutral-800/80 bg-neutral-950/90 px-2.5 py-1 text-[10px] text-neutral-400 shadow-lg backdrop-blur-md">
+        Scroll to zoom • drag to pan • +/− zoom • arrows pan • 0 fit
+      </div>
 
       {/* Modern Sleek Hover Tooltip */}
       {tooltip.visible && tooltip.node && (

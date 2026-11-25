@@ -9,6 +9,7 @@ import {
   toggleProjectPrivacy,
   deleteProject,
 } from "@/actions/projects";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   X,
   Shield,
@@ -79,6 +80,9 @@ export function ProjectPermissionsDialog({
   const [isPrivate, setIsPrivate] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [memberToRemove, setMemberToRemove] = useState<string | null>(null);
+  const [deleteProjectConfirmOpen, setDeleteProjectConfirmOpen] = useState(false);
+  const [deletingProject, setDeletingProject] = useState(false);
 
   const fetchSettings = async () => {
     setLoading(true);
@@ -163,11 +167,11 @@ export function ProjectPermissionsDialog({
 
   const handleRemoveMember = async (memberId: string) => {
     if (!isOwner) return;
-    if (!window.confirm("Remove member from this project?")) return;
 
     setSavingId(memberId);
     try {
       await removeProjectMember(projectId, memberId);
+      setMemberToRemove(null);
       await fetchSettings();
     } catch {
       setError("Failed to remove member.");
@@ -178,14 +182,16 @@ export function ProjectPermissionsDialog({
 
   const handleDeleteProject = async () => {
     if (!isOwner) return;
-    const confirmName = window.prompt(`Type '${projectKey}' to permanently delete this project and all its issues:`);
-    if (confirmName !== projectKey) return;
 
+    setDeletingProject(true);
+    setError(null);
     try {
       await deleteProject(projectId);
       router.push(`/${orgSlug}/${workspaceSlug}/projects`);
     } catch {
       setError("Failed to delete project.");
+    } finally {
+      setDeletingProject(false);
     }
   };
 
@@ -194,6 +200,10 @@ export function ProjectPermissionsDialog({
   const availableWorkspaceUsers = projectData?.workspace?.members?.filter(
     (wm: any) => !existingMemberUserIds.has(wm.userId)
   ) || [];
+  const memberToRemoveUser = projectData?.members?.find(
+    (m: { id: string; user?: { name?: string | null; email?: string | null } }) =>
+      m.id === memberToRemove
+  )?.user;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
@@ -377,7 +387,7 @@ export function ProjectPermissionsDialog({
 
                         {isOwner && (
                           <button
-                            onClick={() => handleRemoveMember(pm.id)}
+                            onClick={() => setMemberToRemove(pm.id)}
                             disabled={savingId === pm.id}
                             title="Remove from project"
                             className="cursor-pointer rounded-xl border border-neutral-800 bg-neutral-900 p-2 text-neutral-400 hover:border-rose-900 hover:bg-rose-950/30 hover:text-rose-400 transition"
@@ -403,7 +413,7 @@ export function ProjectPermissionsDialog({
                     </p>
                   </div>
                   <button
-                    onClick={handleDeleteProject}
+                    onClick={() => setDeleteProjectConfirmOpen(true)}
                     className="cursor-pointer rounded-xl border border-rose-900/60 bg-rose-950/60 px-3.5 py-1.5 text-xs font-bold text-rose-300 hover:bg-rose-900 hover:text-white transition"
                   >
                     Delete Project
@@ -414,6 +424,49 @@ export function ProjectPermissionsDialog({
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={!!memberToRemove}
+        title="Remove member from project?"
+        description={
+          <>
+            Remove{" "}
+            <span className="font-semibold text-white">
+              {memberToRemoveUser?.name || memberToRemoveUser?.email || "this member"}
+            </span>{" "}
+            from this project? They will lose project-level access.
+          </>
+        }
+        confirmLabel="Remove member"
+        pending={savingId === memberToRemove}
+        error={error}
+        onCancel={() => {
+          setMemberToRemove(null);
+          setError(null);
+        }}
+        onConfirm={() => memberToRemove ? handleRemoveMember(memberToRemove) : undefined}
+      />
+
+      <ConfirmDialog
+        open={deleteProjectConfirmOpen}
+        title="Delete this project?"
+        description={
+          <>
+            This action is irreversible. This will permanently delete{" "}
+            <span className="font-semibold text-white">{projectName}</span>, all of its issues, and
+            activity logs.
+          </>
+        }
+        confirmLabel="Delete project"
+        requireText={projectKey}
+        pending={deletingProject}
+        error={error}
+        onCancel={() => {
+          setDeleteProjectConfirmOpen(false);
+          setError(null);
+        }}
+        onConfirm={handleDeleteProject}
+      />
     </div>
   );
 }
